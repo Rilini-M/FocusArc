@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" data-theme="default">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quest Board — FocusArc</title>
+  <link rel="stylesheet" href="css/themes.css" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/questboard.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-root"></div>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Quest Board</h1>
+        <p>Manage your study quests</p>
+      </div>
+
+      <section class="card companion-banner" id="companion-banner">
+        <img class="companion-image" id="companion-image" src="" alt="" hidden />
+        <div class="companion-quote-wrap">
+          <p class="companion-quote" id="companion-quote">Loading your study companion…</p>
+        </div>
+      </section>
+
+      <div class="qb-toolbar">
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-filter="ALL">All</button>
+          <button class="filter-tab" data-filter="TODO">To Do</button>
+          <button class="filter-tab" data-filter="IN_PROGRESS">In Progress</button>
+          <button class="filter-tab" data-filter="COMPLETED">Completed</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <span class="quest-count-badge"><strong id="quest-count">0</strong> / 10 quests</span>
+          <button class="btn btn-primary" id="add-quest-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Add Quest
+          </button>
+        </div>
+      </div>
+
+      <div class="quest-list" id="quest-list"></div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="quest-modal-backdrop">
+    <div class="modal">
+      <h2 id="quest-modal-title">New Quest</h2>
+      <form id="quest-form">
+        <input type="hidden" name="questId" />
+        <label class="field">
+          <input type="text" name="title" placeholder="Quest title" maxlength="150" required />
+        </label>
+        <textarea name="description" placeholder="Quest description" required></textarea>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="quest-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="quest-modal-submit">Save Quest</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/questboard.js"></script>
+</body>
+</html>
