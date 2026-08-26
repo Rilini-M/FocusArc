@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" data-theme="default">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — FocusArc</title>
+  <link rel="stylesheet" href="css/themes.css" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/analytics.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-root"></div>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Analytics</h1>
+        <p>Your real study progress, at a glance</p>
+      </div>
+
+      <section class="card analytics-hero">
+        <div class="analytics-hero-copy">
+          <h2>Track your progress. <span>Elevate your potential.</span></h2>
+          <p>Simple analytics to help you stay focused, build better habits, and see how your study quests are really going.</p>
+        </div>
+      </section>
+
+      <div class="stat-grid">
+        <div class="card stat-card">
+          <div class="stat-card-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            Total Quests
+          </div>
+          <div class="stat-card-value" id="stat-total-quests">—</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-card-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+            Completed Quests
+          </div>
+          <div class="stat-card-value" id="stat-completed-quests">—</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-card-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            Study Time
+          </div>
+          <div class="stat-card-value" id="stat-study-time">—</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-card-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+            Completion Rate
+          </div>
+          <div class="stat-card-value" id="stat-completion-rate">—</div>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <section class="card">
+          <h3 class="panel-title">Productivity Trend</h3>
+          <div id="productivity-trend-container"></div>
+        </section>
+
+        <section class="card">
+          <h3 class="panel-title">Focus Ratio</h3>
+          <div id="focus-ratio-container"></div>
+        </section>
+
+        <section class="card">
+          <h3 class="panel-title">Quest Progress</h3>
+          <div id="quest-progress-container"></div>
+        </section>
+
+        <section class="card streak-card">
+          <div>
+            <div class="panel-title" style="margin-bottom:6px;">Study Streak</div>
+            <div class="streak-label" id="streak-label">—</div>
+          </div>
+          <div class="streak-value" id="streak-value">0</div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/analytics.js"></script>
+</body>
+</html>
