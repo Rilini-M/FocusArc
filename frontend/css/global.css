@@ -11,11 +11,35 @@ body {
 }
 
 body {
-  background: var(--bg-primary);
+  background-color: var(--bg-primary);
+  background-image: var(--theme-bg-image), radial-gradient(ellipse at 22% 12%, var(--glow), transparent 55%),
+    radial-gradient(ellipse at 82% 88%, var(--bg-tertiary), transparent 55%);
+  background-size: cover, auto, auto;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
+  position: relative;
   transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Dark scrim over any photo background so text/cards stay readable; sits above the body's
+   own background paint but below the particle canvas and page content. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(3, 6, 7, 0.6), rgba(3, 6, 7, 0.82));
+  z-index: 0;
+  pointer-events: none;
+}
+
+.app-shell,
+.auth-shell {
+  position: relative;
+  z-index: 2;
 }
 
 h1,
@@ -350,6 +374,43 @@ button {
 .status-pill.completed {
   color: var(--success);
   border-color: var(--success);
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.icon-btn.danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* Shared by the companion quote card on Quest Board and Character Guide. */
+.companion-quote-nav {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  z-index: 1;
 }
 
 .empty-state {

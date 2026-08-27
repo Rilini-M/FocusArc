@@ -61,6 +61,8 @@ async function loadHero(characterId) {
   nameTag.hidden = false;
 
   const quotes = await api.get(`/characters/${characterId}/quotes`);
+  const navEl = document.getElementById('hero-quote-nav');
+  navEl.hidden = true;
 
   if (quotes.length === 0) {
     quoteEl.innerHTML = escapeHtml(character.description || 'Stay focused.');
@@ -68,19 +70,51 @@ async function loadHero(characterId) {
   }
 
   let index = 0;
-  const renderQuote = () => {
+  const showQuote = () => {
     quoteEl.style.opacity = 0;
     setTimeout(() => {
       quoteEl.innerHTML = `${escapeHtml(quotes[index].quote_text)}<span class="companion-hero-quote-author">— ${escapeHtml(character.name)}</span>`;
       quoteEl.style.opacity = 1;
     }, 200);
-    index = (index + 1) % quotes.length;
   };
 
-  renderQuote();
+  const startAutoRotate = () => {
+    if (quoteRotationTimer) clearInterval(quoteRotationTimer);
+    quoteRotationTimer = null;
+    if (currentSettings.auto_quote && quotes.length > 1) {
+      quoteRotationTimer = setInterval(() => {
+        index = (index + 1) % quotes.length;
+        showQuote();
+      }, currentSettings.quote_interval || 8000);
+    }
+  };
 
-  if (currentSettings.auto_quote && quotes.length > 1) {
-    quoteRotationTimer = setInterval(renderQuote, currentSettings.quote_interval || 8000);
+  showQuote();
+  startAutoRotate();
+
+  if (quotes.length > 1) {
+    navEl.hidden = false;
+
+    // loadHero() re-runs on every character switch — clone the nav buttons first so
+    // previous switches' click listeners (closed over stale quotes/index) don't stack up.
+    const prevBtn = document.getElementById('hero-quote-prev');
+    const nextBtn = document.getElementById('hero-quote-next');
+    const freshPrev = prevBtn.cloneNode(true);
+    const freshNext = nextBtn.cloneNode(true);
+    prevBtn.replaceWith(freshPrev);
+    nextBtn.replaceWith(freshNext);
+
+    freshPrev.addEventListener('click', () => {
+      index = (index - 1 + quotes.length) % quotes.length;
+      showQuote();
+      startAutoRotate();
+    });
+    freshNext.addEventListener('click', () => {
+      index = (index + 1) % quotes.length;
+      showQuote();
+      startAutoRotate();
+    });
+    refreshIcons();
   }
 }
 

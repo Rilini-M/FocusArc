@@ -42,12 +42,8 @@ function renderQuestList() {
               )
               .join('')}
           </select>
-          <button class="icon-btn" data-action="edit" aria-label="Edit quest">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
-          </button>
-          <button class="icon-btn danger" data-action="delete" aria-label="Delete quest">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
-          </button>
+          <button class="icon-btn" data-action="edit" aria-label="Edit quest">${icon('pencil', 16)}</button>
+          <button class="icon-btn danger" data-action="delete" aria-label="Delete quest">${icon('trash-2', 16)}</button>
         </div>
       </div>`
     )
@@ -66,6 +62,8 @@ function renderQuestList() {
       deleteQuest(questId);
     });
   });
+
+  refreshIcons();
 }
 
 function escapeHtml(str) {
@@ -164,6 +162,7 @@ async function submitQuestForm(event) {
 async function initCompanion() {
   const quoteEl = document.getElementById('companion-quote');
   const imageEl = document.getElementById('companion-image');
+  const navEl = document.getElementById('companion-quote-nav');
 
   try {
     const settings = await api.get('/settings');
@@ -180,19 +179,47 @@ async function initCompanion() {
     }
 
     let index = 0;
-    const renderQuote = () => {
+    const showQuote = () => {
       quoteEl.style.opacity = 0;
       setTimeout(() => {
         quoteEl.innerHTML = `"${escapeHtml(quotes[index].quote_text)}"<span class="companion-quote-author">— ${escapeHtml(character.name)}</span>`;
         quoteEl.style.opacity = 1;
       }, 200);
-      index = (index + 1) % quotes.length;
     };
 
-    renderQuote();
+    const stopAutoRotate = () => {
+      if (quoteRotationTimer) {
+        clearInterval(quoteRotationTimer);
+        quoteRotationTimer = null;
+      }
+    };
 
-    if (settings.auto_quote && quotes.length > 1) {
-      quoteRotationTimer = setInterval(renderQuote, settings.quote_interval || 8000);
+    const startAutoRotate = () => {
+      stopAutoRotate();
+      if (settings.auto_quote && quotes.length > 1) {
+        quoteRotationTimer = setInterval(() => {
+          index = (index + 1) % quotes.length;
+          showQuote();
+        }, settings.quote_interval || 8000);
+      }
+    };
+
+    showQuote();
+    startAutoRotate();
+
+    if (quotes.length > 1) {
+      navEl.hidden = false;
+      document.getElementById('companion-quote-prev').addEventListener('click', () => {
+        index = (index - 1 + quotes.length) % quotes.length;
+        showQuote();
+        startAutoRotate();
+      });
+      document.getElementById('companion-quote-next').addEventListener('click', () => {
+        index = (index + 1) % quotes.length;
+        showQuote();
+        startAutoRotate();
+      });
+      refreshIcons();
     }
   } catch (err) {
     quoteEl.textContent = 'Stay focused. One quest at a time.';
@@ -207,6 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderSidebar('questboard');
   initCompanion();
   loadQuests();
+  refreshIcons();
 
   document.getElementById('add-quest-btn').addEventListener('click', () => {
     if (quests.length >= MAX_QUESTS) {

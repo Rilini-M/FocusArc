@@ -140,35 +140,6 @@
   font-family: inherit;
 }
 
-.icon-btn {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease;
-}
-
-.icon-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
-.icon-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.icon-btn.danger:hover {
-  color: var(--danger);
-  border-color: var(--danger);
-}
-
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -224,4 +195,24 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 6px;
+}
+
+@media (max-width: 480px) {
+  .companion-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .companion-quote-nav {
+    align-self: flex-end;
+  }
+
+  .quest-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .quest-card-actions {
+    justify-content: flex-end;
+  }
 }

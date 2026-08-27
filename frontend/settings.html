@@ -19,9 +19,7 @@
       </div>
 
       <section class="card settings-section">
-        <div class="settings-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c1.2-4 4-6 7-6s5.8 2 7 6"/></svg>
-        </div>
+        <div class="settings-icon"><i data-lucide="user-round"></i></div>
         <div class="settings-heading">
           <h3>Character</h3>
           <p>Change your anime companion</p>
@@ -30,9 +28,7 @@
       </section>
 
       <section class="card settings-section">
-        <div class="settings-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18"/></svg>
-        </div>
+        <div class="settings-icon"><i data-lucide="palette"></i></div>
         <div class="settings-heading">
           <h3>Theme</h3>
           <p>Change the app appearance</p>
@@ -48,9 +44,7 @@
       </section>
 
       <section class="card settings-section">
-        <div class="settings-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c1.2-4 4-6 7-6s5.8 2 7 6"/></svg>
-        </div>
+        <div class="settings-icon"><i data-lucide="user"></i></div>
         <div class="settings-heading">
           <h3>Profile</h3>
           <p>Update your account information</p>
@@ -58,23 +52,21 @@
         <div class="settings-list">
           <button class="settings-list-item" id="open-update-profile">
             Update Profile
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            <i data-lucide="chevron-right" style="width:16px;height:16px;"></i>
           </button>
           <button class="settings-list-item" id="open-change-password">
             Change Password
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            <i data-lucide="chevron-right" style="width:16px;height:16px;"></i>
           </button>
           <button class="settings-list-item danger" id="open-delete-account">
             Delete Account
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            <i data-lucide="chevron-right" style="width:16px;height:16px;"></i>
           </button>
         </div>
       </section>
 
       <section class="card settings-section">
-        <div class="settings-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-        </div>
+        <div class="settings-icon"><i data-lucide="log-out"></i></div>
         <div class="settings-heading">
           <h3>Logout</h3>
           <p>Sign out of your account</p>
@@ -95,8 +87,8 @@
         <label class="field"><input type="email" name="email" placeholder="Email Address" required /></label>
         <label class="field"><input type="date" name="dateOfBirth" required /></label>
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" data-close-modal="profile-modal-backdrop">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="button" class="btn btn-secondary" data-close-modal="profile-modal-backdrop"><i data-lucide="x" style="width:16px;height:16px;"></i> Cancel</button>
+          <button type="submit" class="btn btn-primary"><i data-lucide="save" style="width:16px;height:16px;"></i> Save Changes</button>
         </div>
       </form>
     </div>
@@ -110,8 +102,8 @@
         <label class="field"><input type="password" name="currentPassword" placeholder="Current Password" required /></label>
         <label class="field"><input type="password" name="newPassword" placeholder="New Password" required /></label>
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" data-close-modal="password-modal-backdrop">Cancel</button>
-          <button type="submit" class="btn btn-primary">Update Password</button>
+          <button type="button" class="btn btn-secondary" data-close-modal="password-modal-backdrop"><i data-lucide="x" style="width:16px;height:16px;"></i> Cancel</button>
+          <button type="submit" class="btn btn-primary"><i data-lucide="save" style="width:16px;height:16px;"></i> Update Password</button>
         </div>
       </form>
     </div>
@@ -125,12 +117,15 @@
         This permanently deletes your account, quests, study sessions, and settings. This cannot be undone.
       </p>
       <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" data-close-modal="delete-modal-backdrop">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirm-delete-account">Delete My Account</button>
+        <button type="button" class="btn btn-secondary" data-close-modal="delete-modal-backdrop"><i data-lucide="x" style="width:16px;height:16px;"></i> Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirm-delete-account"><i data-lucide="trash-2" style="width:16px;height:16px;"></i> Delete My Account</button>
       </div>
     </div>
   </div>
 
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/particles.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/theme.js"></script>

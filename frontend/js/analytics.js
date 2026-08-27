@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadAndApplyTheme();
   renderSidebar('analytics');
+  refreshIcons();
 
   try {
     await Promise.all([loadOverview(), loadProductivityTrend(), loadFocusRatio(), loadQuestProgress()]);

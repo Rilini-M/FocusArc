@@ -57,6 +57,10 @@
   color: var(--accent-secondary);
 }
 
+.companion-hero-quote-card .companion-quote-nav {
+  margin-top: 14px;
+}
+
 .companion-name-tag {
   position: absolute;
   left: 28px;

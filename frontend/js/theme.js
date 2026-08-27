@@ -8,6 +8,7 @@ const FOCUSARC_THEMES = ['default', 'nature', 'dark', 'royal', 'vampire', 'cyber
 function applyTheme(theme) {
   const safeTheme = FOCUSARC_THEMES.includes(theme) ? theme : 'default';
   document.documentElement.setAttribute('data-theme', safeTheme);
+  if (window.FocusArcParticles) window.FocusArcParticles.setTheme(safeTheme);
 }
 
 // Applied immediately from settings so authenticated pages never flash the default theme.

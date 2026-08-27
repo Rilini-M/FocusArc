@@ -23,6 +23,10 @@
         <div class="companion-quote-wrap">
           <p class="companion-quote" id="companion-quote">Loading your study companion…</p>
         </div>
+        <div class="companion-quote-nav" id="companion-quote-nav" hidden>
+          <button class="icon-btn" id="companion-quote-prev" aria-label="Previous quote"><i data-lucide="chevron-left"></i></button>
+          <button class="icon-btn" id="companion-quote-next" aria-label="Next quote"><i data-lucide="chevron-right"></i></button>
+        </div>
       </section>
 
       <div class="qb-toolbar">
@@ -35,7 +39,7 @@
         <div style="display:flex; align-items:center; gap:16px;">
           <span class="quest-count-badge"><strong id="quest-count">0</strong> / 10 quests</span>
           <button class="btn btn-primary" id="add-quest-btn">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            <i data-lucide="plus" style="width:16px;height:16px;"></i>
             Add Quest
           </button>
         </div>
@@ -62,6 +66,9 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/particles.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/theme.js"></script>

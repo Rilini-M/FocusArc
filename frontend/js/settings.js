@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const settings = await loadAndApplyTheme();
   renderSidebar('settings');
+  refreshIcons();
 
   try {
     const characters = await api.get('/characters');

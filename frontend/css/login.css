@@ -16,10 +16,18 @@ body.auth-page {
   justify-content: center;
   padding: 60px;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 30% 20%, var(--glow), transparent 60%),
-    radial-gradient(ellipse at 70% 80%, var(--bg-tertiary), transparent 55%),
-    var(--bg-primary);
+  background-color: var(--bg-primary);
+  background-image: var(--auth-bg, none);
+  background-size: cover;
+  background-position: center;
+}
+
+.auth-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(3, 6, 7, 0.25), rgba(3, 6, 7, 0.55) 65%, rgba(3, 6, 7, 0.82));
 }
 
 .auth-visual-brand {
@@ -67,13 +75,20 @@ body.auth-page {
   position: absolute;
   right: 6%;
   bottom: 0;
-  width: min(46%, 420px);
+  width: min(42%, 380px);
   z-index: 1;
-  opacity: 0.92;
-  filter: drop-shadow(0 0 40px var(--glow));
-  -webkit-mask-image: linear-gradient(to top, black 62%, transparent 100%);
-  mask-image: linear-gradient(to top, black 62%, transparent 100%);
-  border-radius: 20px 20px 0 0;
+  opacity: 0.96;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 30px var(--glow));
+  -webkit-mask-image: linear-gradient(to top, black 88%, transparent 100%);
+  mask-image: linear-gradient(to top, black 88%, transparent 100%);
+}
+
+/* Used when the character asset isn't a transparent cutout (its own background is a
+   dark/gradient rectangle) — fades every edge so the rectangle doesn't read as a hard photo. */
+.auth-character--blend {
+  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 55%, black 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 80% at 50% 55%, black 55%, transparent 100%);
 }
 
 .auth-leaf {

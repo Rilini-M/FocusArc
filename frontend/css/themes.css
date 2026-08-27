@@ -16,6 +16,8 @@
   --glow: rgba(45, 212, 191, 0.35);
   --danger: #f87171;
   --success: #34d399;
+  /* Default FocusArc theme has no photo background — ambient glow only (see global.css). */
+  --theme-bg-image: none;
 }
 
 [data-theme='nature'] {
@@ -28,6 +30,7 @@
   --text-secondary: #8fb89e;
   --border: rgba(74, 222, 128, 0.25);
   --glow: rgba(74, 222, 128, 0.35);
+  --theme-bg-image: url('/assets/backgrounds/nature-bg.png');
 }
 
 [data-theme='dark'] {
@@ -40,6 +43,7 @@
   --text-secondary: #9ca3af;
   --border: rgba(209, 213, 219, 0.2);
   --glow: rgba(209, 213, 219, 0.25);
+  --theme-bg-image: url('/assets/backgrounds/dark-bg.png');
 }
 
 [data-theme='royal'] {
@@ -52,6 +56,9 @@
   --text-secondary: #9aa3c9;
   --border: rgba(244, 201, 93, 0.25);
   --glow: rgba(91, 124, 250, 0.35);
+  /* No royal-bg asset provided yet — falls back to the ambient glow gradient in global.css.
+     Add assets/backgrounds/royal-bg.(png|jpg) and set this to match the other themes. */
+  --theme-bg-image: none;
 }
 
 [data-theme='vampire'] {
@@ -64,6 +71,7 @@
   --text-secondary: #b78a8c;
   --border: rgba(225, 29, 72, 0.25);
   --glow: rgba(225, 29, 72, 0.35);
+  --theme-bg-image: url('/assets/backgrounds/vampire-bg.jpg');
 }
 
 [data-theme='cyberpunk'] {
@@ -76,4 +84,5 @@
   --text-secondary: #9291b8;
   --border: rgba(34, 211, 238, 0.3);
   --glow: rgba(232, 121, 249, 0.35);
+  --theme-bg-image: url('/assets/backgrounds/cyberpunk-bg.jpg');
 }
