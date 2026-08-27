@@ -10,11 +10,6 @@ const NAV_ITEMS = [
   { key: 'settings', label: 'Settings', href: 'settings.html', icon: 'settings' },
 ];
 
-// Brand mark stays a hand-drawn placeholder until assets/logo/ is provided — not swapped for
-// a Lucide icon, since the logo is a distinct identity asset, not a generic UI icon.
-const BRAND_MARK_SVG =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z"/><path d="M6 19c4-5 8-8 13-11"/></svg>';
-
 function renderSidebar(activeKey) {
   const root = document.getElementById('sidebar-root');
   if (!root) return;
@@ -36,7 +31,7 @@ function renderSidebar(activeKey) {
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
-        <span class="sidebar-brand-icon">${BRAND_MARK_SVG}</span>
+        <img class="sidebar-brand-icon" src="/assets/logo/logo.png.png" alt="FocusArc" />
         <span class="sidebar-brand-text brand">FocusArc</span>
       </div>
       <div class="sidebar-tagline">Study Quest System</div>

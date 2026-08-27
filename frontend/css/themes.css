@@ -56,9 +56,7 @@
   --text-secondary: #9aa3c9;
   --border: rgba(244, 201, 93, 0.25);
   --glow: rgba(91, 124, 250, 0.35);
-  /* No royal-bg asset provided yet — falls back to the ambient glow gradient in global.css.
-     Add assets/backgrounds/royal-bg.(png|jpg) and set this to match the other themes. */
-  --theme-bg-image: none;
+  --theme-bg-image: url('/assets/backgrounds/royal-bg.png');
 }
 
 [data-theme='vampire'] {

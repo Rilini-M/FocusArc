@@ -41,7 +41,10 @@ body.auth-page {
 .auth-visual-brand-icon {
   width: 40px;
   height: 40px;
-  color: var(--accent);
+  object-fit: contain;
+  /* Logo art is a solid-black square (assets/logo/) — screen blend drops the black so only
+     the glowing mark shows against the photo background. */
+  mix-blend-mode: screen;
 }
 
 .auth-visual-brand-text {

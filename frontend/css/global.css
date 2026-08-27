@@ -99,8 +99,11 @@ button {
 .sidebar-brand-icon {
   width: 30px;
   height: 30px;
-  color: var(--accent);
+  object-fit: contain;
   flex-shrink: 0;
+  /* Logo art is a solid-black square (assets/logo/) — screen blend drops the black so only
+     the glowing mark shows against the sidebar background, on every theme. */
+  mix-blend-mode: screen;
 }
 
 .sidebar-brand-text {
