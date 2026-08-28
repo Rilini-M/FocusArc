@@ -1,5 +1,4 @@
--- FocusArc — Study Quest System
--- MySQL schema
+
 
 CREATE DATABASE IF NOT EXISTS focusarc
   CHARACTER SET utf8mb4

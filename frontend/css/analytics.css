@@ -2,6 +2,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 24px;
   padding: 28px;
   margin-bottom: 22px;
@@ -9,6 +10,16 @@
   background:
     radial-gradient(ellipse at 90% 20%, var(--glow), transparent 60%),
     var(--bg-secondary);
+}
+
+.analytics-hero-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-strong, var(--border));
+  box-shadow: 0 0 30px var(--glow);
+  flex-shrink: 0;
 }
 
 .analytics-hero-copy h2 {
@@ -36,22 +47,33 @@
 
 .stat-card {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat-card-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  box-shadow: 0 0 14px var(--glow);
+}
+
+.stat-card-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .stat-card-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   color: var(--text-secondary);
   font-size: 0.82rem;
-}
-
-.stat-card-label svg {
-  width: 16px;
-  height: 16px;
-  color: var(--accent);
+  margin-bottom: 4px;
 }
 
 .stat-card-value {
@@ -69,6 +91,12 @@
 @media (max-width: 900px) {
   .analytics-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .analytics-hero-image {
+    display: none;
   }
 }
 

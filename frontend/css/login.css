@@ -11,15 +11,40 @@ body.auth-page {
 .auth-visual {
   flex: 1.15;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 60px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(160px, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  padding: 60px 0 0 60px;
   overflow: hidden;
   background-color: var(--bg-primary);
   background-image: var(--auth-bg, none);
   background-size: cover;
   background-position: center;
+}
+
+/* Text lives in its own column so it can never share horizontal space with
+   .auth-character-col — the character is free to grow tall/prominent without
+   the copy reflowing into it. */
+.auth-visual-content {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding-right: 32px;
+  padding-bottom: 60px;
+}
+
+.auth-character-col {
+  grid-column: 2;
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
 }
 
 .auth-visual::before {
@@ -45,6 +70,13 @@ body.auth-page {
   /* Logo art is a solid-black square (assets/logo/) — screen blend drops the black so only
      the glowing mark shows against the photo background. */
   mix-blend-mode: screen;
+}
+
+.auth-visual-brand-sparkle {
+  color: var(--accent);
+  font-size: 1.1rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px var(--glow));
 }
 
 .auth-visual-brand-text {
@@ -78,7 +110,7 @@ body.auth-page {
   position: absolute;
   right: 6%;
   bottom: 0;
-  width: min(42%, 380px);
+  width: min(92%, 380px);
   z-index: 1;
   opacity: 0.96;
   pointer-events: none;
@@ -124,11 +156,11 @@ body.auth-page {
   width: 100%;
   max-width: 400px;
   background: var(--bg-secondary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong, var(--border));
   border-radius: 22px;
   padding: 40px 34px;
   text-align: center;
-  box-shadow: 0 0 50px -18px var(--glow);
+  box-shadow: 0 0 60px -14px var(--glow);
 }
 
 .auth-card-icon {
@@ -136,6 +168,8 @@ body.auth-page {
   height: 62px;
   margin: 0 auto 18px;
   color: var(--accent);
+  object-fit: contain;
+  mix-blend-mode: screen;
 }
 
 .auth-card h1 {

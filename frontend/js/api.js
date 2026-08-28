@@ -1,7 +1,4 @@
-/*
-  Shared fetch() wrapper. Every page/module should call the app through here rather than
-  duplicating fetch/credentials/error-parsing logic.
-*/
+
 
 const API_BASE = '/api';
 

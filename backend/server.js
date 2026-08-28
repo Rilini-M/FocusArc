@@ -27,9 +27,14 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// Static frontend + production assets (reference/ is intentionally NOT served)
+// Static frontend + production assets (reference/ is intentionally NOT served).
+// /assets (fonts, character art, backgrounds, logo) never changes during normal use, so it
+// gets a real cache lifetime — without this, the default max-age=0 forced the browser to
+// revalidate the font files on every single navigation, which is what made the
+// font-display timing (see global.css) actually visible instead of a one-time cost.
+// frontend/ (HTML/CSS/JS) is left at the default — it's still under active development.
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
-app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
+app.use('/assets', express.static(path.join(__dirname, '..', 'assets'), { maxAge: '7d' }));
 
 app.get('/api/health', (req, res) => success(res, { status: 'ok' }));
 

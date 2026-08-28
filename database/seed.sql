@@ -1,6 +1,3 @@
--- FocusArc — Study Quest System
--- Seed data: characters and their motivational quotes only.
--- No fake users, quests, or study sessions are seeded — all user data must be real.
 
 USE focusarc;
 

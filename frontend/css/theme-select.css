@@ -1,0 +1,158 @@
+/*
+  First-run "Choose Your Theme" overlay. Shown once per browser (see js/themeSelect.js)
+  after landing on Quest Board. Reuses the app's own theme background photos as each
+  card's preview art instead of needing new per-theme character illustrations.
+*/
+
+.theme-select-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 4, 5, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 80;
+  padding: 24px;
+}
+
+.theme-select-backdrop.open {
+  display: flex;
+}
+
+.theme-select-panel {
+  position: relative;
+  width: 100%;
+  max-width: 1080px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: 26px;
+  padding: 36px 32px 28px;
+  box-shadow: 0 0 70px -16px var(--glow);
+  text-align: center;
+}
+
+.theme-select-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-select-close:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+.theme-select-title {
+  font-size: 1.7rem;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+
+.theme-select-title .spark {
+  color: var(--accent);
+}
+
+.theme-select-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  margin: 0 0 28px;
+}
+
+.theme-select-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+.theme-select-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  aspect-ratio: 3 / 4.3;
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.12));
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.theme-select-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 26px -4px var(--card-glow, rgba(255, 255, 255, 0.4));
+}
+
+.theme-select-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(3, 4, 6, 0.15) 40%, rgba(3, 4, 6, 0.92) 100%);
+}
+
+.theme-select-card-label {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-family: 'Cinzel', 'Inter', serif;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  padding: 0 12px 12px;
+}
+
+.theme-select-card-btn {
+  position: relative;
+  z-index: 1;
+  margin: 0 12px 16px;
+  padding: 8px 0;
+  border-radius: 999px;
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.5));
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-select-card-btn:hover {
+  background: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 16px var(--card-glow, rgba(255, 255, 255, 0.4));
+}
+
+.theme-select-note {
+  margin: 24px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 900px) {
+  .theme-select-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .theme-select-panel {
+    padding: 28px 18px 22px;
+  }
+
+  .theme-select-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

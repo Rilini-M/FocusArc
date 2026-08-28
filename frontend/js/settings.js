@@ -29,6 +29,15 @@ async function renderCharacterOptions(characters, selectedId) {
         await api.patch('/settings/character', { characterId });
         container.querySelectorAll('.avatar-option').forEach((b) => b.classList.remove('selected'));
         btn.classList.add('selected');
+
+        const chosen = characters.find((c) => c.id === characterId);
+        const heroImage = document.getElementById('settings-hero-image');
+        if (chosen && heroImage) {
+          heroImage.src = chosen.image_path;
+          heroImage.alt = chosen.name;
+          heroImage.hidden = false;
+        }
+
         showToast('Study companion updated.');
       } catch (err) {
         showToast(err.message, { isError: true });
@@ -65,17 +74,28 @@ async function loadProfileIntoForm() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Rendered first and synchronously — see questboard.js for why this can't wait behind
+  // the auth/settings network calls without causing a visible theme/chrome flash.
+  renderSidebar('settings');
+  refreshIcons();
+
   const user = await requireAuth();
   if (!user) return;
 
   const settings = await loadAndApplyTheme();
-  renderSidebar('settings');
-  refreshIcons();
 
   try {
     const characters = await api.get('/characters');
     renderCharacterOptions(characters, settings ? settings.character_id : null);
     renderThemeOptions(settings ? settings.theme : 'default');
+
+    const activeCharacter = settings && characters.find((c) => c.id === settings.character_id);
+    if (activeCharacter) {
+      const heroImage = document.getElementById('settings-hero-image');
+      heroImage.src = activeCharacter.image_path;
+      heroImage.alt = activeCharacter.name;
+      heroImage.hidden = false;
+    }
   } catch (err) {
     showToast(err.message, { isError: true });
   }

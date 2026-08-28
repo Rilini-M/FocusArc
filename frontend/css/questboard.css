@@ -1,46 +1,30 @@
-.companion-banner {
-  position: relative;
-  display: flex;
+.streak-chip {
+  display: inline-flex;
   align-items: center;
-  gap: 24px;
-  padding: 24px 28px;
-  margin-bottom: 26px;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at 85% 30%, var(--glow), transparent 60%),
-    var(--bg-secondary);
-}
-
-.companion-image {
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--border);
-  box-shadow: 0 0 24px var(--glow);
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong, var(--border));
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  box-shadow: 0 0 18px var(--glow);
   flex-shrink: 0;
 }
 
-.companion-quote-wrap {
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-}
-
-.companion-quote {
-  font-size: 1.05rem;
-  color: var(--text-primary);
-  font-style: italic;
-  transition: opacity 0.4s ease;
-}
-
-.companion-quote-author {
-  display: block;
-  margin-top: 6px;
-  font-size: 0.8rem;
-  font-style: normal;
+.streak-chip svg {
+  width: 16px;
+  height: 16px;
   color: var(--accent);
-  letter-spacing: 0.04em;
+}
+
+.streak-chip span {
+  color: var(--text-secondary);
+}
+
+.streak-chip strong {
+  color: var(--accent);
+  font-size: 1rem;
 }
 
 .qb-toolbar {
@@ -96,9 +80,50 @@
 
 .quest-card {
   display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quest-card:hover {
+  border-color: var(--border-strong, var(--border));
+  box-shadow: 0 0 22px -10px var(--glow);
+}
+
+.quest-card-top {
+  display: flex;
   align-items: center;
   gap: 18px;
-  padding: 18px 20px;
+}
+
+.quest-card-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.quest-card-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.quest-card[data-status='IN_PROGRESS'] .quest-card-icon {
+  color: var(--accent-secondary);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 14px var(--glow);
+}
+
+.quest-card[data-status='COMPLETED'] .quest-card-icon {
+  color: var(--success);
+  border-color: var(--success);
 }
 
 .quest-card-body {
@@ -138,6 +163,38 @@
   padding: 7px 10px;
   font-size: 0.78rem;
   font-family: inherit;
+}
+
+.quest-card-study {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.study-timer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong, var(--border));
+  background: var(--bg-tertiary);
+  color: var(--accent-secondary);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.88rem;
+  box-shadow: 0 0 14px var(--glow);
+}
+
+.study-timer-chip svg {
+  width: 15px;
+  height: 15px;
+}
+
+.study-btn {
+  font-size: 0.85rem;
+  padding: 9px 18px;
 }
 
 .modal-backdrop {
@@ -198,21 +255,20 @@
 }
 
 @media (max-width: 480px) {
-  .companion-banner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .companion-quote-nav {
-    align-self: flex-end;
-  }
-
-  .quest-card {
+  .quest-card-top {
     flex-direction: column;
     align-items: stretch;
   }
 
+  .quest-card-icon {
+    align-self: flex-start;
+  }
+
   .quest-card-actions {
     justify-content: flex-end;
+  }
+
+  .quest-card-study {
+    flex-wrap: wrap;
   }
 }

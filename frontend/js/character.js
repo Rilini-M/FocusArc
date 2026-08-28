@@ -8,14 +8,26 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// A short "trait" caption under each name, e.g. "Determined" — taken from the first word
+// of the character's own description rather than a separate field, so it's always real
+// data and never drifts from what's actually stored.
+function characterTrait(character) {
+  const firstWord = (character.description || '').trim().split(/\s+/)[0] || '';
+  return firstWord.replace(/[.,]+$/, '');
+}
+
 function renderCompanionGrid(selectedId) {
   const grid = document.getElementById('companion-grid');
   grid.innerHTML = characters
     .map(
       (c) => `
       <button class="companion-option${c.id === selectedId ? ' selected' : ''}" data-character-id="${c.id}">
-        <img class="companion-option-image" src="${c.image_path}" alt="${escapeHtml(c.name)}" />
+        <span class="companion-option-image-wrap">
+          <img class="companion-option-image" src="${c.image_path}" alt="${escapeHtml(c.name)}" />
+          ${c.id === selectedId ? `<span class="companion-option-check">${icon('check', 12)}</span>` : ''}
+        </span>
         <span class="companion-option-name">${escapeHtml(c.name)}</span>
+        <span class="companion-option-trait">${escapeHtml(characterTrait(c))}</span>
       </button>`
     )
     .join('');
@@ -23,6 +35,8 @@ function renderCompanionGrid(selectedId) {
   grid.querySelectorAll('.companion-option').forEach((btn) => {
     btn.addEventListener('click', () => selectCharacter(Number(btn.dataset.characterId)));
   });
+
+  refreshIcons();
 }
 
 async function selectCharacter(characterId) {
@@ -49,7 +63,7 @@ async function loadHero(characterId) {
   if (!character) return;
 
   const heroImage = document.getElementById('hero-image');
-  const nameTag = document.getElementById('hero-name-tag');
+  const identity = document.getElementById('hero-identity');
   const quoteEl = document.getElementById('hero-quote');
 
   heroImage.src = character.image_path;
@@ -58,72 +72,45 @@ async function loadHero(characterId) {
 
   document.getElementById('hero-name').textContent = character.name;
   document.getElementById('hero-description').textContent = character.description || '';
-  nameTag.hidden = false;
+  identity.hidden = false;
 
   const quotes = await api.get(`/characters/${characterId}/quotes`);
-  const navEl = document.getElementById('hero-quote-nav');
-  navEl.hidden = true;
 
   if (quotes.length === 0) {
-    quoteEl.innerHTML = escapeHtml(character.description || 'Stay focused.');
+    quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(character.description || 'Stay focused.')}</span>`;
     return;
   }
 
   let index = 0;
   const showQuote = () => {
     quoteEl.style.opacity = 0;
+    quoteEl.style.transform = 'translateY(6px)';
     setTimeout(() => {
-      quoteEl.innerHTML = `${escapeHtml(quotes[index].quote_text)}<span class="companion-hero-quote-author">— ${escapeHtml(character.name)}</span>`;
+      quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(quotes[index].quote_text)}</span><span class="companion-hero-quote-author">— ${escapeHtml(character.name)}</span>`;
       quoteEl.style.opacity = 1;
+      quoteEl.style.transform = 'translateY(0)';
     }, 200);
   };
 
-  const startAutoRotate = () => {
-    if (quoteRotationTimer) clearInterval(quoteRotationTimer);
-    quoteRotationTimer = null;
-    if (currentSettings.auto_quote && quotes.length > 1) {
-      quoteRotationTimer = setInterval(() => {
-        index = (index + 1) % quotes.length;
-        showQuote();
-      }, currentSettings.quote_interval || 8000);
-    }
-  };
-
   showQuote();
-  startAutoRotate();
 
-  if (quotes.length > 1) {
-    navEl.hidden = false;
-
-    // loadHero() re-runs on every character switch — clone the nav buttons first so
-    // previous switches' click listeners (closed over stale quotes/index) don't stack up.
-    const prevBtn = document.getElementById('hero-quote-prev');
-    const nextBtn = document.getElementById('hero-quote-next');
-    const freshPrev = prevBtn.cloneNode(true);
-    const freshNext = nextBtn.cloneNode(true);
-    prevBtn.replaceWith(freshPrev);
-    nextBtn.replaceWith(freshNext);
-
-    freshPrev.addEventListener('click', () => {
-      index = (index - 1 + quotes.length) % quotes.length;
-      showQuote();
-      startAutoRotate();
-    });
-    freshNext.addEventListener('click', () => {
+  if (currentSettings.auto_quote && quotes.length > 1) {
+    quoteRotationTimer = setInterval(() => {
       index = (index + 1) % quotes.length;
       showQuote();
-      startAutoRotate();
-    });
-    refreshIcons();
+    }, currentSettings.quote_interval || 8000);
   }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Rendered first and synchronously — see questboard.js for why this can't wait behind
+  // the auth/settings network calls without causing a visible theme/chrome flash.
+  renderSidebar('character');
+
   const user = await requireAuth();
   if (!user) return;
 
   await loadAndApplyTheme();
-  renderSidebar('character');
 
   try {
     currentSettings = await api.get('/settings');

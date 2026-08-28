@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analytics — FocusArc</title>
   <link rel="stylesheet" href="css/themes.css" />
+  <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/analytics.css" />
 </head>
@@ -23,24 +24,37 @@
           <h2>Track your progress. <span>Elevate your potential.</span></h2>
           <p>Simple analytics to help you stay focused, build better habits, and see how your study quests are really going.</p>
         </div>
+        <img class="analytics-hero-image" id="analytics-hero-image" src="" alt="" hidden />
       </section>
 
       <div class="stat-grid">
         <div class="card stat-card">
-          <div class="stat-card-label"><i data-lucide="list-checks"></i> Total Quests</div>
-          <div class="stat-card-value" id="stat-total-quests">—</div>
+          <div class="stat-card-icon"><i data-lucide="list-checks"></i></div>
+          <div>
+            <div class="stat-card-label">Total Quests</div>
+            <div class="stat-card-value" id="stat-total-quests">—</div>
+          </div>
         </div>
         <div class="card stat-card">
-          <div class="stat-card-label"><i data-lucide="circle-check-big"></i> Completed Quests</div>
-          <div class="stat-card-value" id="stat-completed-quests">—</div>
+          <div class="stat-card-icon"><i data-lucide="circle-check-big"></i></div>
+          <div>
+            <div class="stat-card-label">Completed Quests</div>
+            <div class="stat-card-value" id="stat-completed-quests">—</div>
+          </div>
         </div>
         <div class="card stat-card">
-          <div class="stat-card-label"><i data-lucide="clock"></i> Study Time</div>
-          <div class="stat-card-value" id="stat-study-time">—</div>
+          <div class="stat-card-icon"><i data-lucide="clock"></i></div>
+          <div>
+            <div class="stat-card-label">Study Time</div>
+            <div class="stat-card-value" id="stat-study-time">—</div>
+          </div>
         </div>
         <div class="card stat-card">
-          <div class="stat-card-label"><i data-lucide="bar-chart-3"></i> Completion Rate</div>
-          <div class="stat-card-value" id="stat-completion-rate">—</div>
+          <div class="stat-card-icon"><i data-lucide="bar-chart-3"></i></div>
+          <div>
+            <div class="stat-card-label">Completion Rate</div>
+            <div class="stat-card-value" id="stat-completion-rate">—</div>
+          </div>
         </div>
       </div>
 
@@ -65,13 +79,13 @@
             <div class="panel-title" style="margin-bottom:6px;">Study Streak</div>
             <div class="streak-label" id="streak-label">—</div>
           </div>
-          <div class="streak-value" id="streak-value">0</div>
+          <div class="streak-value" id="streak-value">—</div>
         </section>
       </div>
     </main>
   </div>
 
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="js/vendor/lucide.js"></script>
   <script src="js/icons.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/api.js"></script>

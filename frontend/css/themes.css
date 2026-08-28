@@ -1,9 +1,3 @@
-/*
-  FocusArc theme system.
-  Each theme only redefines these custom properties — layout/markup never changes.
-  Default (teal/cyan + black) lives on :root; other themes are opt-in via [data-theme].
-*/
-
 :root {
   --bg-primary: #05090a;
   --bg-secondary: #0b1416;

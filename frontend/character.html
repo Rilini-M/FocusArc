@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Character Guide — FocusArc</title>
   <link rel="stylesheet" href="css/themes.css" />
+  <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/character.css" />
 </head>
@@ -19,18 +20,24 @@
       </div>
 
       <section class="card companion-hero" id="companion-hero">
-        <img class="companion-hero-image" id="hero-image" src="" alt="" hidden />
-        <div class="companion-name-tag" id="hero-name-tag" hidden>
-          <h2 id="hero-name"></h2>
-          <span id="hero-description"></span>
+        <span class="companion-hero-label">Character Guide</span>
+
+        <div class="companion-hero-character">
+          <div class="companion-hero-image-wrap">
+            <img class="companion-hero-image" id="hero-image" src="" alt="" hidden />
+          </div>
+          <div class="companion-hero-identity" id="hero-identity" hidden>
+            <h2 class="companion-hero-name" id="hero-name"></h2>
+            <span class="companion-hero-accent" aria-hidden="true"></span>
+            <p class="companion-hero-desc" id="hero-description"></p>
+          </div>
         </div>
+
+        <div class="companion-hero-divider" aria-hidden="true"></div>
+
         <div class="companion-hero-quote-card">
           <div class="companion-hero-quote-mark">&ldquo;</div>
           <p class="companion-hero-quote" id="hero-quote">Loading your study companion…</p>
-          <div class="companion-quote-nav" id="hero-quote-nav" hidden>
-            <button class="icon-btn" id="hero-quote-prev" aria-label="Previous quote"><i data-lucide="chevron-left"></i></button>
-            <button class="icon-btn" id="hero-quote-next" aria-label="Next quote"><i data-lucide="chevron-right"></i></button>
-          </div>
         </div>
       </section>
 
@@ -42,7 +49,7 @@
     </main>
   </div>
 
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="js/vendor/lucide.js"></script>
   <script src="js/icons.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/api.js"></script>

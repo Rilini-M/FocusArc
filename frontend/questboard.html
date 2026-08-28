@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quest Board — FocusArc</title>
   <link rel="stylesheet" href="css/themes.css" />
+  <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/theme-select.css" />
   <link rel="stylesheet" href="css/questboard.css" />
 </head>
 <body>
@@ -13,19 +15,23 @@
     <div id="sidebar-root"></div>
 
     <main class="main-content">
-      <div class="page-header">
-        <h1>Quest Board</h1>
-        <p>Manage your study quests</p>
+      <div class="page-header-row">
+        <div class="page-header">
+          <h1>Quest Board</h1>
+          <p>Manage your study quests</p>
+        </div>
+        <div class="streak-chip" id="streak-chip" hidden>
+          <i data-lucide="flame"></i>
+          <span>Streak</span>
+          <strong id="streak-chip-value">0</strong>
+        </div>
       </div>
 
-      <section class="card companion-banner" id="companion-banner">
-        <img class="companion-image" id="companion-image" src="" alt="" hidden />
-        <div class="companion-quote-wrap">
-          <p class="companion-quote" id="companion-quote">Loading your study companion…</p>
-        </div>
-        <div class="companion-quote-nav" id="companion-quote-nav" hidden>
-          <button class="icon-btn" id="companion-quote-prev" aria-label="Previous quote"><i data-lucide="chevron-left"></i></button>
-          <button class="icon-btn" id="companion-quote-next" aria-label="Next quote"><i data-lucide="chevron-right"></i></button>
+      <section class="card companion-hero" id="companion-banner">
+        <img class="companion-hero-image" id="companion-image" src="" alt="" hidden />
+        <div class="companion-hero-quote-card">
+          <div class="companion-hero-quote-mark">&ldquo;</div>
+          <p class="companion-hero-quote" id="companion-quote">Loading your study companion…</p>
         </div>
       </section>
 
@@ -37,7 +43,7 @@
           <button class="filter-tab" data-filter="COMPLETED">Completed</button>
         </div>
         <div style="display:flex; align-items:center; gap:16px;">
-          <span class="quest-count-badge"><strong id="quest-count">0</strong> / 10 quests</span>
+          <span class="quest-count-badge"><strong id="quest-count">—</strong> / 10 quests</span>
           <button class="btn btn-primary" id="add-quest-btn">
             <i data-lucide="plus" style="width:16px;height:16px;"></i>
             Add Quest
@@ -66,13 +72,14 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="js/vendor/lucide.js"></script>
   <script src="js/icons.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/nav.js"></script>
+  <script src="js/themeSelect.js"></script>
   <script src="js/questboard.js"></script>
 </body>
 </html>

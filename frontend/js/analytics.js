@@ -104,13 +104,29 @@ async function loadQuestProgress() {
     .join('')}</div>`;
 }
 
+async function loadHeroCompanion(settings) {
+  try {
+    const character = await api.get(`/characters/${settings.character_id}`);
+    const heroImage = document.getElementById('analytics-hero-image');
+    heroImage.src = character.image_path;
+    heroImage.alt = character.name;
+    heroImage.hidden = false;
+  } catch (err) {
+    // Decorative only — no toast needed if it fails to load.
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  // Rendered first and synchronously — see questboard.js for why this can't wait behind
+  // the auth/settings network calls without causing a visible theme/chrome flash.
+  renderSidebar('analytics');
+  refreshIcons();
+
   const user = await requireAuth();
   if (!user) return;
 
-  await loadAndApplyTheme();
-  renderSidebar('analytics');
-  refreshIcons();
+  const settings = await loadAndApplyTheme();
+  if (settings) loadHeroCompanion(settings);
 
   try {
     await Promise.all([loadOverview(), loadProductivityTrend(), loadFocusRatio(), loadQuestProgress()]);

@@ -1,4 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+/*
+  Self-hosted Cinzel/Inter (was a Google Fonts @import). An @import is render-blocking —
+  every navigation had to complete an external, cross-origin round trip before this
+  stylesheet could finish loading, which delayed first paint on every page. Serving the
+  two files locally removes that external dependency entirely.
+
+  font-display: optional (not swap) is deliberate: Cinzel's lowercase letterforms are
+  drawn as small caps, so a swap from the fallback font to Cinzel makes unchanged text
+  like "Quest Board" visually read as "QUESTBOARD" for a frame — not a text/CSS change,
+  a font-rendering illusion. "optional" tells the browser to use the font immediately if
+  it's already available (which it will be after the very first page view, once cached)
+  and otherwise just keep the fallback for that render rather than swapping in later —
+  so once loaded, headings render correctly from the very first frame on every
+  subsequent navigation instead of visibly flipping mid-paint.
+*/
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: optional;
+  src: url('/assets/fonts/cinzel.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: optional;
+  src: url('/assets/fonts/inter.woff2') format('woff2');
+}
 
 * {
   box-sizing: border-box;
@@ -71,7 +100,14 @@ button {
 /* ---------------------------------------------------------------- layout */
 
 .app-shell {
-  display: flex;
+  /* Grid (not flex) so the sidebar's 240px column is reserved by the layout itself, not by
+     the .sidebar element JS injects into #sidebar-root. With flex, an empty #sidebar-root
+     had no width of its own, so .main-content (flex:1) filled the whole row until JS ran —
+     causing a real "sidebar missing, content full-width" layout jump on every navigation,
+     not just a timing issue. A grid track exists at its defined size regardless of whether
+     its content has loaded yet, so #sidebar-root always occupies 240px from first paint. */
+  display: grid;
+  grid-template-columns: 240px 1fr;
   min-height: 100vh;
 }
 
@@ -157,7 +193,7 @@ button {
 .nav-link.active {
   color: var(--accent);
   background: var(--bg-tertiary);
-  border-color: var(--border);
+  border-color: var(--border-strong, var(--border));
   box-shadow: 0 0 16px var(--glow);
 }
 
@@ -187,6 +223,19 @@ button {
   font-size: 0.95rem;
 }
 
+.page-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.page-header-row .page-header {
+  margin-bottom: 0;
+}
+
 /* ---------------------------------------------------------------- mobile nav */
 
 .mobile-nav-toggle {
@@ -210,6 +259,12 @@ button {
 }
 
 @media (max-width: 880px) {
+  .app-shell {
+    /* Below this width .sidebar is fixed/off-canvas (see below), so the reserved 240px
+       column would just be dead space squeezing .main-content — collapse to one column. */
+    grid-template-columns: 1fr;
+  }
+
   .mobile-nav-toggle {
     display: flex;
   }
@@ -408,12 +463,83 @@ button {
   border-color: var(--danger);
 }
 
-/* Shared by the companion quote card on Quest Board and Character Guide. */
-.companion-quote-nav {
+/* Shared "big character portrait + quote card" hero — used by Quest Board (compact) and
+   Character Guide (full-size, via its own min-height/image-size override). */
+.companion-hero {
+  position: relative;
   display: flex;
-  gap: 8px;
+  align-items: flex-end;
+  gap: 24px;
+  padding: 0;
+  margin-bottom: 26px;
+  overflow: hidden;
+  min-height: 220px;
+  background:
+    radial-gradient(ellipse at 20% 100%, var(--glow), transparent 65%),
+    var(--bg-secondary);
+}
+
+.companion-hero-image {
+  width: 190px;
+  height: 220px;
+  object-fit: cover;
   flex-shrink: 0;
-  z-index: 1;
+  -webkit-mask-image: linear-gradient(to right, black 55%, transparent 100%);
+  mask-image: linear-gradient(to right, black 55%, transparent 100%);
+}
+
+.companion-hero-quote-card {
+  flex: 1;
+  margin: 22px 22px 22px 0;
+  padding: 18px 22px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.companion-hero-quote-mark {
+  color: var(--accent);
+  font-size: 1.6rem;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.companion-hero-quote {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--text-primary);
+  transition: opacity 0.4s ease;
+  margin: 0;
+}
+
+.companion-hero-quote-author {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  font-style: normal;
+  color: var(--accent-secondary);
+}
+
+@media (max-width: 700px) {
+  .companion-hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .companion-hero-image {
+    width: 100%;
+    height: 180px;
+    -webkit-mask-image: linear-gradient(to top, black 55%, transparent 100%);
+    mask-image: linear-gradient(to top, black 55%, transparent 100%);
+  }
+
+  .companion-hero-quote-card {
+    margin: 0 16px 16px;
+  }
 }
 
 .empty-state {
