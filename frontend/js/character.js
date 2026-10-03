@@ -77,7 +77,7 @@ async function loadHero(characterId) {
   const quotes = await api.get(`/characters/${characterId}/quotes`);
 
   if (quotes.length === 0) {
-    quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(character.description || 'Stay focused.')}</span>`;
+    quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(character.description || 'Stay focused.')}</span><span class="companion-hero-quote-author">${escapeHtml(character.name)}</span>`;
     return;
   }
 
@@ -86,7 +86,7 @@ async function loadHero(characterId) {
     quoteEl.style.opacity = 0;
     quoteEl.style.transform = 'translateY(6px)';
     setTimeout(() => {
-      quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(quotes[index].quote_text)}</span><span class="companion-hero-quote-author">— ${escapeHtml(character.name)}</span>`;
+      quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(quotes[index].quote_text)}</span><span class="companion-hero-quote-author">${escapeHtml(character.name)}</span>`;
       quoteEl.style.opacity = 1;
       quoteEl.style.transform = 'translateY(0)';
     }, 200);
@@ -98,7 +98,7 @@ async function loadHero(characterId) {
     quoteRotationTimer = setInterval(() => {
       index = (index + 1) % quotes.length;
       showQuote();
-    }, currentSettings.quote_interval || 8000);
+    }, currentSettings.quote_interval || 10000);
   }
 }
 

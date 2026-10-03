@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS user_settings (
   theme           ENUM('default', 'nature', 'dark', 'royal', 'vampire', 'cyberpunk')
                     NOT NULL DEFAULT 'default',
   auto_quote      BOOLEAN NOT NULL DEFAULT TRUE,
-  quote_interval  INT UNSIGNED NOT NULL DEFAULT 8000,
+  quote_interval  INT UNSIGNED NOT NULL DEFAULT 10000,
   created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_user_settings_user_id (user_id),

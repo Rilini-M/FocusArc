@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="css/themes.css" />
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/login.css" />
+  <link rel="stylesheet" href="css/theme-select.css" />
 </head>
-<body class="auth-page">
+<body class="auth-page login-page">
   <div class="auth-shell">
     <section class="auth-visual" style="--auth-bg: url('/assets/backgrounds/login-bg.png');">
       <svg class="auth-leaf" style="top:12%; left:20%; width:26px; height:26px;" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z" opacity="0.5"/></svg>
@@ -45,10 +46,6 @@
             <i data-lucide="lock"></i>
             <input type="password" name="password" placeholder="Password" autocomplete="current-password" required />
           </label>
-          <label class="field">
-            <i data-lucide="calendar"></i>
-            <input type="date" name="dateOfBirth" placeholder="Date of Birth" required />
-          </label>
 
           <button type="submit" class="btn btn-primary">
             Login
@@ -68,6 +65,8 @@
   <script src="js/particles.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/themeSelect.js"></script>
   <script>refreshIcons();</script>
 </body>
 </html>

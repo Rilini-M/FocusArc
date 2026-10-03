@@ -12,6 +12,12 @@
     var saved = localStorage.getItem('focusarc_theme');
     if (saved && THEMES.indexOf(saved) !== -1) {
       document.documentElement.setAttribute('data-theme', saved);
+
+      // Start downloading this theme's background now (themes.css has already loaded —
+      // this script sits after it), so the image is ready when <body> first paints.
+      var bg = getComputedStyle(document.documentElement).getPropertyValue('--theme-bg-image');
+      var match = /url\(\s*['"]?([^'")]+)['"]?\s*\)/.exec(bg);
+      if (match) new Image().src = match[1];
     }
   } catch (err) {
     // localStorage unavailable (private browsing, etc.) — first paint just falls back to

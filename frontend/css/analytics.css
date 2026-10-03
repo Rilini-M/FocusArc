@@ -3,9 +3,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 28px;
-  margin-bottom: 22px;
+  gap: 18px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
   overflow: hidden;
   background:
     radial-gradient(ellipse at 90% 20%, var(--glow), transparent 60%),
@@ -13,8 +13,8 @@
 }
 
 .analytics-hero-image {
-  width: 120px;
-  height: 120px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--border-strong, var(--border));
@@ -23,19 +23,12 @@
 }
 
 .analytics-hero-copy h2 {
-  margin: 0 0 8px;
-  font-size: 1.4rem;
+  margin: 0;
+  font-size: 1.15rem;
 }
 
 .analytics-hero-copy h2 span {
   color: var(--accent);
-}
-
-.analytics-hero-copy p {
-  margin: 0;
-  color: var(--text-secondary);
-  max-width: 480px;
-  font-size: 0.9rem;
 }
 
 .stat-grid {
@@ -84,14 +77,8 @@
 
 .analytics-grid {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr;
   gap: 16px;
-}
-
-@media (max-width: 900px) {
-  .analytics-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 600px) {
@@ -104,81 +91,6 @@
   font-size: 0.95rem;
   color: var(--text-primary);
   margin: 0 0 18px;
-}
-
-.trend-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  height: 160px;
-}
-
-.trend-bar-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  height: 100%;
-  justify-content: flex-end;
-}
-
-.trend-bar {
-  width: 100%;
-  max-width: 34px;
-  border-radius: 6px 6px 0 0;
-  background: linear-gradient(180deg, var(--accent-secondary), var(--accent));
-  box-shadow: 0 0 14px var(--glow);
-  min-height: 4px;
-}
-
-.trend-bar-label {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
-}
-
-.focus-donut-wrap {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-}
-
-.focus-donut {
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.focus-donut-inner {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background: var(--bg-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-.focus-donut-inner strong {
-  font-size: 1.3rem;
-  color: var(--text-primary);
-}
-
-.focus-donut-inner span {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.focus-legend {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
 }
 
 .progress-rows {
@@ -222,19 +134,147 @@
   flex-shrink: 0;
 }
 
-.streak-card {
+/* ---------- Quest Distribution ---------- */
+.quest-distribution {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--chart-done) 7%, transparent), transparent 50%),
+    radial-gradient(ellipse at 100% 100%, color-mix(in srgb, var(--chart-todo) 7%, transparent), transparent 50%),
+    var(--bg-secondary);
+}
+
+.distribution-layout {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 36px;
+  padding: 4px 8px 4px 12px;
 }
 
-.streak-value {
-  font-size: 2rem;
-  color: var(--accent);
+/* A moderate, thin donut — supporting context; the quest lists are the focus. */
+.distribution-chart {
+  width: 124px;
+  height: 124px;
+  flex-shrink: 0;
+}
+
+.distribution-chart svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--chart-done) 22%, transparent));
+}
+
+.distribution-track,
+.distribution-arc {
+  fill: none;
+  stroke-width: 10;
+}
+
+.distribution-track {
+  stroke: var(--bg-tertiary);
+}
+
+.distribution-groups {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+
+.distribution-group {
+  min-width: 0;
+  padding: 2px 24px;
+  border-left: 1px solid var(--border);
+}
+
+.distribution-group-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.distribution-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--dot);
+  box-shadow: 0 0 8px var(--dot);
+}
+
+.distribution-group-label {
+  font-size: 0.78rem;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
-.streak-label {
-  color: var(--text-secondary);
+.distribution-group-pct {
+  margin-left: auto;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.distribution-quests {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.distribution-quests li {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  /* Long quest names wrap instead of stretching the layout. */
+  overflow-wrap: anywhere;
+}
+
+.distribution-none {
+  margin: 0;
   font-size: 0.85rem;
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+@media (max-width: 1100px) {
+  .distribution-layout {
+    gap: 24px;
+    padding: 0;
+  }
+
+  .distribution-group {
+    padding: 2px 16px;
+  }
+}
+
+@media (max-width: 760px) {
+  .distribution-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .distribution-chart {
+    align-self: center;
+  }
+
+  .distribution-groups {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .distribution-group {
+    padding: 14px 0 0;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
 }

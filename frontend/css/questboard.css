@@ -1,30 +1,62 @@
-.streak-chip {
-  display: inline-flex;
+
+.companion-hero {
+  align-items: stretch;
+  /* Shorter banner than the shared default (220px), so quests sit higher on the page. */
+  min-height: 170px;
+}
+
+.companion-hero-image {
+  width: 150px;
+  height: 170px;
+}
+
+.companion-hero-quote-card {
   align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border-strong, var(--border));
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  box-shadow: 0 0 18px var(--glow);
-  flex-shrink: 0;
+  text-align: center;
+  margin: 16px 16px 16px 0;
+  padding: 14px 22px;
 }
 
-.streak-chip svg {
-  width: 16px;
-  height: 16px;
+@media (max-width: 700px) {
+  .companion-hero {
+    min-height: 0;
+  }
+
+  .companion-hero-image {
+    width: 100%;
+    height: 140px;
+  }
+
+  .companion-hero-quote-card {
+    margin: 0 16px 16px;
+  }
+}
+
+.companion-hero-quote-card > .companion-hero-quote-mark {
+  display: none;
+}
+
+.companion-hero-quote {
+  max-width: 560px;
+}
+
+.companion-hero-quote-text::before,
+.companion-hero-quote-text::after {
   color: var(--accent);
+  font-size: 1.3rem;
+  font-style: normal;
+  line-height: 1;
+  vertical-align: -0.05em;
 }
 
-.streak-chip span {
-  color: var(--text-secondary);
+.companion-hero-quote-text::before {
+  content: '\201C';
+  margin-right: 3px;
 }
 
-.streak-chip strong {
-  color: var(--accent);
-  font-size: 1rem;
+.companion-hero-quote-text::after {
+  content: '\201D';
+  margin-left: 3px;
 }
 
 .qb-toolbar {
@@ -53,6 +85,7 @@
   border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -95,35 +128,6 @@
   display: flex;
   align-items: center;
   gap: 18px;
-}
-
-.quest-card-icon {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-}
-
-.quest-card-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.quest-card[data-status='IN_PROGRESS'] .quest-card-icon {
-  color: var(--accent-secondary);
-  border-color: var(--accent-secondary);
-  box-shadow: 0 0 14px var(--glow);
-}
-
-.quest-card[data-status='COMPLETED'] .quest-card-icon {
-  color: var(--success);
-  border-color: var(--success);
 }
 
 .quest-card-body {
@@ -255,13 +259,13 @@
 }
 
 @media (max-width: 480px) {
+  .filter-tab {
+    padding: 8px 10px;
+  }
+
   .quest-card-top {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .quest-card-icon {
-    align-self: flex-start;
   }
 
   .quest-card-actions {

@@ -1,7 +1,6 @@
 const MAX_QUESTS = 10;
 const STATUS_LABELS = { TODO: 'To Do', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed' };
 const STATUS_CLASSES = { TODO: 'todo', IN_PROGRESS: 'in-progress', COMPLETED: 'completed' };
-const STATUS_ICONS = { TODO: 'scroll', IN_PROGRESS: 'sword', COMPLETED: 'badge-check' };
 
 let quests = [];
 let activeFilter = 'ALL';
@@ -76,7 +75,6 @@ function renderQuestList() {
       return `
       <div class="card quest-card fade-in" data-quest-id="${quest.id}" data-status="${quest.status}">
         <div class="quest-card-top">
-          <div class="quest-card-icon">${icon(STATUS_ICONS[quest.status] || 'scroll', 18)}</div>
           <div class="quest-card-body">
             <h3 class="quest-card-title">${escapeHtml(quest.title)}</h3>
             <p class="quest-card-desc">${escapeHtml(quest.description)}</p>
@@ -158,7 +156,6 @@ async function stopStudy() {
     stopTimerTick();
     activeStudySession = null;
     renderQuestList();
-    initStreak();
     showToast('Study session saved.');
   } catch (err) {
     showToast(err.message, { isError: true });
@@ -261,7 +258,7 @@ async function initCompanion() {
     imageEl.hidden = false;
 
     if (quotes.length === 0) {
-      quoteEl.textContent = character.description || 'Stay focused. One quest at a time.';
+      quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(character.description || 'Stay focused. One quest at a time.')}</span><span class="companion-hero-quote-author">${escapeHtml(character.name)}</span>`;
       return;
     }
 
@@ -269,7 +266,7 @@ async function initCompanion() {
     const showQuote = () => {
       quoteEl.style.opacity = 0;
       setTimeout(() => {
-        quoteEl.innerHTML = `${escapeHtml(quotes[index].quote_text)}<span class="companion-hero-quote-author">— ${escapeHtml(character.name)}</span>`;
+        quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(quotes[index].quote_text)}</span><span class="companion-hero-quote-author">${escapeHtml(character.name)}</span>`;
         quoteEl.style.opacity = 1;
       }, 200);
     };
@@ -280,20 +277,10 @@ async function initCompanion() {
       quoteRotationTimer = setInterval(() => {
         index = (index + 1) % quotes.length;
         showQuote();
-      }, settings.quote_interval || 8000);
+      }, settings.quote_interval || 10000);
     }
   } catch (err) {
     quoteEl.textContent = 'Stay focused. One quest at a time.';
-  }
-}
-
-async function initStreak() {
-  try {
-    const overview = await api.get('/analytics/overview');
-    document.getElementById('streak-chip-value').textContent = overview.studyStreakDays;
-    document.getElementById('streak-chip').hidden = false;
-  } catch (err) {
-    // Streak chip just stays hidden — not worth surfacing an error toast for it.
   }
 }
 
@@ -310,9 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadAndApplyTheme();
   initCompanion();
-  initStreak();
   refreshIcons();
-  initThemeSelect();
 
   try {
     await Promise.all([loadQuests(), loadActiveStudySession()]);

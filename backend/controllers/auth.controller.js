@@ -33,7 +33,7 @@ async function register(req, res, next) {
 
 async function login(req, res, next) {
   try {
-    const { username, password, dateOfBirth } = req.body;
+    const { username, password } = req.body;
 
     const [rows] = await pool.query(
       `SELECT id, username, email, password_hash, date_of_birth
@@ -42,15 +42,14 @@ async function login(req, res, next) {
     );
 
     if (rows.length === 0) {
-      return failure(res, 'Invalid username, password, or date of birth.', 401);
+      return failure(res, 'Invalid username or password.', 401);
     }
 
     const user = rows[0];
     const passwordMatches = await verifyPassword(password, user.password_hash);
-    const dobMatches = user.date_of_birth === dateOfBirth;
 
-    if (!passwordMatches || !dobMatches) {
-      return failure(res, 'Invalid username, password, or date of birth.', 401);
+    if (!passwordMatches) {
+      return failure(res, 'Invalid username or password.', 401);
     }
 
     const token = signToken({ userId: user.id });

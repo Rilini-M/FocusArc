@@ -35,6 +35,10 @@ Then open `http://localhost:3000` in a browser.
 
 ## Documentation
 
+- [docs/CODE_WALKTHROUGH.md](docs/CODE_WALKTHROUGH.md) — full run guide + a section-by-section
+  explanation of every file, database to backend to frontend
+- [docs/QUESTION_BANK.md](docs/QUESTION_BANK.md) — 1000 practice questions about the codebase,
+  for project defense / interview prep
 - [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) — what FocusArc is and isn't
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system architecture
 - [docs/DATABASE.md](docs/DATABASE.md) — schema reference

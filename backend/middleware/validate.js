@@ -27,10 +27,10 @@ function validateRegistration(req, res, next) {
 }
 
 function validateLogin(req, res, next) {
-  const { username, password, dateOfBirth } = req.body;
+  const { username, password } = req.body;
 
-  if (!username || !password || !dateOfBirth) {
-    return failure(res, 'Username, password, and date of birth are required.');
+  if (!username || !password) {
+    return failure(res, 'Username and password are required.');
   }
 
   return next();

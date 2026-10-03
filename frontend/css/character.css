@@ -1,20 +1,7 @@
-/* Character Guide's hero: a character identity column (portrait + name + description,
-   stacked in normal flow) and a separate quote card, top-aligned (align-items:flex-start)
-   so the quote card sizes to its own content instead of being stretched to match the
-   identity column and centering inside the leftover space — that stretch+center behavior
-   is what previously made the quote panel read as a huge mostly-empty box. Top-aligning
-   means the quote card's height now comes purely from its own padding + text, and the
-   whole hero box's height is driven by whichever column is naturally taller.
-   Overrides the shared .companion-hero/.companion-hero-quote-card rules from global.css
-   for this page only — Quest Board's simpler image+quote banner is untouched.
 
-   The portrait box is 145x223 (ratio ~0.65) because the source character photos are tall
-   scenes (e.g. tanjiro.jpg is a full rain/forest/shrine composition, not a tight headshot)
-   at native ratios of ~0.56-0.69 — a squarer box would crop away most of the surrounding
-   environment and zoom into just the face/torso. */
 .companion-hero {
   min-height: 0;
-  align-items: flex-start;
+  align-items: stretch;
   padding: 0;
 }
 
@@ -36,13 +23,13 @@
   text-align: center;
   flex: 0 0 38%;
   max-width: 340px;
-  min-width: 280px;
-  padding: 28px 24px 20px;
+  min-width: 260px;
+  padding: 16px 20px 12px;
 }
 
 .companion-hero-image-wrap {
-  width: 145px;
-  height: 223px;
+  width: 108px;
+  height: 166px;
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid var(--border-strong, var(--border));
@@ -61,7 +48,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .companion-hero-name {
@@ -78,7 +65,7 @@
   width: 36px;
   height: 3px;
   border-radius: 999px;
-  margin: 8px 0;
+  margin: 5px 0;
   background: var(--accent);
   box-shadow: 0 0 14px var(--glow);
 }
@@ -95,34 +82,50 @@
   width: 1px;
   align-self: stretch;
   flex-shrink: 0;
-  margin: 24px 0;
+  margin: 14px 0;
   background: linear-gradient(180deg, transparent, var(--border-strong, var(--border)), transparent);
 }
 
 .companion-hero-quote-card {
   flex: 1 1 auto;
-  margin: 20px 28px 20px 0;
-  padding: 20px 28px;
+  margin: 12px 20px 12px 0;
+  padding: 12px 24px;
   box-shadow: 0 0 56px -12px var(--glow);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.companion-hero-quote-mark {
-  font-size: 1.6rem;
+/* The shared markup's block-level opening mark is hidden in favor of a matching
+   ::before/::after pair anchored directly to the quote text below, so both marks share
+   identical size/style/color and sit naturally against the text instead of one floating
+   above-left at a different scale than the other. */
+.companion-hero-quote-card > .companion-hero-quote-mark {
+  display: none;
 }
 
 .companion-hero-quote {
-  font-size: 1.05rem;
-  line-height: 1.55;
+  max-width: 480px;
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-/* Closing quote mark to match the existing opening .companion-hero-quote-mark glyph —
-   attached to the text span (not the whole paragraph) so it lands right after the quoted
-   sentence and before the "— Author" line, rather than at the very end of the element. */
+.companion-hero-quote-text::before,
+.companion-hero-quote-text::after {
+  color: var(--accent);
+  font-size: 1.3rem;
+  font-style: normal;
+  line-height: 1;
+  vertical-align: -0.05em;
+}
+
+.companion-hero-quote-text::before {
+  content: '\201C';
+  margin-right: 3px;
+}
+
 .companion-hero-quote-text::after {
   content: '\201D';
-  color: var(--accent);
-  margin-left: 2px;
+  margin-left: 3px;
 }
 
 .companion-picker {
@@ -144,7 +147,9 @@
 
 .companion-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  /* 100px = the 84px avatar plus its padding, so all five fit on one row down to
+     laptop widths instead of leaving one companion stranded on a second row. */
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 18px;
 }
 
@@ -225,15 +230,15 @@
     max-width: none;
     min-width: 0;
     width: 100%;
-    padding: 28px 20px 16px;
+    padding: 18px 18px 10px;
   }
 
   /* Keep the portrait's tall ratio on mobile too, just capped narrower — stretching it to
      full viewport width at this ratio would make it excessively tall on phones. */
   .companion-hero-image-wrap {
     width: 100%;
-    max-width: 200px;
-    height: 260px;
+    max-width: 156px;
+    height: 202px;
     margin: 0 auto;
   }
 
@@ -243,8 +248,8 @@
 
   .companion-hero-quote-card {
     flex: 1 1 auto;
-    margin: 0 20px 24px;
-    padding: 24px 22px;
+    margin: 0 18px 16px;
+    padding: 14px 18px;
     min-height: 0;
   }
 }

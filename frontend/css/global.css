@@ -1,18 +1,4 @@
-/*
-  Self-hosted Cinzel/Inter (was a Google Fonts @import). An @import is render-blocking —
-  every navigation had to complete an external, cross-origin round trip before this
-  stylesheet could finish loading, which delayed first paint on every page. Serving the
-  two files locally removes that external dependency entirely.
 
-  font-display: optional (not swap) is deliberate: Cinzel's lowercase letterforms are
-  drawn as small caps, so a swap from the fallback font to Cinzel makes unchanged text
-  like "Quest Board" visually read as "QUESTBOARD" for a frame — not a text/CSS change,
-  a font-rendering illusion. "optional" tells the browser to use the font immediately if
-  it's already available (which it will be after the very first page view, once cached)
-  and otherwise just keep the fallback for that render rather than swapping in later —
-  so once loaded, headings render correctly from the very first frame on every
-  subsequent navigation instead of visibly flipping mid-paint.
-*/
 @font-face {
   font-family: 'Cinzel';
   font-style: normal;
@@ -54,8 +40,6 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* Dark scrim over any photo background so text/cards stay readable; sits above the body's
-   own background paint but below the particle canvas and page content. */
 body::before {
   content: '';
   position: fixed;
@@ -97,15 +81,8 @@ button {
   background: var(--glow);
 }
 
-/* ---------------------------------------------------------------- layout */
 
 .app-shell {
-  /* Grid (not flex) so the sidebar's 240px column is reserved by the layout itself, not by
-     the .sidebar element JS injects into #sidebar-root. With flex, an empty #sidebar-root
-     had no width of its own, so .main-content (flex:1) filled the whole row until JS ran —
-     causing a real "sidebar missing, content full-width" layout jump on every navigation,
-     not just a timing issue. A grid track exists at its defined size regardless of whether
-     its content has loaded yet, so #sidebar-root always occupies 240px from first paint. */
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100vh;
@@ -204,7 +181,9 @@ button {
 .main-content {
   flex: 1;
   min-width: 0;
-  padding: 36px 40px;
+  /* On wide/fullscreen displays, cap the content at 1400px and centre it in the space
+     beside the sidebar instead of stretching cards and progress bars edge to edge. */
+  padding: 36px max(40px, calc((100% - 1400px) / 2));
 }
 
 .page-header {
@@ -213,14 +192,8 @@ button {
 
 .page-header h1 {
   font-size: 1.7rem;
-  margin: 0 0 6px;
-  color: var(--text-primary);
-}
-
-.page-header p {
   margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
+  color: var(--text-primary);
 }
 
 .page-header-row {
@@ -263,6 +236,9 @@ button {
     /* Below this width .sidebar is fixed/off-canvas (see below), so the reserved 240px
        column would just be dead space squeezing .main-content — collapse to one column. */
     grid-template-columns: 1fr;
+    /* #sidebar-root is now an empty first row; without this, min-height: 100vh splits the
+       spare height between it and .main-content and pushes short pages down. */
+    align-content: start;
   }
 
   .mobile-nav-toggle {
@@ -509,19 +485,24 @@ button {
 }
 
 .companion-hero-quote {
-  font-size: 1.05rem;
+  font-size: 1.25rem;
+  line-height: 1.5;
   font-style: italic;
   color: var(--text-primary);
   transition: opacity 0.4s ease;
   margin: 0;
 }
 
+/* The current character's name, shown directly under the quote on both pages. */
 .companion-hero-quote-author {
   display: block;
-  margin-top: 10px;
-  font-size: 0.82rem;
+  margin-top: 14px;
+  font-size: 1rem;
+  font-weight: 600;
   font-style: normal;
-  color: var(--accent-secondary);
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-shadow: 0 0 12px var(--glow);
 }
 
 @media (max-width: 700px) {

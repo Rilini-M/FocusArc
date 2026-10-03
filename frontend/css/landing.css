@@ -1,0 +1,937 @@
+/*
+  Public landing page (index.html). Uses the default FocusArc theme tokens from themes.css
+  and the shared fonts/base from global.css. Everything here is prefixed .lp- so it can't
+  leak into the app pages.
+*/
+
+html:has(body.landing-page) {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+}
+
+body.landing-page {
+  overflow-x: hidden;
+}
+
+.landing {
+  position: relative;
+  z-index: 2;
+  overflow-x: clip;
+}
+
+.lp-container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Clean sans headings for a product site; Cinzel stays reserved for the brand mark. */
+.landing h1,
+.landing h2,
+.landing h3 {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.landing p {
+  margin: 0;
+}
+
+.lp-accent {
+  color: var(--accent-secondary);
+  text-shadow: 0 0 24px var(--glow);
+}
+
+.lp-eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ---------- Buttons ---------- */
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.lp-btn svg {
+  width: 17px;
+  height: 17px;
+  transition: transform 0.2s ease;
+}
+
+.lp-btn:hover svg {
+  transform: translateX(3px);
+}
+
+.lp-btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  color: #05090a;
+  box-shadow: 0 0 22px -4px var(--glow);
+}
+
+.lp-btn-primary:hover {
+  color: #05090a;
+  transform: translateY(-1px);
+  box-shadow: 0 0 32px -2px var(--glow);
+}
+
+.lp-btn-ghost {
+  color: var(--text-primary);
+  border-color: rgba(234, 253, 251, 0.18);
+  background: rgba(234, 253, 251, 0.03);
+}
+
+.lp-btn-ghost:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+  background: rgba(45, 212, 191, 0.08);
+}
+
+.lp-btn-sm {
+  padding: 9px 20px;
+  font-size: 0.88rem;
+}
+
+.lp-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.lp-link svg {
+  width: 17px;
+  height: 17px;
+  transition: transform 0.2s ease;
+}
+
+.lp-link:hover svg {
+  transform: translateX(3px);
+}
+
+/* ---------- Navbar ---------- */
+.lp-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.lp-nav.scrolled,
+.lp-nav.open {
+  background: rgba(5, 9, 10, 0.82);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom-color: rgba(45, 212, 191, 0.12);
+}
+
+.lp-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.lp-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-primary);
+}
+
+.lp-brand:hover {
+  color: var(--text-primary);
+}
+
+.lp-brand img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  /* Logo art sits on a solid-black square — screen blend drops the black. */
+  mix-blend-mode: screen;
+}
+
+.lp-brand .brand {
+  font-size: 1.3rem;
+}
+
+.lp-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.lp-nav-links a:not(.lp-btn) {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.lp-nav-links a:not(.lp-btn):hover {
+  color: var(--text-primary);
+}
+
+.lp-nav-toggle {
+  display: none;
+  background: none;
+  border: 1px solid rgba(234, 253, 251, 0.15);
+  border-radius: 10px;
+  color: var(--text-primary);
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.lp-nav-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- Hero ---------- */
+.lp-hero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 104px 0 72px;
+  overflow: hidden;
+}
+
+.lp-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(90deg, rgba(5, 9, 10, 0.94) 0%, rgba(5, 9, 10, 0.82) 38%, rgba(5, 9, 10, 0.35) 70%, rgba(5, 9, 10, 0.55) 100%),
+    linear-gradient(180deg, rgba(5, 9, 10, 0.2) 0%, rgba(5, 9, 10, 0) 40%, #05090a 100%),
+    url('/assets/backgrounds/signup-bg.png') center 30% / cover no-repeat;
+}
+
+.lp-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: 40px;
+}
+
+.lp-hero-copy {
+  max-width: 560px;
+  /* The grid centres both columns against the tall character, which pushed the shorter
+     text group too low. Anchor the text group to the top of the row instead; the
+     character still sets the row height, so its size and position are unchanged. */
+  align-self: start;
+  padding-top: 24px;
+}
+
+.lp-hero-copy h1 {
+  font-size: clamp(2.4rem, 1.4rem + 3.2vw, 4rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  margin: 14px 0 16px;
+}
+
+.lp-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.lp-hero-art {
+  position: relative;
+  justify-self: end;
+  /* Nudge the character in from the right edge. */
+  margin-right: 60px;
+  width: min(100%, 470px);
+  aspect-ratio: 2 / 3;
+}
+
+.lp-hero-art img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The character art has its own dark backdrop — fade every edge so it melts into the
+     night scene instead of reading as a rectangle (same approach as the Signup page). */
+  -webkit-mask-image: radial-gradient(ellipse 62% 72% at 52% 46%, #000 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse 62% 72% at 52% 46%, #000 52%, transparent 100%);
+}
+
+.lp-hero-halo {
+  position: absolute;
+  inset: 12% 8% 18%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(45, 212, 191, 0.22), transparent 68%);
+  filter: blur(20px);
+}
+
+.lp-leaf {
+  position: absolute;
+  z-index: 1;
+  color: var(--accent);
+  opacity: 0.35;
+  filter: drop-shadow(0 0 6px var(--glow));
+  animation: lp-drift 11s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lp-drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(22px) rotate(16deg);
+  }
+}
+
+.lp-scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  z-index: 2;
+  transform: translateX(-50%);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.lp-scroll:hover {
+  opacity: 1;
+}
+
+.lp-scroll-mouse {
+  display: block;
+  width: 22px;
+  height: 34px;
+  border: 1.5px solid rgba(234, 253, 251, 0.5);
+  border-radius: 12px;
+  position: relative;
+}
+
+.lp-scroll-mouse span {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 3px;
+  height: 7px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--accent);
+  animation: lp-scroll 1.8s ease-in-out infinite;
+}
+
+@keyframes lp-scroll {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* ---------- Sections ---------- */
+.lp-section {
+  position: relative;
+  padding: 112px 0;
+}
+
+.lp-section-alt {
+  background: linear-gradient(180deg, transparent, rgba(11, 20, 22, 0.7) 18%, rgba(11, 20, 22, 0.7) 82%, transparent);
+}
+
+.lp-section-head {
+  max-width: 640px;
+  margin: 0 auto 56px;
+  text-align: center;
+}
+
+.lp-section-head h2,
+.lp-split-copy h2 {
+  font-size: clamp(1.8rem, 1.3rem + 1.6vw, 2.5rem);
+  line-height: 1.18;
+  margin-top: 14px;
+}
+
+.lp-section-head p,
+.lp-split-copy > p {
+  margin-top: 18px;
+  font-size: 1.04rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.lp-center {
+  text-align: center;
+  margin-top: 44px;
+}
+
+/* Tighter rhythm for About Us and Features: less padding around the section and smaller
+   gaps between eyebrow, heading, description and cards. Card sizes are untouched. */
+#about,
+#features {
+  padding: 48px 0 40px;
+}
+
+/* The hero already ends with its own bottom padding, so About needs less on top. */
+#about {
+  padding-top: 32px;
+}
+
+#about .lp-section-head,
+#features .lp-section-head {
+  margin-bottom: 28px;
+}
+
+#about .lp-section-head h2,
+#features .lp-section-head h2 {
+  margin-top: 8px;
+}
+
+#about .lp-section-head p,
+#features .lp-section-head p {
+  margin-top: 10px;
+}
+
+/* About */
+.lp-about-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.lp-about-group {
+  padding: 28px 24px;
+  border: 1px solid rgba(45, 212, 191, 0.12);
+  border-radius: 18px;
+  background: rgba(11, 20, 22, 0.5);
+}
+
+.lp-feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: var(--accent);
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.2);
+}
+
+.lp-feature-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.lp-about-group h3 {
+  font-size: 1.08rem;
+  margin: 0 0 12px;
+}
+
+.lp-about-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+}
+
+.lp-about-group li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.lp-about-group li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Analytics */
+.lp-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 64px;
+}
+
+.lp-checks {
+  list-style: none;
+  padding: 0;
+  margin: 26px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+}
+
+.lp-checks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.lp-checks svg {
+  width: 17px;
+  height: 17px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.lp-progress-card {
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid rgba(45, 212, 191, 0.18);
+  background: rgba(11, 20, 22, 0.75);
+  box-shadow: 0 0 60px -24px var(--glow);
+}
+
+.lp-progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.lp-progress-pct {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.lp-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0 26px;
+}
+
+.lp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 14px;
+  border-radius: 14px;
+  background: rgba(5, 9, 10, 0.6);
+  border: 1px solid rgba(45, 212, 191, 0.1);
+}
+
+.lp-stat-num {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.lp-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.lp-c-done {
+  color: var(--accent);
+}
+
+.lp-c-prog {
+  color: var(--accent-secondary);
+}
+
+.lp-c-todo {
+  color: var(--text-secondary);
+}
+
+.lp-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  gap: 3px;
+  background: rgba(5, 9, 10, 0.6);
+}
+
+.lp-bar-done {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+
+.lp-bar-prog {
+  background: rgba(103, 232, 249, 0.55);
+}
+
+.lp-bar-todo {
+  background: rgba(143, 168, 166, 0.28);
+}
+
+.lp-bar > span:first-child {
+  border-radius: 999px 0 0 999px;
+}
+
+.lp-bar > span:last-child {
+  border-radius: 0 999px 999px 0;
+}
+
+.lp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.lp-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+/* Character guides */
+.lp-guides {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.lp-guide {
+  border-radius: 18px;
+  border: 1px solid rgba(45, 212, 191, 0.12);
+  background: rgba(11, 20, 22, 0.55);
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.lp-guide:hover {
+  transform: translateY(-4px);
+  border-color: rgba(45, 212, 191, 0.35);
+  box-shadow: 0 14px 40px -20px var(--glow);
+}
+
+.lp-guide-img {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  position: relative;
+}
+
+.lp-guide-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(11, 20, 22, 0.9));
+}
+
+.lp-guide-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.4s ease;
+}
+
+.lp-guide:hover .lp-guide-img img {
+  transform: scale(1.04);
+}
+
+.lp-guide h3 {
+  font-size: 1.02rem;
+  padding: 16px 18px 6px;
+}
+
+.lp-guide p {
+  padding: 0 18px 20px;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* Features */
+.lp-features {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.lp-feature {
+  padding: 30px 26px;
+  border-radius: 18px;
+  border: 1px solid rgba(45, 212, 191, 0.12);
+  background: rgba(5, 9, 10, 0.55);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.lp-feature:hover {
+  transform: translateY(-4px);
+  border-color: rgba(45, 212, 191, 0.35);
+  box-shadow: 0 14px 40px -22px var(--glow);
+}
+
+.lp-feature h3 {
+  font-size: 1.08rem;
+  margin: 20px 0 10px;
+}
+
+.lp-feature p {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* How it works */
+.lp-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  counter-reset: none;
+}
+
+.lp-step {
+  position: relative;
+  padding: 30px 28px 32px;
+  border-top: 1px solid rgba(45, 212, 191, 0.25);
+}
+
+.lp-step-num {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--accent);
+  margin-bottom: 20px;
+}
+
+.lp-step h3 {
+  font-size: 1.15rem;
+  margin-bottom: 10px;
+}
+
+.lp-step p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Minimal branding ending */
+.lp-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 0 40px;
+  text-align: center;
+}
+
+.lp-end-tag {
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+/* ---------- Reveal (only when landing.js is active) ---------- */
+.lp-js .lp-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.lp-js .lp-reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+.lp-js .lp-reveal.in.lp-guide:hover,
+.lp-js .lp-reveal.in.lp-feature:hover {
+  transform: translateY(-4px);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .lp-about-grid,
+  .lp-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lp-guides {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .lp-nav-toggle {
+    display: inline-flex;
+  }
+
+  .lp-nav-links {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 12px 24px 24px;
+    background: rgba(5, 9, 10, 0.96);
+    border-bottom: 1px solid rgba(45, 212, 191, 0.12);
+    display: none;
+  }
+
+  .lp-nav.open .lp-nav-links {
+    display: flex;
+  }
+
+  .lp-nav-links a:not(.lp-btn) {
+    padding: 12px 0;
+    font-size: 1rem;
+  }
+
+  .lp-nav-links .lp-btn {
+    margin-top: 8px;
+  }
+
+  .lp-hero {
+    min-height: 0;
+    padding: 112px 0 24px;
+  }
+
+  .lp-hero-inner {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .lp-hero-copy {
+    max-width: none;
+    padding-top: 0;
+  }
+
+  .lp-hero-art {
+    justify-self: center;
+    margin-right: 0;
+    width: min(80%, 360px);
+    order: 2;
+  }
+
+  .lp-hero-bg {
+    background:
+      linear-gradient(180deg, rgba(5, 9, 10, 0.88) 0%, rgba(5, 9, 10, 0.7) 50%, #05090a 100%),
+      url('/assets/backgrounds/signup-bg.png') 70% 30% / cover no-repeat;
+  }
+
+  .lp-scroll {
+    display: none;
+  }
+
+  .lp-section {
+    padding: 84px 0;
+  }
+
+  #about,
+  #features {
+    padding: 40px 0 36px;
+  }
+
+  .lp-split {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .lp-container {
+    padding: 0 16px;
+  }
+
+  .lp-about-grid,
+  .lp-features,
+  .lp-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-guides {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .lp-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lp-checks {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-progress-card {
+    padding: 22px;
+  }
+
+  .lp-hero-actions .lp-btn {
+    flex: 1 1 auto;
+  }
+
+  .lp-step {
+    padding: 24px 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(body.landing-page) {
+    scroll-behavior: auto;
+  }
+
+  .lp-leaf,
+  .lp-scroll-mouse span {
+    animation: none;
+  }
+}

@@ -48,16 +48,16 @@ function wireLoginForm() {
     const formData = new FormData(form);
     const username = formData.get('username').trim();
     const password = formData.get('password');
-    const dateOfBirth = formData.get('dateOfBirth');
 
-    if (!username || !password || !dateOfBirth) {
+    if (!username || !password) {
       showToast('Please fill in all fields.', { isError: true });
       return;
     }
 
     submitBtn.disabled = true;
     try {
-      await api.post('/auth/login', { username, password, dateOfBirth });
+      await api.post('/auth/login', { username, password });
+      await openThemeSelect();
       window.location.href = 'questboard.html';
     } catch (err) {
       showToast(err.message, { isError: true });
@@ -66,9 +66,28 @@ function wireLoginForm() {
   });
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function wireSignupForm() {
   const form = document.getElementById('signup-form');
   if (!form) return;
+
+  const emailInput = form.querySelector('input[name="email"]');
+  const emailField = document.getElementById('email-field');
+  const emailError = document.getElementById('email-error');
+
+  function validateEmail() {
+    const email = emailInput.value.trim();
+    const valid = EMAIL_RE.test(email);
+    emailField.classList.toggle('invalid', !valid);
+    emailError.hidden = valid;
+    return valid;
+  }
+
+  emailInput.addEventListener('input', () => {
+    if (emailError.hidden === false) validateEmail();
+  });
+  emailInput.addEventListener('blur', validateEmail);
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -84,6 +103,11 @@ function wireSignupForm() {
       showToast('Please fill in all fields.', { isError: true });
       return;
     }
+    if (!validateEmail()) {
+      showToast('Please enter a valid email address.', { isError: true });
+      emailInput.focus();
+      return;
+    }
     if (password !== confirmPassword) {
       showToast('Passwords do not match.', { isError: true });
       return;
@@ -96,6 +120,7 @@ function wireSignupForm() {
     submitBtn.disabled = true;
     try {
       await api.post('/auth/register', { username, email, password, confirmPassword, dateOfBirth });
+      await openThemeSelect();
       window.location.href = 'questboard.html';
     } catch (err) {
       showToast(err.message, { isError: true });
