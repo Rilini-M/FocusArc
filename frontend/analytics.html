@@ -4,59 +4,60 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analytics — FocusArc</title>
+  <link rel="icon" href="/assets/logo/logo.png.png" />
   <link rel="stylesheet" href="css/themes.css" />
   <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/analytics.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="shell">
     <div id="sidebar-root"></div>
 
-    <main class="main-content">
-      <div class="page-header">
+    <main class="main">
+      <div class="p-head">
         <h1>Analytics</h1>
       </div>
 
-      <section class="card analytics-hero">
-        <div class="analytics-hero-copy">
+      <section class="card an-hero">
+        <div class="an-copy">
           <h2>Track your progress. <span>Elevate your potential.</span></h2>
         </div>
-        <img class="analytics-hero-image" id="analytics-hero-image" src="" alt="" hidden />
+        <img class="an-img" id="analytics-hero-image" src="" alt="" hidden />
       </section>
 
-      <div class="stat-grid">
-        <div class="card stat-card">
-          <div class="stat-card-icon"><i data-lucide="list-checks"></i></div>
+      <div class="s-grid">
+        <div class="card s-card">
+          <div class="s-icon"><i data-lucide="list-checks"></i></div>
           <div>
-            <div class="stat-card-label">Total Quests</div>
-            <div class="stat-card-value" id="stat-total-quests">—</div>
+            <div class="s-label">Total Quests</div>
+            <div class="s-val" id="stat-total-quests">—</div>
           </div>
         </div>
-        <div class="card stat-card">
-          <div class="stat-card-icon"><i data-lucide="circle-check-big"></i></div>
+        <div class="card s-card">
+          <div class="s-icon"><i data-lucide="circle-check-big"></i></div>
           <div>
-            <div class="stat-card-label">Completed Quests</div>
-            <div class="stat-card-value" id="stat-completed-quests">—</div>
+            <div class="s-label">Completed Quests</div>
+            <div class="s-val" id="stat-completed-quests">—</div>
           </div>
         </div>
-        <div class="card stat-card">
-          <div class="stat-card-icon"><i data-lucide="clock"></i></div>
+        <div class="card s-card">
+          <div class="s-icon"><i data-lucide="clock"></i></div>
           <div>
-            <div class="stat-card-label">Study Time</div>
-            <div class="stat-card-value" id="stat-study-time">—</div>
+            <div class="s-label">Study Time</div>
+            <div class="s-val" id="stat-study-time">—</div>
           </div>
         </div>
       </div>
 
-      <div class="analytics-grid">
+      <div class="an-grid">
         <section class="card">
-          <h3 class="panel-title">Quest Progress</h3>
+          <h3 class="p-title">Quest Progress</h3>
           <div id="quest-progress-container"></div>
         </section>
 
-        <section class="card quest-distribution">
-          <h3 class="panel-title">Quest Distribution</h3>
+        <section class="card q-dist">
+          <h3 class="p-title">Quest Distribution</h3>
           <div id="quest-distribution-container"></div>
         </section>
       </div>

@@ -1,9 +1,3 @@
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
 function openModal(id) {
   document.getElementById(id).classList.add('open');
 }
@@ -11,33 +5,24 @@ function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
 
-async function renderCharacterOptions(characters, selectedId) {
+function renderCharacterOptions(characters, selectedId) {
   const container = document.getElementById('character-options');
   container.innerHTML = characters
     .map(
       (c) => `
-      <button class="avatar-option${c.id === selectedId ? ' selected' : ''}" data-character-id="${c.id}" title="${escapeHtml(c.name)}">
+      <button class="avatar${c.id === selectedId ? ' selected' : ''}" data-character-id="${c.id}" title="${escapeHtml(c.name)}">
         <img src="${c.image_path}" alt="${escapeHtml(c.name)}" />
       </button>`
     )
     .join('');
 
-  container.querySelectorAll('.avatar-option').forEach((btn) => {
+  container.querySelectorAll('.avatar').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const characterId = Number(btn.dataset.characterId);
       try {
         await api.patch('/settings/character', { characterId });
-        container.querySelectorAll('.avatar-option').forEach((b) => b.classList.remove('selected'));
+        container.querySelectorAll('.avatar').forEach((b) => b.classList.remove('selected'));
         btn.classList.add('selected');
-
-        const chosen = characters.find((c) => c.id === characterId);
-        const heroImage = document.getElementById('settings-hero-image');
-        if (chosen && heroImage) {
-          heroImage.src = chosen.image_path;
-          heroImage.alt = chosen.name;
-          heroImage.hidden = false;
-        }
-
         showToast('Study companion updated.');
       } catch (err) {
         showToast(err.message, { isError: true });
@@ -47,7 +32,7 @@ async function renderCharacterOptions(characters, selectedId) {
 }
 
 function renderThemeOptions(selectedTheme) {
-  const swatches = document.querySelectorAll('.theme-swatch');
+  const swatches = document.querySelectorAll('.swatch');
   swatches.forEach((swatch) => {
     swatch.classList.toggle('selected', swatch.dataset.themeOption === selectedTheme);
     swatch.addEventListener('click', async () => {
@@ -77,7 +62,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Rendered first and synchronously — see questboard.js for why this can't wait behind
   // the auth/settings network calls without causing a visible theme/chrome flash.
   renderSidebar('settings');
-  refreshIcons();
 
   const user = await requireAuth();
   if (!user) return;
@@ -88,14 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const characters = await api.get('/characters');
     renderCharacterOptions(characters, settings ? settings.character_id : null);
     renderThemeOptions(settings ? settings.theme : 'default');
-
-    const activeCharacter = settings && characters.find((c) => c.id === settings.character_id);
-    if (activeCharacter) {
-      const heroImage = document.getElementById('settings-hero-image');
-      heroImage.src = activeCharacter.image_path;
-      heroImage.alt = activeCharacter.name;
-      heroImage.hidden = false;
-    }
   } catch (err) {
     showToast(err.message, { isError: true });
   }
@@ -121,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelectorAll('[data-close-modal]').forEach((btn) => {
     btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
   });
-  document.querySelectorAll('.settings-modal-backdrop').forEach((backdrop) => {
+  document.querySelectorAll('.st-bg').forEach((backdrop) => {
     backdrop.addEventListener('click', (event) => {
       if (event.target === backdrop) backdrop.classList.remove('open');
     });
@@ -130,6 +106,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('profile-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.target;
+    const problem = emailError(form.elements.email.value) || dateOfBirthError(form.elements.dateOfBirth.value);
+    if (problem) {
+      showToast(problem, { isError: true });
+      return;
+    }
     try {
       await api.put('/profile', {
         username: form.elements.username.value.trim(),

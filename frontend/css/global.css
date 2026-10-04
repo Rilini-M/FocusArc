@@ -49,8 +49,8 @@ body::before {
   pointer-events: none;
 }
 
-.app-shell,
-.auth-shell {
+.shell,
+.a-shell {
   position: relative;
   z-index: 2;
 }
@@ -82,13 +82,13 @@ button {
 }
 
 
-.app-shell {
+.shell {
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100vh;
 }
 
-.sidebar {
+.side {
   width: 240px;
   flex-shrink: 0;
   background: var(--bg-secondary);
@@ -101,7 +101,7 @@ button {
   height: 100vh;
 }
 
-.sidebar-brand {
+.side-brand {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -109,7 +109,7 @@ button {
   padding: 0 6px;
 }
 
-.sidebar-brand-icon {
+.sb-icon {
   width: 30px;
   height: 30px;
   object-fit: contain;
@@ -119,12 +119,12 @@ button {
   mix-blend-mode: screen;
 }
 
-.sidebar-brand-text {
+.sb-text {
   font-size: 1.15rem;
   color: var(--text-primary);
 }
 
-.sidebar-tagline {
+.side-tag {
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -133,7 +133,7 @@ button {
   margin-bottom: 28px;
 }
 
-.nav-list {
+.nav-ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -143,7 +143,7 @@ button {
   flex: 1;
 }
 
-.nav-link {
+.nav-a {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -156,29 +156,29 @@ button {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.nav-link svg {
+.nav-a svg {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
 }
 
-.nav-link:hover {
+.nav-a:hover {
   color: var(--text-primary);
   background: var(--bg-tertiary);
 }
 
-.nav-link.active {
+.nav-a.active {
   color: var(--accent);
   background: var(--bg-tertiary);
-  border-color: var(--border-strong, var(--border));
+  border-color: var(--border);
   box-shadow: 0 0 16px var(--glow);
 }
 
-.nav-logout {
+.nav-out {
   margin-top: auto;
 }
 
-.main-content {
+.main {
   flex: 1;
   min-width: 0;
   /* On wide/fullscreen displays, cap the content at 1400px and centre it in the space
@@ -186,32 +186,19 @@ button {
   padding: 36px max(40px, calc((100% - 1400px) / 2));
 }
 
-.page-header {
+.p-head {
   margin-bottom: 28px;
 }
 
-.page-header h1 {
+.p-head h1 {
   font-size: 1.7rem;
   margin: 0;
   color: var(--text-primary);
 }
 
-.page-header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 28px;
-}
-
-.page-header-row .page-header {
-  margin-bottom: 0;
-}
-
 /* ---------------------------------------------------------------- mobile nav */
 
-.mobile-nav-toggle {
+.nav-tog {
   display: none;
   position: fixed;
   top: 16px;
@@ -227,25 +214,25 @@ button {
   justify-content: center;
 }
 
-.sidebar-backdrop {
+.side-bg {
   display: none;
 }
 
 @media (max-width: 880px) {
-  .app-shell {
-    /* Below this width .sidebar is fixed/off-canvas (see below), so the reserved 240px
-       column would just be dead space squeezing .main-content — collapse to one column. */
+  .shell {
+    /* Below this width .side is fixed/off-canvas (see below), so the reserved 240px
+       column would just be dead space squeezing .main — collapse to one column. */
     grid-template-columns: 1fr;
     /* #sidebar-root is now an empty first row; without this, min-height: 100vh splits the
-       spare height between it and .main-content and pushes short pages down. */
+       spare height between it and .main and pushes short pages down. */
     align-content: start;
   }
 
-  .mobile-nav-toggle {
+  .nav-tog {
     display: flex;
   }
 
-  .sidebar {
+  .side {
     position: fixed;
     left: 0;
     top: 0;
@@ -255,11 +242,11 @@ button {
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
   }
 
-  .sidebar.open {
+  .side.open {
     transform: translateX(0);
   }
 
-  .sidebar-backdrop.open {
+  .side-bg.open {
     display: block;
     position: fixed;
     inset: 0;
@@ -267,7 +254,7 @@ button {
     z-index: 45;
   }
 
-  .main-content {
+  .main {
     padding: 84px 20px 40px;
   }
 }
@@ -279,10 +266,6 @@ button {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 22px;
-}
-
-.glow-card {
-  box-shadow: 0 0 30px -12px var(--glow);
 }
 
 .btn {
@@ -303,33 +286,33 @@ button {
   transform: scale(0.98);
 }
 
-.btn-primary {
+.btn-p {
   background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
   color: #05090a;
   box-shadow: 0 0 22px var(--glow);
 }
 
-.btn-primary:hover {
+.btn-p:hover {
   box-shadow: 0 0 30px var(--glow);
 }
 
-.btn-secondary {
+.btn-s {
   background: transparent;
   border-color: var(--border);
   color: var(--text-primary);
 }
 
-.btn-secondary:hover {
+.btn-s:hover {
   background: var(--bg-tertiary);
 }
 
-.btn-danger {
+.btn-d {
   background: transparent;
   border-color: rgba(248, 113, 113, 0.4);
   color: var(--danger);
 }
 
-.btn-danger:hover {
+.btn-d:hover {
   background: rgba(248, 113, 113, 0.1);
 }
 
@@ -377,40 +360,13 @@ button {
   box-shadow: 0 0 0 3px var(--glow);
 }
 
-.field-error {
+.f-err {
   color: var(--danger);
   font-size: 0.82rem;
   margin: -8px 0 12px 4px;
 }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border: 1px solid var(--border);
-}
-
-.status-pill.todo {
-  color: var(--text-secondary);
-}
-
-.status-pill.in-progress {
-  color: var(--accent-secondary);
-  border-color: var(--accent-secondary);
-}
-
-.status-pill.completed {
-  color: var(--success);
-  border-color: var(--success);
-}
-
-.icon-btn {
+.i-btn {
   width: 34px;
   height: 34px;
   display: inline-flex;
@@ -424,24 +380,24 @@ button {
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.icon-btn svg {
+.i-btn svg {
   width: 16px;
   height: 16px;
 }
 
-.icon-btn:hover {
+.i-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
 }
 
-.icon-btn.danger:hover {
+.i-btn.danger:hover {
   color: var(--danger);
   border-color: var(--danger);
 }
 
 /* Shared "big character portrait + quote card" hero — used by Quest Board (compact) and
    Character Guide (full-size, via its own min-height/image-size override). */
-.companion-hero {
+.c-hero {
   position: relative;
   display: flex;
   align-items: flex-end;
@@ -455,7 +411,7 @@ button {
     var(--bg-secondary);
 }
 
-.companion-hero-image {
+.ch-img {
   width: 190px;
   height: 220px;
   object-fit: cover;
@@ -464,7 +420,7 @@ button {
   mask-image: linear-gradient(to right, black 55%, transparent 100%);
 }
 
-.companion-hero-quote-card {
+.qt-card {
   flex: 1;
   margin: 22px 22px 22px 0;
   padding: 18px 22px;
@@ -477,14 +433,14 @@ button {
   justify-content: center;
 }
 
-.companion-hero-quote-mark {
+.qt-mark {
   color: var(--accent);
   font-size: 1.6rem;
   line-height: 1;
   margin-bottom: 6px;
 }
 
-.companion-hero-quote {
+.ch-quote {
   font-size: 1.25rem;
   line-height: 1.5;
   font-style: italic;
@@ -494,7 +450,7 @@ button {
 }
 
 /* The current character's name, shown directly under the quote on both pages. */
-.companion-hero-quote-author {
+.qt-author {
   display: block;
   margin-top: 14px;
   font-size: 1rem;
@@ -506,30 +462,30 @@ button {
 }
 
 @media (max-width: 700px) {
-  .companion-hero {
+  .c-hero {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .companion-hero-image {
+  .ch-img {
     width: 100%;
     height: 180px;
     -webkit-mask-image: linear-gradient(to top, black 55%, transparent 100%);
     mask-image: linear-gradient(to top, black 55%, transparent 100%);
   }
 
-  .companion-hero-quote-card {
+  .qt-card {
     margin: 0 16px 16px;
   }
 }
 
-.empty-state {
+.empty {
   text-align: center;
   padding: 48px 20px;
   color: var(--text-secondary);
 }
 
-.empty-state h3 {
+.empty h3 {
   color: var(--text-primary);
   margin: 0 0 8px;
   font-size: 1.05rem;
@@ -562,7 +518,7 @@ button {
   color: var(--danger);
 }
 
-.fade-in {
+.fade {
   animation: focusarc-fade-in 0.35s ease both;
 }
 

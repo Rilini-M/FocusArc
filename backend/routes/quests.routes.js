@@ -8,7 +8,6 @@ const router = express.Router();
 router.use(authenticate);
 
 router.get('/', controller.list);
-router.get('/:id', controller.getOne);
 router.post('/', validateQuest, controller.create);
 router.put('/:id', validateQuest, controller.update);
 router.patch('/:id/status', validateStatus, controller.updateStatus);

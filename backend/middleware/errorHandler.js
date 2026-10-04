@@ -4,7 +4,6 @@ function notFoundHandler(req, res) {
   return failure(res, 'The requested resource was not found.', 404);
 }
 
-// eslint-disable-next-line no-unused-vars
 function errorHandler(err, req, res, next) {
   console.error(err);
 

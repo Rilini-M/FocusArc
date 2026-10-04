@@ -1,6 +1,5 @@
 const MAX_QUESTS = 10;
 const STATUS_LABELS = { TODO: 'To Do', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed' };
-const STATUS_CLASSES = { TODO: 'todo', IN_PROGRESS: 'in-progress', COMPLETED: 'completed' };
 
 let quests = [];
 let activeFilter = 'ALL';
@@ -53,7 +52,7 @@ function renderQuestList() {
 
   if (visible.length === 0) {
     container.innerHTML = `
-      <div class="empty-state card">
+      <div class="empty card">
         <h3>${quests.length === 0 ? 'No quests yet.' : 'Nothing here yet.'}</h3>
         <p>${quests.length === 0 ? 'Create your first study quest.' : 'Try a different filter.'}</p>
       </div>`;
@@ -67,20 +66,20 @@ function renderQuestList() {
 
       const studyControl = isStudyingThis
         ? `
-          <div class="study-timer-chip">${icon('timer', 15)}<span data-quest-timer="${quest.id}">00:00:00</span></div>
-          <button type="button" class="btn btn-danger study-btn" data-action="stop-study">${icon('circle-stop', 16)} Stop Study</button>`
+          <div class="timer">${icon('timer', 15)}<span data-quest-timer="${quest.id}">00:00:00</span></div>
+          <button type="button" class="btn btn-d s-btn" data-action="stop-study">${icon('circle-stop', 16)} Stop Study</button>`
         : `
-          <button type="button" class="btn btn-primary study-btn" data-action="start-study"${anotherActive ? ' disabled title="Finish your current study session first"' : ''}>${icon('play', 16)} Start Study</button>`;
+          <button type="button" class="btn btn-p s-btn" data-action="start-study"${anotherActive ? ' disabled title="Finish your current study session first"' : ''}>${icon('play', 16)} Start Study</button>`;
 
       return `
-      <div class="card quest-card fade-in" data-quest-id="${quest.id}" data-status="${quest.status}">
-        <div class="quest-card-top">
-          <div class="quest-card-body">
-            <h3 class="quest-card-title">${escapeHtml(quest.title)}</h3>
-            <p class="quest-card-desc">${escapeHtml(quest.description)}</p>
+      <div class="card quest-card fade" data-quest-id="${quest.id}" data-status="${quest.status}">
+        <div class="q-top">
+          <div class="q-body">
+            <h3 class="q-title">${escapeHtml(quest.title)}</h3>
+            <p class="q-desc">${escapeHtml(quest.description)}</p>
           </div>
-          <div class="quest-card-actions">
-            <select class="quest-status-select" data-action="status">
+          <div class="q-acts">
+            <select class="q-select" data-action="status">
               ${Object.entries(STATUS_LABELS)
                 .map(
                   ([value, label]) =>
@@ -88,11 +87,11 @@ function renderQuestList() {
                 )
                 .join('')}
             </select>
-            <button class="icon-btn" data-action="edit" aria-label="Edit quest">${icon('pencil', 16)}</button>
-            <button class="icon-btn danger" data-action="delete" aria-label="Delete quest">${icon('trash-2', 16)}</button>
+            <button class="i-btn" data-action="edit" aria-label="Edit quest">${icon('pencil', 16)}</button>
+            <button class="i-btn danger" data-action="delete" aria-label="Delete quest">${icon('trash-2', 16)}</button>
           </div>
         </div>
-        <div class="quest-card-study">${studyControl}</div>
+        <div class="q-study">${studyControl}</div>
       </div>`;
     })
     .join('');
@@ -120,12 +119,6 @@ function renderQuestList() {
   refreshIcons();
 
   if (activeStudySession) startTimerTick();
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
 }
 
 async function loadQuests() {
@@ -258,7 +251,7 @@ async function initCompanion() {
     imageEl.hidden = false;
 
     if (quotes.length === 0) {
-      quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(character.description || 'Stay focused. One quest at a time.')}</span><span class="companion-hero-quote-author">${escapeHtml(character.name)}</span>`;
+      quoteEl.innerHTML = `<span class="qt-text">${escapeHtml(character.description || 'Stay focused. One quest at a time.')}</span><span class="qt-author">${escapeHtml(character.name)}</span>`;
       return;
     }
 
@@ -266,18 +259,18 @@ async function initCompanion() {
     const showQuote = () => {
       quoteEl.style.opacity = 0;
       setTimeout(() => {
-        quoteEl.innerHTML = `<span class="companion-hero-quote-text">${escapeHtml(quotes[index].quote_text)}</span><span class="companion-hero-quote-author">${escapeHtml(character.name)}</span>`;
+        quoteEl.innerHTML = `<span class="qt-text">${escapeHtml(quotes[index].quote_text)}</span><span class="qt-author">${escapeHtml(character.name)}</span>`;
         quoteEl.style.opacity = 1;
       }, 200);
     };
 
     showQuote();
 
-    if (settings.auto_quote && quotes.length > 1) {
+    if (quotes.length > 1) {
       quoteRotationTimer = setInterval(() => {
         index = (index + 1) % quotes.length;
         showQuote();
-      }, settings.quote_interval || 10000);
+      }, 8000);
     }
   } catch (err) {
     quoteEl.textContent = 'Stay focused. One quest at a time.';
@@ -297,7 +290,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadAndApplyTheme();
   initCompanion();
-  refreshIcons();
 
   try {
     await Promise.all([loadQuests(), loadActiveStudySession()]);
@@ -321,9 +313,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   document.getElementById('quest-form').addEventListener('submit', submitQuestForm);
 
-  document.querySelectorAll('.filter-tab').forEach((tab) => {
+  document.querySelectorAll('.tab').forEach((tab) => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.filter-tab').forEach((t) => t.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
       activeFilter = tab.dataset.filter;
       renderQuestList();

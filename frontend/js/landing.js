@@ -1,7 +1,7 @@
 /*
   Public landing page behavior: navbar background on scroll, mobile menu toggle, and a
   subtle fade-up reveal for sections. Content is fully visible without JS — the reveal
-  styles only apply once this script adds .lp-js to <html>.
+  styles only apply once this script adds .js to <html>.
 */
 
 (function initLanding() {
@@ -30,7 +30,7 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion || !('IntersectionObserver' in window)) return;
 
-  document.documentElement.classList.add('lp-js');
+  document.documentElement.classList.add('js');
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -42,5 +42,5 @@
     },
     { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
   );
-  document.querySelectorAll('.lp-reveal').forEach((el) => observer.observe(el));
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 })();

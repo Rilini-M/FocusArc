@@ -10,71 +10,73 @@
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/landing.css" />
 </head>
-<body class="landing-page">
+<body class="l-page">
   <div class="landing">
 
   
-    <header class="lp-nav" id="lp-nav">
-      <div class="lp-container lp-nav-inner">
-        <a class="lp-brand" href="#home" aria-label="FocusArc home">
+    <header class="l-nav" id="lp-nav">
+      <div class="wrap ln-inner">
+        <a class="l-brand" href="#home" aria-label="FocusArc home">
           <img src="/assets/logo/logo.png.png" alt="" />
           <span class="brand">FocusArc</span>
         </a>
 
-        <button class="lp-nav-toggle" id="lp-nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="lp-nav-links">
+        <button class="ln-tog" id="lp-nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="lp-nav-links">
           <i data-lucide="menu"></i>
         </button>
 
-        <nav class="lp-nav-links" id="lp-nav-links" aria-label="Main">
+        <nav class="ln-links" id="lp-nav-links" aria-label="Main">
           <a href="#home">Home</a>
           <a href="#about">About Us</a>
           <a href="#features">Features</a>
           <a href="login.html">Login</a>
-          <a class="lp-btn lp-btn-primary lp-btn-sm" href="signup.html">Signup</a>
+          <a class="l-btn l-main l-sm" href="signup.html">Signup</a>
         </nav>
       </div>
     </header>
 
     <main>
      
-      <section class="lp-hero" id="home">
-        <div class="lp-hero-bg" aria-hidden="true"></div>
-        <svg class="lp-leaf" style="top:18%; left:46%; width:18px;" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z"/></svg>
-        <svg class="lp-leaf" style="top:68%; left:6%; width:14px; animation-delay:3s;" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z"/></svg>
-        <svg class="lp-leaf" style="top:32%; left:88%; width:16px; animation-delay:5s;" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z"/></svg>
+      <section class="hero" id="home">
+        <div class="h-bg" aria-hidden="true"></div>
+        <svg class="leaf" style="top:18%; left:46%; width:18px;" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z"/></svg>
+        <svg class="leaf" style="top:68%; left:6%; width:14px; animation-delay:3s;" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z"/></svg>
+        <svg class="leaf" style="top:32%; left:88%; width:16px; animation-delay:5s;" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z"/></svg>
 
-        <div class="lp-container lp-hero-inner">
-          <div class="lp-hero-copy">
-            <span class="lp-eyebrow">Study Quest System</span>
-            <h1>Turn your study tasks into <span class="lp-accent">powerful quests.</span></h1>
-            <div class="lp-hero-actions">
-              <a class="lp-btn lp-btn-primary" href="signup.html">Start Your Journey <i data-lucide="arrow-right"></i></a>
-              <a class="lp-btn lp-btn-ghost" href="#about">Learn More</a>
+        <div class="wrap h-inner">
+          <div class="h-copy">
+            <span class="eyebrow">Study Quest System</span>
+            <h1>Turn your study tasks into <span class="accent">powerful quests.</span></h1>
+            <p class="h-sub">Study smarter. Stay focused. Achieve your goals.</p>
+            <div class="h-acts">
+              <a class="l-btn l-main" href="signup.html">Start Your Journey <i data-lucide="arrow-right"></i></a>
+              <a class="l-btn l-ghost" href="#about">Learn More</a>
             </div>
           </div>
 
-          <div class="lp-hero-art">
-            <div class="lp-hero-halo" aria-hidden="true"></div>
+          <div class="h-art">
+            <div class="h-halo" aria-hidden="true"></div>
             <img src="/assets/characters/signupcharacter.png" alt="FocusArc study companion" />
           </div>
         </div>
 
-        <a class="lp-scroll" href="#about" aria-label="Scroll to About Us">
-          <span class="lp-scroll-mouse"><span></span></span>
+        <a class="scroll" href="#about" aria-label="Scroll to About Us">
+          <span class="mouse"><span></span></span>
         </a>
       </section>
 
       
-      <section class="lp-section" id="about">
-        <div class="lp-container">
-          <div class="lp-section-head lp-reveal">
-            <span class="lp-eyebrow">About Us</span>
+      <section class="sec" id="about">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="eyebrow">About Us</span>
             <h2>Your study workload, organized as quests.</h2>
             <p>FocusArc turns ordinary study tasks into manageable quests so students can organize their work, track progress, stay focused, and build consistent study habits.</p>
           </div>
 
-          <div class="lp-about-grid">
-            <div class="lp-about-group lp-reveal">
+          <div class="ab-grid">
+            <div class="ab-group reveal">
+              <div class="ab-icon"><i data-lucide="list-checks"></i></div>
               <h3>Organize</h3>
               <ul>
                 <li>Create study quests and tasks</li>
@@ -83,21 +85,24 @@
                 <li>Change task status</li>
               </ul>
             </div>
-            <div class="lp-about-group lp-reveal">
+            <div class="ab-group reveal">
+              <div class="ab-icon"><i data-lucide="timer"></i></div>
               <h3>Focus</h3>
               <ul>
                 <li>Start and stop study sessions</li>
                 <li>Track study time</li>
               </ul>
             </div>
-            <div class="lp-about-group lp-reveal">
+            <div class="ab-group reveal">
+              <div class="ab-icon"><i data-lucide="trending-up"></i></div>
               <h3>Measure</h3>
               <ul>
                 <li>Monitor productivity</li>
                 <li>View progress through Analytics</li>
               </ul>
             </div>
-            <div class="lp-about-group lp-reveal">
+            <div class="ab-group reveal">
+              <div class="ab-icon"><i data-lucide="sliders-horizontal"></i></div>
               <h3>Personalize</h3>
               <ul>
                 <li>Choose an anime character</li>
@@ -110,13 +115,13 @@
       </section>
 
     
-      <section class="lp-section lp-section-alt" id="analytics">
-        <div class="lp-container lp-split">
-          <div class="lp-split-copy lp-reveal">
-            <span class="lp-eyebrow">Analytics</span>
+      <section class="sec sec-alt" id="analytics">
+        <div class="wrap split">
+          <div class="split-copy reveal">
+            <span class="eyebrow">Analytics</span>
             <h2>See your progress at a glance.</h2>
             <p>Every quest you create feeds into Analytics, so you always know where you stand. Beyond task counts, Analytics can show:</p>
-            <ul class="lp-checks">
+            <ul class="checks">
               <li><i data-lucide="check"></i> Study consistency</li>
               <li><i data-lucide="check"></i> Productivity trends</li>
               <li><i data-lucide="check"></i> Focus ratio</li>
@@ -124,100 +129,100 @@
             </ul>
           </div>
 
-          <div class="lp-progress-card lp-reveal" aria-label="Example analytics: 10 total tasks, 6 completed, 2 in progress, 2 to do">
-            <div class="lp-progress-head">
+          <div class="pc reveal" aria-label="Example analytics: 10 total tasks, 6 completed, 2 in progress, 2 to do">
+            <div class="pc-head">
               <span>Task overview</span>
-              <span class="lp-progress-pct">60% complete</span>
+              <span class="pc-pct">60% complete</span>
             </div>
-            <div class="lp-stats">
-              <div class="lp-stat"><span class="lp-stat-num">10</span><span class="lp-stat-label">Total Tasks</span></div>
-              <div class="lp-stat"><span class="lp-stat-num lp-c-done">6</span><span class="lp-stat-label">Completed</span></div>
-              <div class="lp-stat"><span class="lp-stat-num lp-c-prog">2</span><span class="lp-stat-label">In Progress</span></div>
-              <div class="lp-stat"><span class="lp-stat-num lp-c-todo">2</span><span class="lp-stat-label">To Do</span></div>
+            <div class="stats">
+              <div class="stat"><span class="stat-num">10</span><span class="stat-label">Total Tasks</span></div>
+              <div class="stat"><span class="stat-num c-done">6</span><span class="stat-label">Completed</span></div>
+              <div class="stat"><span class="stat-num c-prog">2</span><span class="stat-label">In Progress</span></div>
+              <div class="stat"><span class="stat-num c-todo">2</span><span class="stat-label">To Do</span></div>
             </div>
-            <div class="lp-bar" role="img" aria-label="6 completed, 2 in progress, 2 to do">
-              <span class="lp-bar-done" style="width:60%"></span>
-              <span class="lp-bar-prog" style="width:20%"></span>
-              <span class="lp-bar-todo" style="width:20%"></span>
+            <div class="bar" role="img" aria-label="6 completed, 2 in progress, 2 to do">
+              <span class="bar-done" style="width:60%"></span>
+              <span class="bar-prog" style="width:20%"></span>
+              <span class="bar-todo" style="width:20%"></span>
             </div>
-            <div class="lp-legend">
-              <span><i class="lp-dot lp-bar-done"></i>Completed</span>
-              <span><i class="lp-dot lp-bar-prog"></i>In Progress</span>
-              <span><i class="lp-dot lp-bar-todo"></i>To Do</span>
+            <div class="legend">
+              <span><i class="dot bar-done"></i>Completed</span>
+              <span><i class="dot bar-prog"></i>In Progress</span>
+              <span><i class="dot bar-todo"></i>To Do</span>
             </div>
           </div>
         </div>
       </section>
 
      
-      <section class="lp-section" id="guide">
-        <div class="lp-container">
-          <div class="lp-section-head lp-reveal">
-            <span class="lp-eyebrow">Character Guide</span>
+      <section class="sec" id="guide">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="eyebrow">Character Guide</span>
             <h2>Choose Your Guide</h2>
             <p>Personalize your FocusArc experience by choosing from five anime-inspired characters. Your guide stays with you across the app.</p>
           </div>
 
-          <div class="lp-guides">
-            <article class="lp-guide lp-reveal">
-              <div class="lp-guide-img"><img src="/assets/characters/tanjiro.jpg" alt="Tanjiro" /></div>
+          <div class="guides">
+            <article class="guide reveal">
+              <div class="guide-img"><img src="/assets/characters/tanjiro.jpg" alt="Tanjiro" /></div>
               <h3>Tanjiro</h3>
               <p>Determined and compassionate. Never gives up, no matter how hard the path.</p>
             </article>
-            <article class="lp-guide lp-reveal">
-              <div class="lp-guide-img"><img src="/assets/characters/l.jpg" alt="L" /></div>
+            <article class="guide reveal">
+              <div class="guide-img"><img src="/assets/characters/l.jpg" alt="L" /></div>
               <h3>L</h3>
               <p>Analytical and relentless in pursuit of the truth.</p>
             </article>
-            <article class="lp-guide lp-reveal">
-              <div class="lp-guide-img"><img src="/assets/characters/sung.jpg" alt="Sung Jin-Woo" /></div>
+            <article class="guide reveal">
+              <div class="guide-img"><img src="/assets/characters/sung.jpg" alt="Sung Jin-Woo" /></div>
               <h3>Sung Jin-Woo</h3>
               <p>Focused and self-disciplined. Grows stronger through consistent effort.</p>
             </article>
-            <article class="lp-guide lp-reveal">
-              <div class="lp-guide-img"><img src="/assets/characters/gilgamesh.jpg" alt="Gilgamesh" /></div>
+            <article class="guide reveal">
+              <div class="guide-img"><img src="/assets/characters/gilgamesh.jpg" alt="Gilgamesh" /></div>
               <h3>Gilgamesh</h3>
               <p>Strategic and supremely confident in his own capability.</p>
             </article>
-            <article class="lp-guide lp-reveal">
-              <div class="lp-guide-img"><img src="/assets/characters/alucard.jpg" alt="Alucard" /></div>
+            <article class="guide reveal">
+              <div class="guide-img"><img src="/assets/characters/alucard.jpg" alt="Alucard" /></div>
               <h3>Alucard</h3>
               <p>Relentless and unshakably composed under pressure.</p>
             </article>
           </div>
 
-          <div class="lp-center">
-            <a class="lp-link" href="character.html">Explore Character Guide <i data-lucide="arrow-right"></i></a>
+          <div class="center">
+            <a class="l-link" href="character.html">Explore Character Guide <i data-lucide="arrow-right"></i></a>
           </div>
         </div>
       </section>
 
       
-      <section class="lp-section lp-section-alt" id="features">
-        <div class="lp-container">
-          <div class="lp-section-head lp-reveal">
-            <span class="lp-eyebrow">Features</span>
+      <section class="sec sec-alt" id="features">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="eyebrow">Features</span>
             <h2>Everything you need to stay on track.</h2>
           </div>
 
-          <div class="lp-features">
-            <article class="lp-feature lp-reveal">
-              <div class="lp-feature-icon"><i data-lucide="list-checks"></i></div>
+          <div class="feats">
+            <article class="feat reveal">
+              <div class="feat-icon"><i data-lucide="list-checks"></i></div>
               <h3>Quest Board</h3>
               <p>Create, edit, delete, organize, and complete your study quests. Track each task using To Do, In Progress, and Completed statuses.</p>
             </article>
-            <article class="lp-feature lp-reveal">
-              <div class="lp-feature-icon"><i data-lucide="bar-chart-3"></i></div>
+            <article class="feat reveal">
+              <div class="feat-icon"><i data-lucide="bar-chart-3"></i></div>
               <h3>Analytics</h3>
               <p>Understand your study progress with task statistics, completion progress, study consistency, and productivity insights.</p>
             </article>
-            <article class="lp-feature lp-reveal">
-              <div class="lp-feature-icon"><i data-lucide="user-round"></i></div>
+            <article class="feat reveal">
+              <div class="feat-icon"><i data-lucide="user-round"></i></div>
               <h3>Character Guide</h3>
               <p>Choose from five anime-inspired characters and personalize your FocusArc experience.</p>
             </article>
-            <article class="lp-feature lp-reveal">
-              <div class="lp-feature-icon"><i data-lucide="settings"></i></div>
+            <article class="feat reveal">
+              <div class="feat-icon"><i data-lucide="settings"></i></div>
               <h3>Settings</h3>
               <p>Change your theme and character, update your profile, and securely log out.</p>
             </article>
@@ -226,40 +231,33 @@
       </section>
 
       
-      <section class="lp-section" id="how">
-        <div class="lp-container">
-          <div class="lp-section-head lp-reveal">
-            <span class="lp-eyebrow">How It Works</span>
+      <section class="sec" id="how">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="eyebrow">How It Works</span>
             <h2>Three steps to a better study routine.</h2>
           </div>
 
-          <ol class="lp-steps">
-            <li class="lp-step lp-reveal">
-              <span class="lp-step-num">01</span>
+          <ol class="steps">
+            <li class="step reveal">
+              <span class="step-num">01</span>
               <h3>Create Your Quest</h3>
               <p>Add the study task you want to complete.</p>
             </li>
-            <li class="lp-step lp-reveal">
-              <span class="lp-step-num">02</span>
+            <li class="step reveal">
+              <span class="step-num">02</span>
               <h3>Stay Focused</h3>
               <p>Start a study session and work on your quest.</p>
             </li>
-            <li class="lp-step lp-reveal">
-              <span class="lp-step-num">03</span>
+            <li class="step reveal">
+              <span class="step-num">03</span>
               <h3>Track Your Progress</h3>
               <p>Check your completed tasks and study analytics.</p>
             </li>
           </ol>
         </div>
       </section>
-
     </main>
-
-    <!-- ============ BRANDING ============ -->
-    <footer class="lp-end">
-      <span class="brand">FocusArc</span>
-      <span class="lp-end-tag">Study Quest System</span>
-    </footer>
   </div>
 
   <script src="js/vendor/lucide.js"></script>

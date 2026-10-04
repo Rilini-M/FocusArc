@@ -18,7 +18,7 @@ async function register(req, res, next) {
     const userId = result.insertId;
 
     await pool.query(
-      `INSERT INTO user_settings (user_id, character_id, theme) VALUES (?, 1, 'default')`,
+      `INSERT INTO user_settings (user_id) VALUES (?)`,
       [userId]
     );
 
@@ -36,8 +36,7 @@ async function login(req, res, next) {
     const { username, password } = req.body;
 
     const [rows] = await pool.query(
-      `SELECT id, username, email, password_hash, date_of_birth
-       FROM users WHERE username = ?`,
+      `SELECT id, username, email, password_hash FROM users WHERE username = ?`,
       [username.trim()]
     );
 
@@ -69,7 +68,7 @@ function logout(req, res) {
 async function me(req, res, next) {
   try {
     const [rows] = await pool.query(
-      `SELECT id, username, email, date_of_birth, created_at FROM users WHERE id = ?`,
+      `SELECT id, username, email, date_of_birth FROM users WHERE id = ?`,
       [req.user.id]
     );
 

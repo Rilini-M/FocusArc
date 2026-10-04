@@ -6,7 +6,7 @@ const { success, failure } = require('../utils/responses');
 async function get(req, res, next) {
   try {
     const [rows] = await pool.query(
-      `SELECT id, username, email, date_of_birth, created_at FROM users WHERE id = ?`,
+      `SELECT id, username, email, date_of_birth FROM users WHERE id = ?`,
       [req.user.id]
     );
 
@@ -24,17 +24,13 @@ async function update(req, res, next) {
   try {
     const { username, email, dateOfBirth } = req.body;
 
-    if (!username || !email || !dateOfBirth) {
-      return failure(res, 'Username, email, and date of birth are required.');
-    }
-
     await pool.query(
       `UPDATE users SET username = ?, email = ?, date_of_birth = ? WHERE id = ?`,
       [username.trim(), email.trim().toLowerCase(), dateOfBirth, req.user.id]
     );
 
     const [rows] = await pool.query(
-      `SELECT id, username, email, date_of_birth, created_at FROM users WHERE id = ?`,
+      `SELECT id, username, email, date_of_birth FROM users WHERE id = ?`,
       [req.user.id]
     );
 

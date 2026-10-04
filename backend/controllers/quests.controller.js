@@ -5,29 +5,10 @@ const { hasReachedQuestLimit, MAX_QUESTS_PER_USER } = require('../services/quest
 async function list(req, res, next) {
   try {
     const [rows] = await pool.query(
-      `SELECT id, title, description, status, created_at, updated_at
-       FROM quests WHERE user_id = ? ORDER BY created_at ASC`,
+      `SELECT id, title, description, status FROM quests WHERE user_id = ? ORDER BY id`,
       [req.user.id]
     );
     return success(res, rows);
-  } catch (err) {
-    return next(err);
-  }
-}
-
-async function getOne(req, res, next) {
-  try {
-    const [rows] = await pool.query(
-      `SELECT id, title, description, status, created_at, updated_at
-       FROM quests WHERE id = ? AND user_id = ?`,
-      [req.params.id, req.user.id]
-    );
-
-    if (rows.length === 0) {
-      return failure(res, 'Quest not found.', 404);
-    }
-
-    return success(res, rows[0]);
   } catch (err) {
     return next(err);
   }
@@ -47,7 +28,7 @@ async function create(req, res, next) {
     );
 
     const [rows] = await pool.query(
-      `SELECT id, title, description, status, created_at, updated_at FROM quests WHERE id = ?`,
+      `SELECT id, title, description, status FROM quests WHERE id = ?`,
       [result.insertId]
     );
 
@@ -72,7 +53,7 @@ async function update(req, res, next) {
     }
 
     const [rows] = await pool.query(
-      `SELECT id, title, description, status, created_at, updated_at FROM quests WHERE id = ?`,
+      `SELECT id, title, description, status FROM quests WHERE id = ?`,
       [req.params.id]
     );
 
@@ -96,7 +77,7 @@ async function updateStatus(req, res, next) {
     }
 
     const [rows] = await pool.query(
-      `SELECT id, title, description, status, created_at, updated_at FROM quests WHERE id = ?`,
+      `SELECT id, title, description, status FROM quests WHERE id = ?`,
       [req.params.id]
     );
 
@@ -108,6 +89,16 @@ async function updateStatus(req, res, next) {
 
 async function remove(req, res, next) {
   try {
+    // Deleting would orphan an open session (quest_id is SET NULL), leaving it running with
+    // no Stop button on the Quest Board — so the session must be stopped first.
+    const [activeRows] = await pool.query(
+      `SELECT id FROM study_sessions WHERE quest_id = ? AND user_id = ? AND ended_at IS NULL LIMIT 1`,
+      [req.params.id, req.user.id]
+    );
+    if (activeRows.length > 0) {
+      return failure(res, 'Stop the active study session before deleting this quest.', 409);
+    }
+
     const [result] = await pool.query(`DELETE FROM quests WHERE id = ? AND user_id = ?`, [
       req.params.id,
       req.user.id,
@@ -123,4 +114,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { list, getOne, create, update, updateStatus, remove };
+module.exports = { list, create, update, updateStatus, remove };

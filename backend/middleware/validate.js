@@ -1,17 +1,84 @@
 const { failure } = require('../utils/responses');
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const QUEST_STATUSES = ['TODO', 'IN_PROGRESS', 'COMPLETED'];
 const THEMES = ['default', 'nature', 'dark', 'royal', 'vampire', 'cyberpunk'];
 
-function validateRegistration(req, res, next) {
-  const { username, email, password, confirmPassword, dateOfBirth } = req.body;
+// Email check (kept identical in backend/middleware/validate.js and frontend/js/auth.js).
+// Valid format, plus a spelling check for well-known providers: "gmial.com" or "gmail.con"
+// is almost always a typo, so it is rejected with a suggested fix.
+const EMAIL_RE = /^[a-z0-9_%+-]+(\.[a-z0-9_%+-]+)*@([a-z0-9-]+\.)+[a-z]{2,}$/;
+const EMAIL_PROVIDERS = { gmail: 'gmail.com', yahoo: 'yahoo.com', hotmail: 'hotmail.com', outlook: 'outlook.com', icloud: 'icloud.com' };
+const REAL_LOOKALIKES = ['mail', 'email', 'ymail', 'gmx', 'cloud']; // real providers that look like typos
+const COM_TYPOS = ['con', 'cmo', 'cm', 'om', 'comm', 'coom', 'vom', 'xom', 'cpm'];
 
-  if (!username || username.trim().length < 3) {
-    return failure(res, 'Username must be at least 3 characters.');
+// Letters changed, added, removed or swapped to turn a into b.
+function editDistance(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
   }
-  if (!email || !EMAIL_RE.test(email)) {
-    return failure(res, 'A valid email address is required.');
+  return d[a.length][b.length];
+}
+
+function emailError(email) {
+  const value = (email || '').trim().toLowerCase();
+  if (!EMAIL_RE.test(value) || value.length > 255) return 'Enter a valid email address, like name@gmail.com.';
+  const [local, domain] = value.split('@');
+  const name = domain.split('.')[0];
+  const ending = domain.slice(name.length + 1);
+  const suggest = (fixed) => `Check the spelling — did you mean ${local}@${fixed}?`;
+
+  if (EMAIL_PROVIDERS[name]) {
+    if (name === 'gmail' && ending !== 'com') return suggest('gmail.com');
+    if (COM_TYPOS.includes(ending) || ending === 'co') return suggest(EMAIL_PROVIDERS[name]);
+    return null;
+  }
+  if (!REAL_LOOKALIKES.includes(name)) {
+    for (const provider of Object.keys(EMAIL_PROVIDERS)) {
+      const allowed = provider === 'gmail' || provider.length >= 7 ? 2 : 1;
+      if (name.length >= 3 && editDistance(name, provider) <= allowed) return suggest(EMAIL_PROVIDERS[provider]);
+    }
+  }
+  if (COM_TYPOS.includes(ending)) return suggest(`${name}.com`);
+  return null;
+}
+
+// Date of birth must be a real YYYY-MM-DD calendar date between 1900-01-01 and today.
+function dateOfBirthError(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
+  const date = match && new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  if (!date || date.getMonth() !== Number(match[2]) - 1 || date.getDate() !== Number(match[3]) || match[1] < '1900') {
+    return 'A valid date of birth is required.';
+  }
+  if (date > new Date()) {
+    return 'Date of birth cannot be in the future.';
+  }
+  return null;
+}
+
+// Shared by sign-up and profile update. Lengths match the users table columns.
+function accountError({ username, email, dateOfBirth }) {
+  if (!username || username.trim().length < 3 || username.trim().length > 50) {
+    return 'Username must be 3–50 characters.';
+  }
+  const emailProblem = emailError(email);
+  if (emailProblem) {
+    return emailProblem;
+  }
+  return dateOfBirthError(dateOfBirth);
+}
+
+function validateRegistration(req, res, next) {
+  const { password, confirmPassword } = req.body;
+
+  const error = accountError(req.body);
+  if (error) {
+    return failure(res, error);
   }
   if (!password || password.length < 8) {
     return failure(res, 'Password must be at least 8 characters.');
@@ -19,11 +86,13 @@ function validateRegistration(req, res, next) {
   if (password !== confirmPassword) {
     return failure(res, 'Passwords do not match.');
   }
-  if (!dateOfBirth || Number.isNaN(Date.parse(dateOfBirth))) {
-    return failure(res, 'A valid date of birth is required.');
-  }
 
   return next();
+}
+
+function validateProfile(req, res, next) {
+  const error = accountError(req.body);
+  return error ? failure(res, error) : next();
 }
 
 function validateLogin(req, res, next) {
@@ -41,6 +110,9 @@ function validateQuest(req, res, next) {
 
   if (!title || !title.trim()) {
     return failure(res, 'Quest title is required.');
+  }
+  if (title.trim().length > 150) {
+    return failure(res, 'Quest title must be 150 characters or fewer.');
   }
   if (!description || !description.trim()) {
     return failure(res, 'Quest description is required.');
@@ -73,10 +145,9 @@ function validateTheme(req, res, next) {
 }
 
 module.exports = {
-  QUEST_STATUSES,
-  THEMES,
   validateRegistration,
   validateLogin,
+  validateProfile,
   validateQuest,
   validateStatus,
   validateTheme,

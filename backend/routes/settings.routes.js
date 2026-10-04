@@ -8,7 +8,6 @@ const router = express.Router();
 router.use(authenticate);
 
 router.get('/', controller.get);
-router.put('/', controller.update);
 router.patch('/character', controller.updateCharacter);
 router.patch('/theme', validateTheme, controller.updateTheme);
 

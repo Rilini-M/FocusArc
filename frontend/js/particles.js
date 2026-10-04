@@ -67,7 +67,6 @@ const FOCUSARC_PARTICLE_THEMES = {
   let particles = [];
   let width = 0;
   let height = 0;
-  let rafId = null;
   let clock = 0;
 
   function baseCount() {
@@ -247,49 +246,34 @@ const FOCUSARC_PARTICLE_THEMES = {
     ctx.restore();
   }
 
+  function draw(p) {
+    ctx.globalAlpha = p.alpha;
+    if (p.kind === 'leaf') drawLeaf(p);
+    else if (p.kind === 'sparkle') drawSparkle(p);
+    else if (p.kind === 'ember') drawEmber(p);
+    else if (p.kind === 'spark') drawSpark(p);
+    else drawDot(p);
+  }
+
   function step() {
     clock += 1;
     ctx.clearRect(0, 0, width, height);
 
     particles.forEach((p) => {
-      ctx.globalAlpha = p.alpha;
-
+      // Leaves sway and spin as they fall; every other kind drifts in a straight line.
       if (p.kind === 'leaf') {
         p.x += p.vx + Math.sin(clock * 0.01 + p.phase) * p.sway * 0.05;
-        p.y += p.vy;
         p.rotation += p.rotationSpeed;
-        wrap(p);
-        drawLeaf(p);
-      } else if (p.kind === 'dust') {
-        p.x += p.vx;
-        p.y += p.vy;
-        wrap(p);
-        drawDot(p);
-      } else if (p.kind === 'sparkle') {
-        p.x += p.vx;
-        p.y += p.vy;
-        wrap(p);
-        drawSparkle(p);
-      } else if (p.kind === 'ember') {
-        p.x += p.vx;
-        p.y += p.vy;
-        wrap(p);
-        drawEmber(p);
-      } else if (p.kind === 'spark') {
-        p.x += p.vx;
-        p.y += p.vy;
-        wrap(p);
-        drawSpark(p);
       } else {
         p.x += p.vx;
-        p.y += p.vy;
-        wrap(p);
-        drawDot(p);
       }
+      p.y += p.vy;
+      wrap(p);
+      draw(p);
     });
 
     ctx.globalAlpha = 1;
-    rafId = requestAnimationFrame(step);
+    requestAnimationFrame(step);
   }
 
   function setTheme(theme) {
@@ -305,14 +289,7 @@ const FOCUSARC_PARTICLE_THEMES = {
   } else {
     // Still render one still frame so the atmosphere isn't completely absent.
     ctx.clearRect(0, 0, width, height);
-    particles.forEach((p) => {
-      ctx.globalAlpha = p.alpha;
-      if (p.kind === 'leaf') drawLeaf(p);
-      else if (p.kind === 'sparkle') drawSparkle(p);
-      else if (p.kind === 'ember') drawEmber(p);
-      else if (p.kind === 'spark') drawSpark(p);
-      else drawDot(p);
-    });
+    particles.forEach(draw);
     ctx.globalAlpha = 1;
   }
 

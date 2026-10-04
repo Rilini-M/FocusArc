@@ -17,7 +17,7 @@ function renderSidebar(activeKey) {
   const links = NAV_ITEMS.map(
     (item) => `
       <li>
-        <a class="nav-link${item.key === activeKey ? ' active' : ''}" href="${item.href}">
+        <a class="nav-a${item.key === activeKey ? ' active' : ''}" href="${item.href}">
           ${icon(item.icon)}
           <span>${item.label}</span>
         </a>
@@ -25,19 +25,19 @@ function renderSidebar(activeKey) {
   ).join('');
 
   root.innerHTML = `
-    <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open navigation">
+    <button class="nav-tog" id="mobile-nav-toggle" aria-label="Open navigation">
       ${icon('menu', 20)}
     </button>
-    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <img class="sidebar-brand-icon" src="/assets/logo/logo.png.png" alt="FocusArc" />
-        <span class="sidebar-brand-text brand">FocusArc</span>
+    <div class="side-bg" id="sidebar-backdrop"></div>
+    <aside class="side" id="sidebar">
+      <div class="side-brand">
+        <img class="sb-icon" src="/assets/logo/logo.png.png" alt="FocusArc" />
+        <span class="sb-text brand">FocusArc</span>
       </div>
-      <div class="sidebar-tagline">Study Quest System</div>
-      <ul class="nav-list">${links}</ul>
-      <div class="nav-logout">
-        <a class="nav-link" href="#" id="logout-link">
+      <div class="side-tag">Study Quest System</div>
+      <ul class="nav-ul">${links}</ul>
+      <div class="nav-out">
+        <a class="nav-a" href="#" id="logout-link">
           ${icon('log-out')}
           <span>Logout</span>
         </a>

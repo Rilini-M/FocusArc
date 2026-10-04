@@ -1,16 +1,16 @@
 
-.companion-hero {
+.c-hero {
   align-items: stretch;
   /* Shorter banner than the shared default (220px), so quests sit higher on the page. */
   min-height: 170px;
 }
 
-.companion-hero-image {
+.ch-img {
   width: 150px;
   height: 170px;
 }
 
-.companion-hero-quote-card {
+.qt-card {
   align-items: center;
   text-align: center;
   margin: 16px 16px 16px 0;
@@ -18,30 +18,30 @@
 }
 
 @media (max-width: 700px) {
-  .companion-hero {
+  .c-hero {
     min-height: 0;
   }
 
-  .companion-hero-image {
+  .ch-img {
     width: 100%;
     height: 140px;
   }
 
-  .companion-hero-quote-card {
+  .qt-card {
     margin: 0 16px 16px;
   }
 }
 
-.companion-hero-quote-card > .companion-hero-quote-mark {
+.qt-card > .qt-mark {
   display: none;
 }
 
-.companion-hero-quote {
+.ch-quote {
   max-width: 560px;
 }
 
-.companion-hero-quote-text::before,
-.companion-hero-quote-text::after {
+.qt-text::before,
+.qt-text::after {
   color: var(--accent);
   font-size: 1.3rem;
   font-style: normal;
@@ -49,17 +49,17 @@
   vertical-align: -0.05em;
 }
 
-.companion-hero-quote-text::before {
+.qt-text::before {
   content: '\201C';
   margin-right: 3px;
 }
 
-.companion-hero-quote-text::after {
+.qt-text::after {
   content: '\201D';
   margin-left: 3px;
 }
 
-.qb-toolbar {
+.toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -68,7 +68,7 @@
   margin-bottom: 18px;
 }
 
-.filter-tabs {
+.tabs {
   display: flex;
   gap: 6px;
   background: var(--bg-secondary);
@@ -77,7 +77,7 @@
   padding: 5px;
 }
 
-.filter-tab {
+.tab {
   border: none;
   background: transparent;
   color: var(--text-secondary);
@@ -90,22 +90,22 @@
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.filter-tab.active {
+.tab.active {
   background: var(--bg-tertiary);
   color: var(--accent);
   box-shadow: 0 0 12px var(--glow);
 }
 
-.quest-count-badge {
+.q-badge {
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
 
-.quest-count-badge strong {
+.q-badge strong {
   color: var(--text-primary);
 }
 
-.quest-list {
+.q-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -120,28 +120,28 @@
 }
 
 .quest-card:hover {
-  border-color: var(--border-strong, var(--border));
+  border-color: var(--border);
   box-shadow: 0 0 22px -10px var(--glow);
 }
 
-.quest-card-top {
+.q-top {
   display: flex;
   align-items: center;
   gap: 18px;
 }
 
-.quest-card-body {
+.q-body {
   flex: 1;
   min-width: 0;
 }
 
-.quest-card-title {
+.q-title {
   font-size: 1.02rem;
   color: var(--text-primary);
   margin: 0 0 4px;
 }
 
-.quest-card-desc {
+.q-desc {
   margin: 0;
   color: var(--text-secondary);
   font-size: 0.87rem;
@@ -152,14 +152,14 @@
   -webkit-box-orient: vertical;
 }
 
-.quest-card-actions {
+.q-acts {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
 }
 
-.quest-status-select {
+.q-select {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border);
@@ -169,7 +169,7 @@
   font-family: inherit;
 }
 
-.quest-card-study {
+.q-study {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -177,13 +177,13 @@
   border-top: 1px solid var(--border);
 }
 
-.study-timer-chip {
+.timer {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
   border-radius: 999px;
-  border: 1px solid var(--border-strong, var(--border));
+  border: 1px solid var(--border);
   background: var(--bg-tertiary);
   color: var(--accent-secondary);
   font-variant-numeric: tabular-nums;
@@ -191,17 +191,17 @@
   box-shadow: 0 0 14px var(--glow);
 }
 
-.study-timer-chip svg {
+.timer svg {
   width: 15px;
   height: 15px;
 }
 
-.study-btn {
+.s-btn {
   font-size: 0.85rem;
   padding: 9px 18px;
 }
 
-.modal-backdrop {
+.m-bg {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
@@ -212,7 +212,7 @@
   padding: 20px;
 }
 
-.modal-backdrop.open {
+.m-bg.open {
   display: flex;
 }
 
@@ -251,7 +251,7 @@
   box-shadow: 0 0 0 3px var(--glow);
 }
 
-.modal-actions {
+.m-acts {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -259,20 +259,20 @@
 }
 
 @media (max-width: 480px) {
-  .filter-tab {
+  .tab {
     padding: 8px 10px;
   }
 
-  .quest-card-top {
+  .q-top {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .quest-card-actions {
+  .q-acts {
     justify-content: flex-end;
   }
 
-  .quest-card-study {
+  .q-study {
     flex-wrap: wrap;
   }
 }

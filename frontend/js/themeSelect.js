@@ -63,32 +63,32 @@ async function openThemeSelect() {
 
   return new Promise((resolve) => {
     const root = document.createElement('div');
-    root.className = 'theme-select-backdrop';
+    root.className = 'ts-bg';
     root.setAttribute('role', 'dialog');
     root.setAttribute('aria-modal', 'true');
     root.setAttribute('aria-labelledby', 'theme-select-title');
 
     root.innerHTML = `
-      <div class="theme-select-panel">
-        <h2 class="theme-select-title" id="theme-select-title"><span class="spark">✧</span> Choose Your Theme <span class="spark">✧</span></h2>
-        <p class="theme-select-subtitle">Every arc has a world. Choose the one that fits your journey.</p>
-        <div class="theme-select-grid">
+      <div class="ts-panel">
+        <h2 class="ts-title" id="theme-select-title"><span class="spark">✧</span> Choose Your Theme <span class="spark">✧</span></h2>
+        <p class="ts-sub">Every arc has a world. Choose the one that fits your journey.</p>
+        <div class="ts-grid">
           ${cards
             .map(
               (t) => `
-            <button type="button" class="theme-select-card${t.key === currentTheme ? ' is-selected' : ''}"
+            <button type="button" class="ts-card${t.key === currentTheme ? ' is-selected' : ''}"
               data-theme="${t.key}" data-theme-choose="${t.key}" aria-pressed="${t.key === currentTheme}">
-              <span class="theme-select-check" aria-hidden="true">${icon('check', 14)}</span>
-              <span class="theme-select-character">
+              <span class="ts-check" aria-hidden="true">${icon('check', 14)}</span>
+              <span class="ts-char">
                 <img src="${t.image}" alt="" />
               </span>
-              <span class="theme-select-card-label"><span aria-hidden="true">${t.emoji}</span> ${t.label}</span>
-              <span class="theme-select-card-character">${t.character}</span>
+              <span class="tc-label"><span aria-hidden="true">${t.emoji}</span> ${t.label}</span>
+              <span class="tc-char">${t.character}</span>
             </button>`
             )
             .join('')}
         </div>
-        <button type="button" class="theme-select-skip" id="theme-select-skip">Keep my current theme</button>
+        <button type="button" class="ts-skip" id="theme-select-skip">Keep my current theme</button>
       </div>
     `;
 

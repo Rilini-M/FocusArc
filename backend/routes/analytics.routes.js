@@ -7,8 +7,6 @@ const router = express.Router();
 router.use(authenticate);
 
 router.get('/overview', controller.overview);
-router.get('/productivity', controller.productivity);
 router.get('/quest-progress', controller.questProgress);
-router.get('/focus', controller.focus);
 
 module.exports = router;

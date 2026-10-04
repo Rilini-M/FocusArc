@@ -1,5 +1,3 @@
-
-
 const API_BASE = '/api';
 
 async function apiRequest(path, { method = 'GET', body } = {}) {
@@ -20,7 +18,6 @@ async function apiRequest(path, { method = 'GET', body } = {}) {
   try {
     payload = await response.json();
   } catch (parseErr) {
-    // no JSON body (e.g. some error pages) — fall through with payload null
   }
 
   if (!response.ok || !payload || payload.success === false) {

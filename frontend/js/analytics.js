@@ -6,7 +6,7 @@ function formatMinutes(totalMinutes) {
 }
 
 function emptyState(message) {
-  return `<div class="empty-state"><p>${message}</p></div>`;
+  return `<div class="empty"><p>${message}</p></div>`;
 }
 
 async function loadOverview() {
@@ -34,29 +34,27 @@ async function loadQuestProgress() {
     { label: 'Completed', count: data.progress.COMPLETED },
   ];
 
-  container.innerHTML = `<div class="progress-rows">${rows
+  container.innerHTML = `<div class="pr-rows">${rows
     .map((r) => {
       const pct = data.total > 0 ? (r.count / data.total) * 100 : 0;
       return `
-        <div class="progress-row">
-          <span class="progress-row-label">${r.label}</span>
-          <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <span class="progress-row-count">${r.count}</span>
+        <div class="pr-row">
+          <span class="pr-label">${r.label}</span>
+          <div class="pr-track"><div class="pr-fill" style="width:${pct}%"></div></div>
+          <span class="pr-count">${r.count}</span>
         </div>`;
     })
     .join('')}</div>`;
 }
 
-// Colours come from the active theme (--chart-* in themes.css), so the chart recolours with
-// the theme. Each theme's set is validated to stay distinguishable on its own card surface.
+
 const DISTRIBUTION_SEGMENTS = [
   { key: 'TODO', label: 'To Do', color: 'var(--chart-todo)' },
   { key: 'IN_PROGRESS', label: 'In Progress', color: 'var(--chart-progress)' },
   { key: 'COMPLETED', label: 'Completed', color: 'var(--chart-done)' },
 ];
 
-// Whole-number percentages that always add up to 100 (largest-remainder rounding), so
-// e.g. three equal groups read 34 / 33 / 33 rather than 33 / 33 / 33.
+
 function wholePercents(counts) {
   const total = counts.reduce((sum, c) => sum + c, 0);
   if (total === 0) return counts.map(() => 0);
@@ -75,15 +73,7 @@ function wholePercents(counts) {
   return result;
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
 
-// Static donut (no hover, nothing drawn inside the ring) with each status's share shown as a
-// percentage in its heading, and the user's real quest names listed underneath. Slices,
-// percentages and names all come from the same /quests list, so they always agree.
 async function loadQuestDistribution() {
   const container = document.getElementById('quest-distribution-container');
   const quests = await api.get('/quests');
@@ -103,7 +93,7 @@ async function loadQuestDistribution() {
   segments.forEach((s, i) => {
     s.percent = percents[i];
   });
-  // A small surface-coloured gap between slices; none when one status fills the ring.
+  
   const gap = segments.filter((s) => s.quests.length > 0).length > 1 ? 3 : 0;
 
   let offset = 0;
@@ -112,7 +102,7 @@ async function loadQuestDistribution() {
       if (!s.quests.length) return '';
       const length = (s.quests.length / quests.length) * circumference;
       const arc = `
-        <circle class="distribution-arc" cx="80" cy="80" r="${radius}"
+        <circle class="d-arc" cx="80" cy="80" r="${radius}"
           style="stroke: ${s.color}" stroke-dasharray="${Math.max(length - gap, 0.5)} ${circumference}"
           stroke-dashoffset="${-offset}" />`;
       offset += length;
@@ -123,29 +113,29 @@ async function loadQuestDistribution() {
   const summary = segments.map((s) => `${s.label} ${s.percent}%`).join(', ');
 
   container.innerHTML = `
-    <div class="distribution-layout">
-      <div class="distribution-chart">
+    <div class="d-layout">
+      <div class="d-chart">
         <svg viewBox="0 0 160 160" role="img" aria-label="Quest distribution — ${summary}">
-          <circle class="distribution-track" cx="80" cy="80" r="${radius}" />
+          <circle class="d-track" cx="80" cy="80" r="${radius}" />
           <g transform="rotate(-90 80 80)">${arcs}</g>
         </svg>
       </div>
-      <div class="distribution-groups">
+      <div class="d-groups">
         ${segments
           .map(
             (s) => `
-          <div class="distribution-group">
-            <div class="distribution-group-head">
-              <span class="distribution-dot" style="--dot: ${s.color}"></span>
-              <span class="distribution-group-label">${s.label}</span>
-              <span class="distribution-group-pct">${s.percent}%</span>
+          <div class="d-group">
+            <div class="dg-head">
+              <span class="d-dot" style="--dot: ${s.color}"></span>
+              <span class="dg-label">${s.label}</span>
+              <span class="dg-pct">${s.percent}%</span>
             </div>
             ${
               s.quests.length
-                ? `<ul class="distribution-quests">${s.quests
+                ? `<ul class="d-quests">${s.quests
                     .map((q) => `<li>${escapeHtml(q.title)}</li>`)
                     .join('')}</ul>`
-                : '<p class="distribution-none">No quests</p>'
+                : '<p class="d-none">No quests</p>'
             }
           </div>`
           )
@@ -162,7 +152,7 @@ async function loadHeroCompanion(settings) {
     heroImage.alt = character.name;
     heroImage.hidden = false;
   } catch (err) {
-    // Decorative only — no toast needed if it fails to load.
+  
   }
 }
 
@@ -170,7 +160,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Rendered first and synchronously — see questboard.js for why this can't wait behind
   // the auth/settings network calls without causing a visible theme/chrome flash.
   renderSidebar('analytics');
-  refreshIcons();
 
   const user = await requireAuth();
   if (!user) return;

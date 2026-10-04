@@ -1,4 +1,4 @@
-.theme-select-backdrop {
+.ts-bg {
   position: fixed;
   inset: 0;
   display: flex;
@@ -12,11 +12,11 @@
   transition: opacity 0.2s ease;
 }
 
-.theme-select-backdrop.open {
+.ts-bg.open {
   opacity: 1;
 }
 
-.theme-select-panel {
+.ts-panel {
   position: relative;
   width: 100%;
   max-width: 1080px;
@@ -30,23 +30,23 @@
   text-align: center;
 }
 
-.theme-select-title {
+.ts-title {
   margin: 0 0 8px;
   font-size: 1.7rem;
   color: var(--text-primary);
 }
 
-.theme-select-title .spark {
+.ts-title .spark {
   color: var(--accent);
 }
 
-.theme-select-subtitle {
+.ts-sub {
   margin: 0 0 28px;
   color: var(--text-secondary);
   font-size: 0.92rem;
 }
 
-.theme-select-grid {
+.ts-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
@@ -54,7 +54,7 @@
 
 /* Each card carries data-theme="<key>", so var(--theme-bg-image), --accent and --glow
    below resolve to that card's own theme from themes.css. */
-.theme-select-card {
+.ts-card {
   position: relative;
   isolation: isolate;
   display: flex;
@@ -74,7 +74,7 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.theme-select-card::before {
+.ts-card::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -84,7 +84,7 @@
   transition: transform 0.4s ease;
 }
 
-.theme-select-card::after {
+.ts-card::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -94,24 +94,24 @@
     linear-gradient(180deg, rgba(3, 4, 6, 0.15) 30%, rgba(3, 4, 6, 0.9));
 }
 
-.theme-select-card:hover,
-.theme-select-card:focus-visible {
+.ts-card:hover,
+.ts-card:focus-visible {
   transform: translateY(-6px);
   border-color: var(--accent);
   box-shadow: 0 0 30px -4px var(--glow);
   outline: none;
 }
 
-.theme-select-card:hover::before {
+.ts-card:hover::before {
   transform: scale(1.06);
 }
 
-.theme-select-card.is-selected {
+.ts-card.is-selected {
   border: 2px solid var(--accent);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent), 0 0 40px -2px var(--glow);
 }
 
-.theme-select-character {
+.ts-char {
   display: block;
   flex-shrink: 0;
   width: 62%;
@@ -123,11 +123,11 @@
   transition: transform 0.25s ease;
 }
 
-.theme-select-card:hover .theme-select-character {
+.ts-card:hover .ts-char {
   transform: scale(1.05);
 }
 
-.theme-select-character img {
+.ts-char img {
   display: block;
   width: 100%;
   height: auto;
@@ -137,7 +137,7 @@
   border: 2px solid var(--bg-primary);
 }
 
-.theme-select-card-label {
+.tc-label {
   font-family: 'Cinzel', 'Inter', serif;
   font-size: 0.95rem;
   font-weight: 700;
@@ -147,14 +147,14 @@
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
 }
 
-.theme-select-card-character {
+.tc-char {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--accent);
   text-shadow: 0 0 10px var(--glow);
 }
 
-.theme-select-check {
+.ts-check {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -172,12 +172,12 @@
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.theme-select-card.is-selected .theme-select-check {
+.ts-card.is-selected .ts-check {
   opacity: 1;
   transform: scale(1);
 }
 
-.theme-select-skip {
+.ts-skip {
   margin-top: 22px;
   padding: 6px 12px;
   border: none;
@@ -190,40 +190,40 @@
   text-underline-offset: 3px;
 }
 
-.theme-select-skip:hover {
+.ts-skip:hover {
   color: var(--text-primary);
 }
 
 @media (max-width: 900px) {
-  .theme-select-grid {
+  .ts-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 560px) {
-  .theme-select-panel {
+  .ts-panel {
     padding: 28px 16px 20px;
   }
 
-  .theme-select-title {
+  .ts-title {
     font-size: 1.35rem;
   }
 
-  .theme-select-card-label {
+  .tc-label {
     font-size: 0.8rem;
     letter-spacing: 0.04em;
   }
 
-  .theme-select-grid {
+  .ts-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .theme-select-card,
-  .theme-select-card::before,
-  .theme-select-character {
+  .ts-card,
+  .ts-card::before,
+  .ts-char {
     transition: none;
   }
 }

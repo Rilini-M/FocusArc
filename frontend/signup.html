@@ -4,34 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up — FocusArc</title>
+  <link rel="icon" href="/assets/logo/logo.png.png" />
   <link rel="stylesheet" href="css/themes.css" />
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/signup.css" />
   <link rel="stylesheet" href="css/theme-select.css" />
 </head>
-<body class="auth-page">
-  <div class="auth-shell">
-    <section class="auth-visual" style="--auth-bg: url('/assets/backgrounds/signup-bg.png');">
-      <svg class="auth-leaf" style="top:15%; left:15%; width:22px; height:22px;" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z" opacity="0.5"/></svg>
-      <svg class="auth-leaf" style="top:55%; left:65%; width:20px; height:20px; animation-delay:3s;" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z" opacity="0.4"/></svg>
+<body class="a-page">
+  <div class="a-shell">
+    <section class="vis" style="--auth-bg: url('/assets/backgrounds/signup-bg.png');">
+      <svg class="a-leaf" style="top:15%; left:15%; width:22px; height:22px;" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z" opacity="0.5"/></svg>
+      <svg class="a-leaf" style="top:55%; left:65%; width:20px; height:20px; animation-delay:3s;" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20C5 10 12 4 20 4c0 8-6 15-16 16z" opacity="0.4"/></svg>
 
-      <div class="auth-visual-content">
-        <div class="auth-visual-brand">
-          <img class="auth-visual-brand-icon" src="/assets/logo/logo.png.png" alt="FocusArc" />
-          <span class="auth-visual-brand-text brand">FocusArc</span>
+      <div class="vis-content">
+        <div class="vis-brand">
+          <img class="b-icon" src="/assets/logo/logo.png.png" alt="FocusArc" />
+          <span class="b-text brand">FocusArc</span>
         </div>
-        <div class="auth-visual-tagline">Study Quest System</div>
-        <p class="auth-visual-copy">Create your account and begin your <span>study arc</span> today.</p>
+        <div class="vis-tag">Study Quest System</div>
+        <p class="vis-copy">Create your account and begin your <span>study arc</span> today.</p>
       </div>
 
-      <img class="auth-character auth-character--blend" src="/assets/characters/signupcharacter.png" alt="Your study companion" />
+      <img class="a-char a-blend" src="/assets/characters/signupcharacter.png" alt="Your study companion" />
     </section>
 
-    <section class="auth-form-panel">
-      <div class="auth-card fade-in">
-        <i class="auth-card-icon" data-lucide="user-plus"></i>
+    <section class="a-form">
+      <div class="a-card fade">
+        <i class="ac-icon" data-lucide="user-plus"></i>
         <h1>Create Your Account</h1>
-        <p class="auth-card-subtitle">Start your journey. Become the hero of <span>your arc</span>.</p>
+        <p class="ac-sub">Start your journey. Become the hero of <span>your arc</span>.</p>
 
         <form id="signup-form" novalidate>
           <label class="field">
@@ -42,7 +43,7 @@
             <i data-lucide="mail"></i>
             <input type="email" name="email" placeholder="Email Address" autocomplete="email" required />
           </label>
-          <p class="field-error" id="email-error" hidden>Enter a valid email address, like name@gmail.com.</p>
+          <p class="f-err" id="email-error" hidden>Enter a valid email address, like name@gmail.com.</p>
           <label class="field">
             <i data-lucide="lock"></i>
             <input type="password" name="password" placeholder="Password" autocomplete="new-password" required />
@@ -56,13 +57,13 @@
             <input type="date" name="dateOfBirth" placeholder="Date of Birth" required />
           </label>
 
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn btn-p">
             Create Account
             <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
           </button>
         </form>
 
-        <div class="auth-switch">
+        <div class="a-switch">
           Already have an account? <a href="login.html">Login Here</a>
         </div>
       </div>

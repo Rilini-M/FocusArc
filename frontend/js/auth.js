@@ -19,6 +19,12 @@ function showToast(message, { isError = false } = {}) {
   toast._hideTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
 }
 
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 // Call at the top of every protected page. Redirects to login if not authenticated.
 async function requireAuth() {
   try {
@@ -66,7 +72,50 @@ function wireLoginForm() {
   });
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Email check (kept identical in backend/middleware/validate.js and frontend/js/auth.js).
+// Valid format, plus a spelling check for well-known providers: "gmial.com" or "gmail.con"
+// is almost always a typo, so it is rejected with a suggested fix.
+const EMAIL_RE = /^[a-z0-9_%+-]+(\.[a-z0-9_%+-]+)*@([a-z0-9-]+\.)+[a-z]{2,}$/;
+const EMAIL_PROVIDERS = { gmail: 'gmail.com', yahoo: 'yahoo.com', hotmail: 'hotmail.com', outlook: 'outlook.com', icloud: 'icloud.com' };
+const REAL_LOOKALIKES = ['mail', 'email', 'ymail', 'gmx', 'cloud']; // real providers that look like typos
+const COM_TYPOS = ['con', 'cmo', 'cm', 'om', 'comm', 'coom', 'vom', 'xom', 'cpm'];
+
+// Letters changed, added, removed or swapped to turn a into b.
+function editDistance(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+  }
+  return d[a.length][b.length];
+}
+
+function emailError(email) {
+  const value = (email || '').trim().toLowerCase();
+  if (!EMAIL_RE.test(value) || value.length > 255) return 'Enter a valid email address, like name@gmail.com.';
+  const [local, domain] = value.split('@');
+  const name = domain.split('.')[0];
+  const ending = domain.slice(name.length + 1);
+  const suggest = (fixed) => `Check the spelling — did you mean ${local}@${fixed}?`;
+
+  if (EMAIL_PROVIDERS[name]) {
+    if (name === 'gmail' && ending !== 'com') return suggest('gmail.com');
+    if (COM_TYPOS.includes(ending) || ending === 'co') return suggest(EMAIL_PROVIDERS[name]);
+    return null;
+  }
+  if (!REAL_LOOKALIKES.includes(name)) {
+    for (const provider of Object.keys(EMAIL_PROVIDERS)) {
+      const allowed = provider === 'gmail' || provider.length >= 7 ? 2 : 1;
+      if (name.length >= 3 && editDistance(name, provider) <= allowed) return suggest(EMAIL_PROVIDERS[provider]);
+    }
+  }
+  if (COM_TYPOS.includes(ending)) return suggest(`${name}.com`);
+  return null;
+}
 
 function wireSignupForm() {
   const form = document.getElementById('signup-form');
@@ -74,18 +123,18 @@ function wireSignupForm() {
 
   const emailInput = form.querySelector('input[name="email"]');
   const emailField = document.getElementById('email-field');
-  const emailError = document.getElementById('email-error');
+  const emailErrorText = document.getElementById('email-error');
 
   function validateEmail() {
-    const email = emailInput.value.trim();
-    const valid = EMAIL_RE.test(email);
-    emailField.classList.toggle('invalid', !valid);
-    emailError.hidden = valid;
-    return valid;
+    const error = emailError(emailInput.value);
+    emailField.classList.toggle('invalid', Boolean(error));
+    emailErrorText.hidden = !error;
+    if (error) emailErrorText.textContent = error;
+    return !error;
   }
 
   emailInput.addEventListener('input', () => {
-    if (emailError.hidden === false) validateEmail();
+    if (emailErrorText.hidden === false) validateEmail();
   });
   emailInput.addEventListener('blur', validateEmail);
 
@@ -104,7 +153,7 @@ function wireSignupForm() {
       return;
     }
     if (!validateEmail()) {
-      showToast('Please enter a valid email address.', { isError: true });
+      showToast(emailError(email), { isError: true });
       emailInput.focus();
       return;
     }
@@ -114,6 +163,11 @@ function wireSignupForm() {
     }
     if (password.length < 8) {
       showToast('Password must be at least 8 characters.', { isError: true });
+      return;
+    }
+    const dobError = dateOfBirthError(dateOfBirth);
+    if (dobError) {
+      showToast(dobError, { isError: true });
       return;
     }
 
@@ -129,7 +183,24 @@ function wireSignupForm() {
   });
 }
 
+// Same rule as the server: a real date between 1900-01-01 and today.
+function todayISO() {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+
+function dateOfBirthError(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value < '1900-01-01') return 'Please enter a valid date of birth.';
+  if (value > todayISO()) return 'Date of birth cannot be in the future.';
+  return null;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Stops the date picker offering future dates (signup and Settings → Update Profile).
+  document.querySelectorAll('input[name="dateOfBirth"]').forEach((input) => {
+    input.min = '1900-01-01';
+    input.max = todayISO();
+  });
   wireLoginForm();
   wireSignupForm();
 });

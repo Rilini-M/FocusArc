@@ -4,44 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Character Guide — FocusArc</title>
+  <link rel="icon" href="/assets/logo/logo.png.png" />
   <link rel="stylesheet" href="css/themes.css" />
   <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/character.css?v=2" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="shell">
     <div id="sidebar-root"></div>
 
-    <main class="main-content">
-      <div class="page-header">
+    <main class="main">
+      <div class="p-head">
         <h1>Study Companion</h1>
       </div>
 
-      <section class="card companion-hero" id="companion-hero">
-        <div class="companion-hero-character">
-          <div class="companion-hero-image-wrap">
-            <img class="companion-hero-image" id="hero-image" src="" alt="" hidden />
+      <section class="card c-hero">
+        <div class="ch-char">
+          <div class="ch-wrap">
+            <img class="ch-img" id="hero-image" src="" alt="" hidden />
           </div>
-          <div class="companion-hero-identity" id="hero-identity" hidden>
-            <h2 class="companion-hero-name" id="hero-name"></h2>
-            <span class="companion-hero-accent" aria-hidden="true"></span>
-            <p class="companion-hero-desc" id="hero-description"></p>
+          <div class="ch-id" id="hero-identity" hidden>
+            <h2 class="ch-name" id="hero-name"></h2>
+            <span class="ch-accent" aria-hidden="true"></span>
+            <p class="ch-desc" id="hero-description"></p>
           </div>
         </div>
 
-        <div class="companion-hero-divider" aria-hidden="true"></div>
+        <div class="ch-div" aria-hidden="true"></div>
 
-        <div class="companion-hero-quote-card">
-          <div class="companion-hero-quote-mark">&ldquo;</div>
-          <p class="companion-hero-quote" id="hero-quote">Loading your study companion…</p>
+        <div class="qt-card">
+          <div class="qt-mark">&ldquo;</div>
+          <p class="ch-quote" id="hero-quote">Loading your study companion…</p>
         </div>
       </section>
 
-      <section class="card companion-picker">
+      <section class="card c-pick">
         <h3>Choose Your Companion</h3>
-        <p class="companion-picker-sub">Every arc has a hero. Pick yours.</p>
-        <div class="companion-grid" id="companion-grid"></div>
+        <p class="cp-sub">Every arc has a hero , Pick yours.</p>
+        <div class="c-grid" id="companion-grid"></div>
       </section>
     </main>
   </div>

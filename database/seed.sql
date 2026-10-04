@@ -1,40 +1,35 @@
-
 USE focusarc;
 
-INSERT INTO characters (name, description, image_path) VALUES
-  ('Tanjiro',       'Determined and compassionate. Never gives up, no matter how hard the path.', '/assets/characters/tanjiro.jpg'),
-  ('L',             'Analytical and relentless in pursuit of the truth.',                          '/assets/characters/l.jpg'),
-  ('Sung Jin-Woo',  'Focused and self-disciplined. Grows stronger through consistent effort.',      '/assets/characters/sung.jpg'),
-  ('Gilgamesh',     'Strategic and supremely confident in his own capability.',                     '/assets/characters/gilgamesh.jpg'),
-  ('Alucard',       'Relentless and unshakably composed under pressure.',                           '/assets/characters/alucard.jpg')
-ON DUPLICATE KEY UPDATE description = VALUES(description), image_path = VALUES(image_path);
+INSERT INTO characters (id, name, description, image_path) VALUES
+  (1, 'Tanjiro',      'Determined and Never gives up', '/assets/characters/tanjiro.jpg'),
+  (2, 'L',            'Analytical and Sharp Thinker.', '/assets/characters/l.jpg'),
+  (3, 'Sung Jin-Woo', 'Focused and self-disciplined.', '/assets/characters/sung.jpg'),
+  (4, 'Gilgamesh',    'Strategic and confident.',  '/assets/characters/gilgamesh.jpg'),
+  (5, 'Alucard',      'Fearless ,Calm and Unshakable', '/assets/characters/alucard.jpg');
 
-INSERT INTO quotes (character_id, quote_text)
-SELECT id, q.quote_text FROM characters
-JOIN (
-  SELECT 'Tanjiro' AS name, 'Set your heart ablaze. Focus only on what you can do right now.' AS quote_text
-  UNION ALL SELECT 'Tanjiro', 'No matter how many scars it leaves, keep moving forward.'
-  UNION ALL SELECT 'Tanjiro', 'Discipline today, legacy tomorrow.'
-  UNION ALL SELECT 'Tanjiro', 'One quest at a time. Keep moving forward.'
-  UNION ALL SELECT 'Tanjiro', 'Even the smallest effort, given fully, moves you forward.'
-  UNION ALL SELECT 'L',       'The only victory that matters is the one over yourself.'
-  UNION ALL SELECT 'L',       'Whatever you decide to do, give it everything you have.'
-  UNION ALL SELECT 'L',       'A calm mind solves what a rushed one never will.'
-  UNION ALL SELECT 'L',       'Small, deliberate steps outperform sudden bursts of effort.'
-  UNION ALL SELECT 'L',       'There is always a way forward, if you are willing to think.'
-  UNION ALL SELECT 'Sung Jin-Woo', 'I have to get stronger. One study session at a time.'
-  UNION ALL SELECT 'Sung Jin-Woo', 'Consistency is the real power-up.'
-  UNION ALL SELECT 'Sung Jin-Woo', 'Every rank starts at zero. Keep climbing.'
-  UNION ALL SELECT 'Sung Jin-Woo', 'The grind you put in today is the strength you have tomorrow.'
-  UNION ALL SELECT 'Sung Jin-Woo', 'Arise, and finish what you started.'
-  UNION ALL SELECT 'Gilgamesh',    'A king does not fear a challenge — he masters it.'
-  UNION ALL SELECT 'Gilgamesh',    'Command your time, or it will command you.'
-  UNION ALL SELECT 'Gilgamesh',    'Mediocrity is the only true enemy.'
-  UNION ALL SELECT 'Gilgamesh',    'Treasure your focus above all else.'
-  UNION ALL SELECT 'Gilgamesh',    'Gaze upon your goals, and let nothing stand between.'
-  UNION ALL SELECT 'Alucard',      'Fear is only for those who have not committed fully.'
-  UNION ALL SELECT 'Alucard',      'Relentless effort bends even the hardest task.'
-  UNION ALL SELECT 'Alucard',      'Push through the night; the work will still be there at dawn.'
-  UNION ALL SELECT 'Alucard',      'Discipline is the sharpest weapon you own.'
-  UNION ALL SELECT 'Alucard',      'Composure under pressure is its own kind of strength.'
-) AS q ON q.name = characters.name;
+INSERT INTO quotes (character_id, quote_text) VALUES
+  (1, 'Set your heart ablaze. Focus only on what you can do right now.'),
+  (1, 'No matter how many scars it leaves, keep moving forward.'),
+  (1, 'Discipline today, legacy tomorrow.'),
+  (1, 'One quest at a time. Keep moving forward.'),
+  (1, 'Even the smallest effort, given fully, moves you forward.'),
+  (2, 'The only victory that matters is the one over yourself.'),
+  (2, 'Whatever you decide to do, give it everything you have.'),
+  (2, 'A calm mind solves what a rushed one never will.'),
+  (2, 'Small, deliberate steps outperform sudden bursts of effort.'),
+  (2, 'There is always a way forward, if you are willing to think.'),
+  (3, 'I have to get stronger. One study session at a time.'),
+  (3, 'Consistency is the real power-up.'),
+  (3, 'Every rank starts at zero. Keep climbing.'),
+  (3, 'The grind you put in today is the strength you have tomorrow.'),
+  (3, 'Arise, and finish what you started.'),
+  (4, 'A king does not fear a challenge — he masters it.'),
+  (4, 'Command your time, or it will command you.'),
+  (4, 'Mediocrity is the only true enemy.'),
+  (4, 'Treasure your focus above all else.'),
+  (4, 'Gaze upon your goals, and let nothing stand between.'),
+  (5, 'Fear is only for those who have not committed fully.'),
+  (5, 'Relentless effort bends even the hardest task.'),
+  (5, 'Push through the night; the work will still be there at dawn.'),
+  (5, 'Discipline is the sharpest weapon you own.'),
+  (5, 'Composure under pressure is its own kind of strength.');

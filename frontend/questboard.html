@@ -4,49 +4,50 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quest Board — FocusArc</title>
+  <link rel="icon" href="/assets/logo/logo.png.png" />
   <link rel="stylesheet" href="css/themes.css" />
   <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/questboard.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="shell">
     <div id="sidebar-root"></div>
 
-    <main class="main-content">
-      <div class="page-header">
+    <main class="main">
+      <div class="p-head">
         <h1>Quest Board</h1>
       </div>
 
-      <section class="card companion-hero" id="companion-banner">
-        <img class="companion-hero-image" id="companion-image" src="" alt="" hidden />
-        <div class="companion-hero-quote-card">
-          <div class="companion-hero-quote-mark">&ldquo;</div>
-          <p class="companion-hero-quote" id="companion-quote">Loading your study companion…</p>
+      <section class="card c-hero">
+        <img class="ch-img" id="companion-image" src="" alt="" hidden />
+        <div class="qt-card">
+          <div class="qt-mark">&ldquo;</div>
+          <p class="ch-quote" id="companion-quote">Loading your study companion…</p>
         </div>
       </section>
 
-      <div class="qb-toolbar">
-        <div class="filter-tabs" id="filter-tabs">
-          <button class="filter-tab active" data-filter="ALL">All</button>
-          <button class="filter-tab" data-filter="TODO">To Do</button>
-          <button class="filter-tab" data-filter="IN_PROGRESS">In Progress</button>
-          <button class="filter-tab" data-filter="COMPLETED">Completed</button>
+      <div class="toolbar">
+        <div class="tabs">
+          <button class="tab active" data-filter="ALL">All</button>
+          <button class="tab" data-filter="TODO">To Do</button>
+          <button class="tab" data-filter="IN_PROGRESS">In Progress</button>
+          <button class="tab" data-filter="COMPLETED">Completed</button>
         </div>
         <div style="display:flex; align-items:center; gap:16px;">
-          <span class="quest-count-badge"><strong id="quest-count">—</strong> / 10 quests</span>
-          <button class="btn btn-primary" id="add-quest-btn">
+          <span class="q-badge"><strong id="quest-count">—</strong> / 10 quests</span>
+          <button class="btn btn-p" id="add-quest-btn">
             <i data-lucide="plus" style="width:16px;height:16px;"></i>
             Add Quest
           </button>
         </div>
       </div>
 
-      <div class="quest-list" id="quest-list"></div>
+      <div class="q-list" id="quest-list"></div>
     </main>
   </div>
 
-  <div class="modal-backdrop" id="quest-modal-backdrop">
+  <div class="m-bg" id="quest-modal-backdrop">
     <div class="modal">
       <h2 id="quest-modal-title">New Quest</h2>
       <form id="quest-form">
@@ -55,9 +56,9 @@
           <input type="text" name="title" placeholder="Quest title" maxlength="150" required />
         </label>
         <textarea name="description" placeholder="Quest description" required></textarea>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" id="quest-modal-cancel">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="quest-modal-submit">Save Quest</button>
+        <div class="m-acts">
+          <button type="button" class="btn btn-s" id="quest-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-p" id="quest-modal-submit">Save Quest</button>
         </div>
       </form>
     </div>

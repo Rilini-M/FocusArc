@@ -1,22 +1,11 @@
 
-.companion-hero {
+.c-hero {
   min-height: 0;
   align-items: stretch;
   padding: 0;
 }
 
-.companion-hero-label {
-  position: absolute;
-  top: 20px;
-  left: 28px;
-  z-index: 2;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-.companion-hero-character {
+.ch-char {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -27,31 +16,31 @@
   padding: 16px 20px 12px;
 }
 
-.companion-hero-image-wrap {
+.ch-wrap {
   width: 108px;
   height: 166px;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid var(--border-strong, var(--border));
+  border: 1px solid var(--border);
   box-shadow: 0 0 46px -6px var(--glow);
   flex-shrink: 0;
 }
 
-.companion-hero-image {
+.ch-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.companion-hero-identity {
+.ch-id {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 8px;
 }
 
-.companion-hero-name {
+.ch-name {
   margin: 0;
   font-size: 1.35rem;
   letter-spacing: 0.06em;
@@ -60,7 +49,7 @@
   text-shadow: 0 0 26px var(--glow);
 }
 
-.companion-hero-accent {
+.ch-accent {
   display: block;
   width: 36px;
   height: 3px;
@@ -70,7 +59,7 @@
   box-shadow: 0 0 14px var(--glow);
 }
 
-.companion-hero-desc {
+.ch-desc {
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.55;
@@ -78,15 +67,15 @@
   max-width: 240px;
 }
 
-.companion-hero-divider {
+.ch-div {
   width: 1px;
   align-self: stretch;
   flex-shrink: 0;
   margin: 14px 0;
-  background: linear-gradient(180deg, transparent, var(--border-strong, var(--border)), transparent);
+  background: linear-gradient(180deg, transparent, var(--border), transparent);
 }
 
-.companion-hero-quote-card {
+.qt-card {
   flex: 1 1 auto;
   margin: 12px 20px 12px 0;
   padding: 12px 24px;
@@ -100,17 +89,17 @@
    ::before/::after pair anchored directly to the quote text below, so both marks share
    identical size/style/color and sit naturally against the text instead of one floating
    above-left at a different scale than the other. */
-.companion-hero-quote-card > .companion-hero-quote-mark {
+.qt-card > .qt-mark {
   display: none;
 }
 
-.companion-hero-quote {
+.ch-quote {
   max-width: 480px;
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-.companion-hero-quote-text::before,
-.companion-hero-quote-text::after {
+.qt-text::before,
+.qt-text::after {
   color: var(--accent);
   font-size: 1.3rem;
   font-style: normal;
@@ -118,34 +107,34 @@
   vertical-align: -0.05em;
 }
 
-.companion-hero-quote-text::before {
+.qt-text::before {
   content: '\201C';
   margin-right: 3px;
 }
 
-.companion-hero-quote-text::after {
+.qt-text::after {
   content: '\201D';
   margin-left: 3px;
 }
 
-.companion-picker {
+.c-pick {
   padding: 26px 24px;
 }
 
-.companion-picker h3 {
+.c-pick h3 {
   text-align: center;
   margin: 0 0 4px;
   font-size: 1.05rem;
 }
 
-.companion-picker-sub {
+.cp-sub {
   text-align: center;
   color: var(--text-secondary);
   font-size: 0.85rem;
   margin: 0 0 24px;
 }
 
-.companion-grid {
+.c-grid {
   display: grid;
   /* 100px = the 84px avatar plus its padding, so all five fit on one row down to
      laptop widths instead of leaving one companion stranded on a second row. */
@@ -153,7 +142,7 @@
   gap: 18px;
 }
 
-.companion-option {
+.c-opt {
   position: relative;
   background: transparent;
   border: none;
@@ -167,15 +156,15 @@
   transition: background-color 0.2s ease;
 }
 
-.companion-option:hover {
+.c-opt:hover {
   background: var(--bg-tertiary);
 }
 
-.companion-option-image-wrap {
+.co-wrap {
   position: relative;
 }
 
-.companion-option-image {
+.co-img {
   width: 84px;
   height: 84px;
   border-radius: 50%;
@@ -184,12 +173,12 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.companion-option.selected .companion-option-image {
+.c-opt.selected .co-img {
   border-color: var(--accent);
   box-shadow: 0 0 20px var(--glow);
 }
 
-.companion-option-check {
+.co-check {
   position: absolute;
   top: -2px;
   right: -2px;
@@ -204,28 +193,28 @@
   box-shadow: 0 0 8px var(--glow);
 }
 
-.companion-option-check svg {
+.co-check svg {
   width: 12px;
   height: 12px;
 }
 
-.companion-option-name {
+.co-name {
   font-size: 0.88rem;
   color: var(--text-primary);
 }
 
-.companion-option-trait {
+.co-trait {
   font-size: 0.76rem;
   color: var(--text-secondary);
 }
 
 @media (max-width: 700px) {
-  .companion-hero {
+  .c-hero {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .companion-hero-character {
+  .ch-char {
     flex-basis: auto;
     max-width: none;
     min-width: 0;
@@ -235,18 +224,18 @@
 
   /* Keep the portrait's tall ratio on mobile too, just capped narrower — stretching it to
      full viewport width at this ratio would make it excessively tall on phones. */
-  .companion-hero-image-wrap {
+  .ch-wrap {
     width: 100%;
     max-width: 156px;
     height: 202px;
     margin: 0 auto;
   }
 
-  .companion-hero-divider {
+  .ch-div {
     display: none;
   }
 
-  .companion-hero-quote-card {
+  .qt-card {
     flex: 1 1 auto;
     margin: 0 18px 16px;
     padding: 14px 18px;

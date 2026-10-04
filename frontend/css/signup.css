@@ -1,7 +1,7 @@
 @import url('login.css');
 
 /* Native date-picker icon defaults to black — invert it to white on the dark form. */
-.auth-card input[type="date"]::-webkit-calendar-picker-indicator {
+.a-card input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
 }

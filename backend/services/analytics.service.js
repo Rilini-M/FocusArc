@@ -60,23 +60,6 @@ function computeStreak(datesDesc) {
   return streak;
 }
 
-async function getProductivityTrend(userId, days = 7) {
-  const [rows] = await pool.query(
-    `SELECT DATE(started_at) AS day, COALESCE(SUM(duration_minutes), 0) AS minutes
-     FROM study_sessions
-     WHERE user_id = ? AND duration_minutes IS NOT NULL
-       AND started_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
-     GROUP BY DATE(started_at)
-     ORDER BY day ASC`,
-    [userId, days]
-  );
-
-  return {
-    hasData: rows.length > 0,
-    trend: rows.map((r) => ({ date: r.day, minutes: Number(r.minutes) })),
-  };
-}
-
 async function getQuestProgress(userId) {
   const [rows] = await pool.query(
     `SELECT status, COUNT(*) AS count FROM quests WHERE user_id = ? GROUP BY status`,
@@ -93,29 +76,4 @@ async function getQuestProgress(userId) {
   return { hasData: total > 0, total, progress };
 }
 
-// "Focus" here means a session logged through to a real end time/duration, as opposed to
-// one that was started and abandoned — this is the only completion signal the schema
-// actually captures, so it's what the ratio is built from (no fabricated study/break split).
-async function getFocusRatio(userId) {
-  const [[row]] = await pool.query(
-    `SELECT
-       COUNT(*) AS totalSessions,
-       SUM(duration_minutes IS NOT NULL) AS completedSessions,
-       COALESCE(SUM(duration_minutes), 0) AS focusMinutes
-     FROM study_sessions WHERE user_id = ?`,
-    [userId]
-  );
-
-  const totalSessions = Number(row.totalSessions) || 0;
-  const completedSessions = Number(row.completedSessions) || 0;
-
-  return {
-    hasData: totalSessions > 0,
-    totalSessions,
-    completedSessions,
-    focusMinutes: Number(row.focusMinutes) || 0,
-    focusRatio: totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0,
-  };
-}
-
-module.exports = { getOverview, getProductivityTrend, getQuestProgress, getFocusRatio };
+module.exports = { getOverview, getQuestProgress };

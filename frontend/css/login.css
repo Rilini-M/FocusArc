@@ -1,15 +1,15 @@
-body.auth-page {
+body.a-page {
   min-height: 100vh;
   min-height: 100dvh;
 }
 
-.auth-shell {
+.a-shell {
   display: flex;
   min-height: 100vh;
   min-height: 100dvh;
 }
 
-.auth-visual {
+.vis {
   flex: 1.15;
   min-width: 0;
   position: relative;
@@ -26,9 +26,9 @@ body.auth-page {
 }
 
 /* Text lives in its own column so it can never share horizontal space with
-   .auth-character-col — the character is free to grow tall/prominent without
+   .a-col — the character is free to grow tall/prominent without
    the copy reflowing into it. */
-.auth-visual-content {
+.vis-content {
   grid-column: 1;
   grid-row: 1;
   position: relative;
@@ -41,7 +41,7 @@ body.auth-page {
   padding-bottom: 60px;
 }
 
-.auth-character-col {
+.a-col {
   grid-column: 2;
   grid-row: 1;
   position: relative;
@@ -49,7 +49,7 @@ body.auth-page {
   min-width: 0;
 }
 
-.auth-visual::before {
+.vis::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -57,7 +57,7 @@ body.auth-page {
   background: linear-gradient(180deg, rgba(3, 6, 7, 0.25), rgba(3, 6, 7, 0.55) 65%, rgba(3, 6, 7, 0.82));
 }
 
-.auth-visual-brand {
+.vis-brand {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -65,7 +65,7 @@ body.auth-page {
   z-index: 2;
 }
 
-.auth-visual-brand-icon {
+.b-icon {
   width: 40px;
   height: 40px;
   object-fit: contain;
@@ -74,19 +74,19 @@ body.auth-page {
   mix-blend-mode: screen;
 }
 
-.auth-visual-brand-sparkle {
+.b-spark {
   color: var(--accent);
   font-size: 1.1rem;
   line-height: 1;
   filter: drop-shadow(0 0 6px var(--glow));
 }
 
-.auth-visual-brand-text {
+.b-text {
   font-size: 2.1rem;
   color: var(--text-primary);
 }
 
-.auth-visual-tagline {
+.vis-tag {
   z-index: 2;
   font-size: 0.78rem;
   letter-spacing: 0.18em;
@@ -95,7 +95,7 @@ body.auth-page {
   margin-bottom: 34px;
 }
 
-.auth-visual-copy {
+.vis-copy {
   z-index: 2;
   font-size: 1.55rem;
   line-height: 1.45;
@@ -104,11 +104,11 @@ body.auth-page {
   margin-bottom: 8px;
 }
 
-.auth-visual-copy span {
+.vis-copy span {
   color: var(--accent);
 }
 
-.auth-character {
+.a-char {
   position: absolute;
   right: 6%;
   bottom: 0;
@@ -123,12 +123,12 @@ body.auth-page {
 
 /* Used when the character asset isn't a transparent cutout (its own background is a
    dark/gradient rectangle) — fades every edge so the rectangle doesn't read as a hard photo. */
-.auth-character--blend {
+.a-blend {
   -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 55%, black 55%, transparent 100%);
   mask-image: radial-gradient(ellipse 70% 80% at 50% 55%, black 55%, transparent 100%);
 }
 
-.auth-leaf {
+.a-leaf {
   position: absolute;
   color: var(--accent);
   opacity: 0.55;
@@ -145,7 +145,7 @@ body.auth-page {
   }
 }
 
-.auth-form-panel {
+.a-form {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -155,19 +155,19 @@ body.auth-page {
   background: var(--bg-primary);
 }
 
-.auth-card {
+.a-card {
   width: 100%;
   min-width: 0;
   max-width: 400px;
   background: var(--bg-secondary);
-  border: 1px solid var(--border-strong, var(--border));
+  border: 1px solid var(--border);
   border-radius: 22px;
   padding: clamp(20px, 4vh, 40px) 34px;
   text-align: center;
   box-shadow: 0 0 60px -14px var(--glow);
 }
 
-.auth-card-icon {
+.ac-icon {
   width: clamp(44px, 6vh, 62px);
   height: clamp(44px, 6vh, 62px);
   margin: 0 auto clamp(10px, 2vh, 18px);
@@ -176,28 +176,28 @@ body.auth-page {
   mix-blend-mode: screen;
 }
 
-.auth-card h1 {
+.a-card h1 {
   font-size: clamp(1.2rem, 1rem + 1vh, 1.55rem);
   margin: 0 0 clamp(4px, 1vh, 6px);
 }
 
-.auth-card-subtitle {
+.ac-sub {
   color: var(--text-secondary);
   font-size: 0.9rem;
   margin: 0 0 clamp(14px, 3vh, 26px);
 }
 
-.auth-card-subtitle span {
+.ac-sub span {
   color: var(--accent-secondary);
 }
 
-.auth-card form {
+.a-card form {
   text-align: left;
 }
 
 /* Scoped override of the shared .field spacing (global.css) so the auth card can shrink
    on short viewports without affecting .field usage elsewhere in the app. */
-.auth-card .field {
+.a-card .field {
   padding: clamp(10px, 1.6vh, 13px) 16px;
   margin-bottom: clamp(8px, 1.6vh, 14px);
 }
@@ -205,20 +205,20 @@ body.auth-page {
 /* Flex items (including <input>) default to min-width:auto, which floors them at their
    intrinsic content width and blocks shrinking below it — on narrow viewports this pushed
    .field, and the card containing it, wider than the viewport. */
-.auth-card .field input {
+.a-card .field input {
   min-width: 0;
 }
 
-.auth-card .field.invalid {
+.a-card .field.invalid {
   border-color: var(--danger);
 }
 
-.auth-card .btn-primary {
+.a-card .btn-p {
   width: 100%;
   margin-top: clamp(4px, 1vh, 6px);
 }
 
-.auth-switch {
+.a-switch {
   margin-top: clamp(12px, 3vh, 22px);
   padding-top: clamp(10px, 2vh, 18px);
   border-top: 1px solid var(--border);
@@ -227,11 +227,11 @@ body.auth-page {
 }
 
 @media (max-width: 900px) {
-  .auth-visual {
+  .vis {
     display: none;
   }
 
-  .auth-form-panel {
+  .a-form {
     padding: 24px;
   }
 }
@@ -241,20 +241,20 @@ body.auth-page {
    isn't enough to avoid the page growing past the viewport — so also drop the purely
    decorative icon and tighten the subtitle gap here instead of clipping content. */
 @media (max-height: 620px) {
-  .auth-card-icon {
+  .ac-icon {
     display: none;
   }
 
-  .auth-card-subtitle {
+  .ac-sub {
     margin-bottom: 12px;
   }
 
-  .auth-form-panel {
+  .a-form {
     padding-top: 16px;
     padding-bottom: 16px;
   }
 
-  .auth-card {
+  .a-card {
     padding-top: 16px;
     padding-bottom: 16px;
   }
@@ -262,88 +262,88 @@ body.auth-page {
 
 /* ---------------------------------------------------------------------------------------
    Login-only layout. signup.css @imports this file, so everything below is scoped to
-   body.login-page to keep the Signup page exactly as it was.
+   body.login to keep the Signup page exactly as it was.
    --------------------------------------------------------------------------------------- */
 
 /* Single fixed-height viewport — no page scroll in either axis. */
-html:has(body.login-page),
-body.login-page {
+html:has(body.login),
+body.login {
   height: 100%;
   overflow: hidden;
 }
 
-body.login-page {
+body.login {
   min-height: 0;
   height: 100vh;
   height: 100dvh;
 }
 
-.login-page .auth-shell {
+.login .a-shell {
   min-height: 0;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
 }
 
-.login-page .auth-visual {
+.login .vis {
   padding: 0 0 0 clamp(32px, 5vw, 72px);
 }
 
-.login-page .auth-visual-content {
+.login .vis-content {
   align-items: flex-start;
   gap: 18px;
   padding: 0 32px 0 0;
 }
 
-.login-page .auth-visual-brand {
+.login .vis-brand {
   margin: 0;
   line-height: 1;
 }
 
-.login-page .auth-visual-brand-text {
+.login .b-text {
   line-height: 1;
 }
 
-.login-page .auth-visual-tagline {
+.login .vis-tag {
   margin: 0;
   padding-left: 2px;
 }
 
-.login-page .auth-visual-copy {
+.login .vis-copy {
   margin: 6px 0 0;
 }
 
 /* Clear vertical divider between the art section and the login section */
-.login-page .auth-form-panel {
+.login .a-form {
   border-left: 1px solid var(--border);
   box-shadow: -1px 0 18px -6px var(--glow);
   position: relative;
   z-index: 3;
 }
 
-.login-page .auth-card form {
+.login .a-card form {
   display: flex;
   flex-direction: column;
   gap: clamp(10px, 1.6vh, 14px);
 }
 
 /* Dark teal/black input surface instead of a bright field */
-.login-page .auth-card .field {
+.login .a-card .field {
   margin: 0;
   background: rgba(3, 14, 15, 0.85);
   background: color-mix(in srgb, var(--bg-primary) 92%, var(--accent) 8%);
   border-color: var(--border);
 }
 
-.login-page .auth-card .field input {
+.login .a-card .field input {
   background: transparent;
   color: var(--text-primary);
 }
 
 /* Browser autofill paints inputs bright white/blue — repaint with the dark field color. */
-.login-page .auth-card .field input:-webkit-autofill,
-.login-page .auth-card .field input:-webkit-autofill:hover,
-.login-page .auth-card .field input:-webkit-autofill:focus {
+.login .a-card .field input:-webkit-autofill,
+.login .a-card .field input:-webkit-autofill:hover,
+.login .a-card .field input:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--text-primary);
   caret-color: var(--text-primary);
   -webkit-box-shadow: 0 0 0 1000px #071214 inset;
@@ -351,12 +351,12 @@ body.login-page {
   transition: background-color 9999s ease-out 0s;
 }
 
-.login-page .auth-card .btn-primary {
+.login .a-card .btn-p {
   margin: clamp(4px, 1vh, 6px) 0 0;
 }
 
 @media (max-width: 900px) {
-  .login-page .auth-form-panel {
+  .login .a-form {
     border-left: none;
     box-shadow: none;
   }
