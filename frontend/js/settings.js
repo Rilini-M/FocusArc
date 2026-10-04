@@ -106,7 +106,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('profile-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.target;
-    const problem = emailError(form.elements.email.value) || dateOfBirthError(form.elements.dateOfBirth.value);
+    const problem =
+      usernameError(form.elements.username.value) ||
+      emailError(form.elements.email.value) ||
+      dateOfBirthError(form.elements.dateOfBirth.value);
     if (problem) {
       showToast(problem, { isError: true });
       return;

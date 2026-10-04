@@ -72,48 +72,30 @@ function wireLoginForm() {
   });
 }
 
-// Email check (kept identical in backend/middleware/validate.js and frontend/js/auth.js).
-// Valid format, plus a spelling check for well-known providers: "gmial.com" or "gmail.con"
-// is almost always a typo, so it is rejected with a suggested fix.
-const EMAIL_RE = /^[a-z0-9_%+-]+(\.[a-z0-9_%+-]+)*@([a-z0-9-]+\.)+[a-z]{2,}$/;
-const EMAIL_PROVIDERS = { gmail: 'gmail.com', yahoo: 'yahoo.com', hotmail: 'hotmail.com', outlook: 'outlook.com', icloud: 'icloud.com' };
-const REAL_LOOKALIKES = ['mail', 'email', 'ymail', 'gmx', 'cloud']; // real providers that look like typos
-const COM_TYPOS = ['con', 'cmo', 'cm', 'om', 'comm', 'coom', 'vom', 'xom', 'cpm'];
-
-// Letters changed, added, removed or swapped to turn a into b.
-function editDistance(a, b) {
-  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
-  for (let j = 1; j <= b.length; j++) d[0][j] = j;
-  for (let i = 1; i <= a.length; i++) {
-    for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
-      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
-    }
-  }
-  return d[a.length][b.length];
+// Username and email checks (kept identical in backend/middleware/validate.js and frontend/js/auth.js).
+// A username is a name: 2–50 letters A–Z only (50 matches the users table column).
+function usernameError(username) {
+  const value = (username || '').trim();
+  if (!value) return 'Username is required.';
+  if (!/^[A-Za-z]+$/.test(value)) return 'Username can only contain letters (A–Z), with no numbers, spaces or symbols.';
+  if (value.length < 2) return 'Username must be at least 2 letters.';
+  if (value.length > 50) return 'Username must be 50 letters or fewer.';
+  return null;
 }
 
+// Only Gmail addresses: letters, numbers and single dots before exactly "@gmail.com",
+// with at least one letter (so "123@gmail.com" is rejected).
 function emailError(email) {
   const value = (email || '').trim().toLowerCase();
-  if (!EMAIL_RE.test(value) || value.length > 255) return 'Enter a valid email address, like name@gmail.com.';
-  const [local, domain] = value.split('@');
-  const name = domain.split('.')[0];
-  const ending = domain.slice(name.length + 1);
-  const suggest = (fixed) => `Check the spelling — did you mean ${local}@${fixed}?`;
-
-  if (EMAIL_PROVIDERS[name]) {
-    if (name === 'gmail' && ending !== 'com') return suggest('gmail.com');
-    if (COM_TYPOS.includes(ending) || ending === 'co') return suggest(EMAIL_PROVIDERS[name]);
-    return null;
+  if (/\s/.test(value)) return 'Email cannot contain spaces.';
+  if (!value.endsWith('@gmail.com') || value.indexOf('@') !== value.length - '@gmail.com'.length || value.length > 255) {
+    return 'Enter a Gmail address ending in @gmail.com, like name@gmail.com.';
   }
-  if (!REAL_LOOKALIKES.includes(name)) {
-    for (const provider of Object.keys(EMAIL_PROVIDERS)) {
-      const allowed = provider === 'gmail' || provider.length >= 7 ? 2 : 1;
-      if (name.length >= 3 && editDistance(name, provider) <= allowed) return suggest(EMAIL_PROVIDERS[provider]);
-    }
+  const local = value.slice(0, -'@gmail.com'.length);
+  if (!/^[a-z0-9]+(\.[a-z0-9]+)*$/.test(local)) {
+    return 'Before @gmail.com, use only letters, numbers and single dots (not at the start or end).';
   }
-  if (COM_TYPOS.includes(ending)) return suggest(`${name}.com`);
+  if (!/[a-z]/.test(local)) return 'The part before @gmail.com must contain at least one letter.';
   return null;
 }
 
@@ -121,22 +103,28 @@ function wireSignupForm() {
   const form = document.getElementById('signup-form');
   if (!form) return;
 
-  const emailInput = form.querySelector('input[name="email"]');
-  const emailField = document.getElementById('email-field');
-  const emailErrorText = document.getElementById('email-error');
-
-  function validateEmail() {
-    const error = emailError(emailInput.value);
-    emailField.classList.toggle('invalid', Boolean(error));
-    emailErrorText.hidden = !error;
-    if (error) emailErrorText.textContent = error;
-    return !error;
+  // Checks a field on blur, then live while its message is showing, so the user sees exactly
+  // what to fix without being nagged mid-typing.
+  function liveCheck(name, check) {
+    const input = form.querySelector(`input[name="${name}"]`);
+    const field = document.getElementById(`${name}-field`);
+    const errorText = document.getElementById(`${name}-error`);
+    const validate = () => {
+      const error = check(input.value);
+      field.classList.toggle('invalid', Boolean(error));
+      errorText.hidden = !error;
+      if (error) errorText.textContent = error;
+      return !error;
+    };
+    input.addEventListener('input', () => {
+      if (errorText.hidden === false) validate();
+    });
+    input.addEventListener('blur', validate);
+    return { input, validate };
   }
 
-  emailInput.addEventListener('input', () => {
-    if (emailErrorText.hidden === false) validateEmail();
-  });
-  emailInput.addEventListener('blur', validateEmail);
+  const usernameCheck = liveCheck('username', usernameError);
+  const emailCheck = liveCheck('email', emailError);
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -152,9 +140,14 @@ function wireSignupForm() {
       showToast('Please fill in all fields.', { isError: true });
       return;
     }
-    if (!validateEmail()) {
+    if (!usernameCheck.validate()) {
+      showToast(usernameError(username), { isError: true });
+      usernameCheck.input.focus();
+      return;
+    }
+    if (!emailCheck.validate()) {
       showToast(emailError(email), { isError: true });
-      emailInput.focus();
+      emailCheck.input.focus();
       return;
     }
     if (password !== confirmPassword) {
