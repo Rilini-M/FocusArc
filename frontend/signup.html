@@ -45,18 +45,21 @@
             <input type="email" name="email" placeholder="Email Address" autocomplete="email" required />
           </label>
           <p class="f-err" id="email-error" hidden>Enter a Gmail address ending in @gmail.com, like richa123@gmail.com.</p>
-          <label class="field">
+          <label class="field" id="password-field">
             <i data-lucide="lock"></i>
             <input type="password" name="password" placeholder="Password" autocomplete="new-password" required />
           </label>
-          <label class="field">
+          <p class="f-err" id="password-error" hidden></p>
+          <label class="field" id="confirmPassword-field">
             <i data-lucide="lock"></i>
             <input type="password" name="confirmPassword" placeholder="Confirm Password" autocomplete="new-password" required />
           </label>
-          <label class="field">
+          <p class="f-err" id="confirmPassword-error" hidden></p>
+          <label class="field" id="dateOfBirth-field">
             <i data-lucide="calendar"></i>
             <input type="date" name="dateOfBirth" placeholder="Date of Birth" required />
           </label>
+          <p class="f-err" id="dateOfBirth-error" hidden></p>
 
           <button type="submit" class="btn btn-p">
             Create Account

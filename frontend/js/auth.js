@@ -118,11 +118,28 @@ function wireSignupForm() {
       if (errorText.hidden === false) validate();
     });
     input.addEventListener('blur', validate);
-    return { input, validate };
+    return { input, validate, error: () => check(input.value) };
   }
 
   const usernameCheck = liveCheck('username', usernameError);
   const emailCheck = liveCheck('email', emailError);
+  const passwordCheck = liveCheck('password', (value) => {
+    if (!value) return 'Password is required.';
+    return value.length < 8 ? 'Password must be at least 8 characters.' : null;
+  });
+  const confirmCheck = liveCheck('confirmPassword', (value) => {
+    if (!value) return 'Please confirm your password.';
+    return value !== passwordCheck.input.value ? 'Passwords do not match.' : null;
+  });
+  const dateOfBirthCheck = liveCheck('dateOfBirth', dateOfBirthError);
+  const checks = [usernameCheck, emailCheck, passwordCheck, confirmCheck, dateOfBirthCheck];
+
+  // Re-check "Passwords do not match" when the first password changes, once confirm has a value.
+  passwordCheck.input.addEventListener('input', () => {
+    if (confirmCheck.input.value) confirmCheck.validate();
+  });
+  // Date pickers often change without a blur, so check as soon as a date is picked.
+  dateOfBirthCheck.input.addEventListener('change', dateOfBirthCheck.validate);
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -134,31 +151,11 @@ function wireSignupForm() {
     const confirmPassword = formData.get('confirmPassword');
     const dateOfBirth = formData.get('dateOfBirth');
 
-    if (!username || !email || !password || !confirmPassword || !dateOfBirth) {
-      showToast('Please fill in all fields.', { isError: true });
-      return;
-    }
-    if (!usernameCheck.validate()) {
-      showToast(usernameError(username), { isError: true });
-      usernameCheck.input.focus();
-      return;
-    }
-    if (!emailCheck.validate()) {
-      showToast(emailError(email), { isError: true });
-      emailCheck.input.focus();
-      return;
-    }
-    if (password !== confirmPassword) {
-      showToast('Passwords do not match.', { isError: true });
-      return;
-    }
-    if (password.length < 8) {
-      showToast('Password must be at least 8 characters.', { isError: true });
-      return;
-    }
-    const dobError = dateOfBirthError(dateOfBirth);
-    if (dobError) {
-      showToast(dobError, { isError: true });
+    // Check every field so each problem shows under its own input, then point at the first one.
+    const failed = checks.filter((check) => !check.validate());
+    if (failed.length) {
+      showToast(failed[0].error(), { isError: true });
+      failed[0].input.focus();
       return;
     }
 
