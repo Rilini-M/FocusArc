@@ -35,15 +35,16 @@
         <p class="ac-sub">Start your journey. Become the hero of <span>your arc</span>.</p>
 
         <form id="signup-form" novalidate>
-          <label class="field">
+          <label class="field" id="username-field">
             <i data-lucide="user"></i>
             <input type="text" name="username" placeholder="Username" autocomplete="username" required />
           </label>
+          <p class="f-err" id="username-error" hidden></p>
           <label class="field" id="email-field">
             <i data-lucide="mail"></i>
             <input type="email" name="email" placeholder="Email Address" autocomplete="email" required />
           </label>
-          <p class="f-err" id="email-error" hidden>Enter a valid email address, like name@gmail.com.</p>
+          <p class="f-err" id="email-error" hidden>Enter a Gmail address ending in @gmail.com, like name@gmail.com.</p>
           <label class="field">
             <i data-lucide="lock"></i>
             <input type="password" name="password" placeholder="Password" autocomplete="new-password" required />
