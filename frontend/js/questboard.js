@@ -1,4 +1,9 @@
 const MAX_QUESTS = 10;
+// Kept identical to backend/middleware/validate.js and the maxlength values in questboard.html.
+const QUEST_LIMITS = {
+  title: { min: 2, max: 19, label: 'Title' },
+  description: { min: 9, max: 99, label: 'Description' },
+};
 const STATUS_LABELS = { TODO: 'To Do', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed' };
 
 let quests = [];
@@ -192,7 +197,49 @@ function openQuestModal(quest) {
   form.elements.title.value = quest ? quest.title : '';
   form.elements.description.value = quest ? quest.description : '';
   document.getElementById('quest-modal-title').textContent = quest ? 'Edit Quest' : 'New Quest';
+  form.dataset.submitted = '';
+  updateLengthErrors();
   backdrop.classList.add('open');
+}
+
+function questFieldValid(name, value) {
+  const { min, max } = QUEST_LIMITS[name];
+  const length = value.trim().length;
+  return length >= min && length <= max;
+}
+
+// maxlength stops typing past the limit; this tells the user why. A quest saved before the
+// limits existed can still be longer, so that case asks them to shorten it. "Too short" only
+// shows after a save attempt, so it doesn't nag while the user is still typing.
+function lengthError(name, value, showMin) {
+  const { min, max, label } = QUEST_LIMITS[name];
+  const length = value.trim().length;
+  if (length > max) return `${label} must be ${max} characters or fewer (currently ${length}).`;
+  if (value.length >= max) return `${label} has reached the ${max}-character limit.`;
+  if (showMin && length < min) return `${label} must be at least ${min} characters.`;
+  return null;
+}
+
+function updateLengthErrors() {
+  const form = document.getElementById('quest-form');
+  const showMin = form.dataset.submitted === 'true';
+  Object.keys(QUEST_LIMITS).forEach((name) => {
+    const message = lengthError(name, form.elements[name].value, showMin);
+    const el = document.getElementById(`${name}-error`);
+    el.textContent = message || '';
+    el.hidden = !message;
+  });
+}
+
+// Backstop for maxlength: if inserted text (typed, pasted or dropped) still overshoots the
+// limit, cut it back. Deletions are left alone so an over-long saved quest can be shortened.
+function enforceMaxLength(event) {
+  const field = event.target;
+  const limit = QUEST_LIMITS[field.name];
+  if (limit && (event.inputType || '').startsWith('insert') && field.value.length > limit.max) {
+    field.value = field.value.slice(0, limit.max);
+  }
+  updateLengthErrors();
 }
 
 function closeQuestModal() {
@@ -208,6 +255,13 @@ async function submitQuestForm(event) {
 
   if (!title || !description) {
     showToast('Title and description are required.', { isError: true });
+    return;
+  }
+  if (!questFieldValid('title', title) || !questFieldValid('description', description)) {
+    form.dataset.submitted = 'true';
+    updateLengthErrors();
+    const { title: t, description: d } = QUEST_LIMITS;
+    showToast(`Title must be ${t.min}–${t.max} characters and description ${d.min}–${d.max} characters.`, { isError: true });
     return;
   }
 
@@ -312,6 +366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (event.target.id === 'quest-modal-backdrop') closeQuestModal();
   });
   document.getElementById('quest-form').addEventListener('submit', submitQuestForm);
+  document.getElementById('quest-form').addEventListener('input', enforceMaxLength);
 
   document.querySelectorAll('.tab').forEach((tab) => {
     tab.addEventListener('click', () => {

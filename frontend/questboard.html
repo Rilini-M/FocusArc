@@ -53,9 +53,11 @@
       <form id="quest-form">
         <input type="hidden" name="questId" />
         <label class="field">
-          <input type="text" name="title" placeholder="Quest title" maxlength="150" required />
+          <input type="text" name="title" placeholder="Quest title" maxlength="19" required />
         </label>
-        <textarea name="description" placeholder="Quest description" required></textarea>
+        <p class="f-err" id="title-error" hidden></p>
+        <textarea name="description" placeholder="Quest description" maxlength="99" required></textarea>
+        <p class="f-err" id="description-error" hidden></p>
         <div class="m-acts">
           <button type="button" class="btn btn-s" id="quest-modal-cancel">Cancel</button>
           <button type="submit" class="btn btn-p" id="quest-modal-submit">Save Quest</button>
