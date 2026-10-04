@@ -2,7 +2,7 @@ const MAX_QUESTS = 10;
 // Kept identical to backend/middleware/validate.js and the maxlength values in questboard.html.
 const QUEST_LIMITS = {
   title: { min: 2, max: 19, label: 'Title' },
-  description: { min: 9, max: 99, label: 'Description' },
+  description: { min: 9, max: 60, label: 'Description' },
 };
 const STATUS_LABELS = { TODO: 'To Do', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed' };
 

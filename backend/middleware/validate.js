@@ -6,7 +6,7 @@ const THEMES = ['default', 'nature', 'dark', 'royal', 'vampire', 'cyberpunk'];
 const QUEST_TITLE_MIN = 2;
 const QUEST_TITLE_MAX = 19;
 const QUEST_DESCRIPTION_MIN = 9;
-const QUEST_DESCRIPTION_MAX = 99;
+const QUEST_DESCRIPTION_MAX = 60;
 
 // Email check (kept identical in backend/middleware/validate.js and frontend/js/auth.js).
 // Valid format, plus a spelling check for well-known providers: "gmial.com" or "gmail.con"
