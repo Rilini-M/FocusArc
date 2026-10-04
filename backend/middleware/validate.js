@@ -2,6 +2,9 @@ const { failure } = require('../utils/responses');
 
 const QUEST_STATUSES = ['TODO', 'IN_PROGRESS', 'COMPLETED'];
 const THEMES = ['default', 'nature', 'dark', 'royal', 'vampire', 'cyberpunk'];
+// Kept identical to the limits in frontend/js/questboard.js.
+const QUEST_TITLE_MAX = 20;
+const QUEST_DESCRIPTION_MAX = 200;
 
 // Email check (kept identical in backend/middleware/validate.js and frontend/js/auth.js).
 // Valid format, plus a spelling check for well-known providers: "gmial.com" or "gmail.con"
@@ -111,11 +114,14 @@ function validateQuest(req, res, next) {
   if (!title || !title.trim()) {
     return failure(res, 'Quest title is required.');
   }
-  if (title.trim().length > 150) {
-    return failure(res, 'Quest title must be 150 characters or fewer.');
+  if (title.trim().length > QUEST_TITLE_MAX) {
+    return failure(res, `Quest title must be ${QUEST_TITLE_MAX} characters or fewer.`);
   }
   if (!description || !description.trim()) {
     return failure(res, 'Quest description is required.');
+  }
+  if (description.trim().length > QUEST_DESCRIPTION_MAX) {
+    return failure(res, `Quest description must be ${QUEST_DESCRIPTION_MAX} characters or fewer.`);
   }
   if (status && !QUEST_STATUSES.includes(status)) {
     return failure(res, 'Invalid quest status.');
