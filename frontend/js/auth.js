@@ -83,19 +83,18 @@ function usernameError(username) {
   return null;
 }
 
-// Only Gmail addresses shaped like "richa@gmail.com" or "richa123@gmail.com": letters A–Z first,
-// then optional numbers 0–9, then exactly "@gmail.com". No dots or other symbols.
+// Only Gmail addresses shaped like "richa123@gmail.com": one or more letters, then one or more
+// numbers, then exactly "@gmail.com". No dots, symbols or letters after the numbers.
+const EMAIL_RE = /^[A-Za-z]+[0-9]+@gmail\.com$/;
+
 function emailError(email) {
-  const value = (email || '').trim().toLowerCase();
+  const value = (email || '').trim();
   if (/\s/.test(value)) return 'Email cannot contain spaces.';
-  if (!value.endsWith('@gmail.com') || value.indexOf('@') !== value.length - '@gmail.com'.length || value.length > 255) {
-    return 'Enter a Gmail address ending in @gmail.com, like name@gmail.com.';
+  if (EMAIL_RE.test(value) && value.length <= 255) return null;
+  if (!value.endsWith('@gmail.com') || value.indexOf('@') !== value.length - '@gmail.com'.length) {
+    return 'Enter a Gmail address ending in @gmail.com, like richa123@gmail.com.';
   }
-  const local = value.slice(0, -'@gmail.com'.length);
-  if (!/^[a-z]+[0-9]*$/.test(local)) {
-    return 'Before @gmail.com, use letters first, then optional numbers, like richa123@gmail.com.';
-  }
-  return null;
+  return 'Before @gmail.com, use letters followed by numbers, like richa123@gmail.com.';
 }
 
 function wireSignupForm() {
