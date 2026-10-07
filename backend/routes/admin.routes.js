@@ -12,6 +12,7 @@ router.get('/dashboard', controller.dashboard);
 
 router.get('/characters/api', characters.fetchFromApi);
 router.post('/characters/import', characters.importCharacter);
+router.post('/characters/import-bulk', characters.importBulk);
 router.get('/characters', characters.listImported);
 router.put('/characters/:id', characters.updateDescription);
 router.delete('/characters/:id', characters.remove);

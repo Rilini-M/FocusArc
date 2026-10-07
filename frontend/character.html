@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/themes.css" />
   <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/global.css" />
-  <link rel="stylesheet" href="css/character.css?v=2" />
+  <link rel="stylesheet" href="css/character.css?v=3" />
 </head>
 <body>
   <div class="shell">
@@ -42,7 +42,17 @@
       <section class="card c-pick">
         <h3>Choose Your Companion</h3>
         <p class="cp-sub">Every arc has a hero , Pick yours.</p>
+        <label class="field c-search">
+          <i data-lucide="search"></i>
+          <input type="search" id="companion-search" placeholder="Search characters by name" maxlength="100" autocomplete="off" />
+        </label>
         <div class="c-grid" id="companion-grid"></div>
+        <p class="c-empty" id="companion-empty" hidden>No characters found.</p>
+        <div class="c-pager" id="companion-pager" hidden>
+          <button type="button" class="btn btn-s" id="companion-prev">Previous</button>
+          <span id="companion-page-label"></span>
+          <button type="button" class="btn btn-s" id="companion-next">Next</button>
+        </div>
       </section>
     </main>
   </div>

@@ -185,6 +185,31 @@ async function deleteCharacter(row, button) {
   }
 }
 
+// ---- Bulk import ----
+
+async function bulkImport() {
+  const button = document.getElementById('bulk-import-btn');
+  const resultEl = document.getElementById('bulk-import-result');
+  button.disabled = true;
+  resultEl.hidden = false;
+  resultEl.classList.remove('ad-err');
+  resultEl.textContent = 'Importing characters from Jikan… this can take about a minute. Please keep this page open.';
+
+  try {
+    const result = await api.post('/admin/characters/import-bulk', { target: 200 });
+    let summary = `Imported: ${result.imported} · Skipped: ${result.skipped} · Failed: ${result.failed}`;
+    if (result.stoppedEarly) summary += ` (stopped early: ${result.stoppedEarly})`;
+    resultEl.textContent = summary;
+    loadImported();
+    if (apiCharacters.length) fetchCharacters(currentPage);
+  } catch (err) {
+    resultEl.classList.add('ad-err');
+    resultEl.textContent = err.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   renderSidebar('admin');
   refreshIcons();
@@ -211,6 +236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     fetchCharacters(1);
   });
+  document.getElementById('bulk-import-btn').addEventListener('click', bulkImport);
   document.getElementById('prev-page').addEventListener('click', () => fetchCharacters(currentPage - 1));
   document.getElementById('next-page').addEventListener('click', () => fetchCharacters(currentPage + 1));
 

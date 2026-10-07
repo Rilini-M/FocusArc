@@ -23,6 +23,13 @@
       <!-- Hidden until the server confirms this account is an ADMIN. -->
       <div id="admin-characters" hidden>
         <section class="card ad-sec">
+          <h3>Bulk Import</h3>
+          <p class="ad-sub">Imports the 200 most popular Jikan characters that are not in FocusArc yet. Characters that already exist are skipped. This takes about a minute.</p>
+          <button type="button" class="btn btn-p" id="bulk-import-btn"><i data-lucide="download-cloud" style="width:16px;height:16px;"></i> Import 200 Characters</button>
+          <p class="ad-note" id="bulk-import-result" hidden></p>
+        </section>
+
+        <section class="card ad-sec">
           <h3>Jikan Characters</h3>
           <p class="ad-sub">Fetched from the Jikan anime API, most popular first. Import a character to add it to FocusArc.</p>
 

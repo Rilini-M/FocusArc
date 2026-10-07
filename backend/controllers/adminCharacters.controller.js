@@ -54,48 +54,143 @@ async function fetchFromApi(req, res, next) {
   }
 }
 
-// POST /api/admin/characters/import  { externalApiId, name, imageUrl, description }
-async function importCharacter(req, res, next) {
+// Validates one Jikan character and saves it. Shared by the single and the bulk import.
+// Returns { status: 'imported' | 'exists' | 'invalid', message, character }.
+async function saveCharacter(input) {
+  const externalApiId = Number(input.externalApiId);
+  const name = text(input.name);
+  const imageUrl = text(input.imageUrl);
+  const description = text(input.description);
+
+  if (!Number.isInteger(externalApiId) || externalApiId < 1) {
+    return { status: 'invalid', message: 'A valid Jikan character id is required.' };
+  }
+  if (!name || name.length > NAME_MAX) {
+    return { status: 'invalid', message: `Character name is required and must be ${NAME_MAX} characters or fewer.` };
+  }
+  // https only, and no spaces, quotes or angle brackets, since the URL is placed in an <img src="">.
+  if (!/^https:\/\/[^\s"'<>]+$/.test(imageUrl) || imageUrl.length > 255) {
+    return { status: 'invalid', message: 'This character has no usable image, so it cannot be imported.' };
+  }
+  if (description.length > DESCRIPTION_MAX) {
+    return { status: 'invalid', message: `Description must be ${DESCRIPTION_MAX} characters or fewer.` };
+  }
+
+  const [existing] = await pool.query(`SELECT id FROM characters WHERE external_api_id = ?`, [externalApiId]);
+  if (existing.length > 0) {
+    return { status: 'exists', message: 'Character already exists.' };
+  }
+
+  // Character names are unique in the table (the Character Guide and theme picker look them up by name).
+  const [sameName] = await pool.query(`SELECT id FROM characters WHERE name = ?`, [name]);
+  if (sameName.length > 0) {
+    return { status: 'exists', message: `A character named "${name}" already exists.` };
+  }
+
   try {
-    const externalApiId = Number(req.body.externalApiId);
-    const name = text(req.body.name);
-    const imageUrl = text(req.body.imageUrl);
-    const description = text(req.body.description);
-
-    if (!Number.isInteger(externalApiId) || externalApiId < 1) {
-      return failure(res, 'A valid Jikan character id is required.');
-    }
-    if (!name || name.length > NAME_MAX) {
-      return failure(res, `Character name is required and must be ${NAME_MAX} characters or fewer.`);
-    }
-    if (!/^https:\/\/\S+$/.test(imageUrl) || imageUrl.length > 255) {
-      return failure(res, 'This character has no usable image, so it cannot be imported.');
-    }
-    if (description.length > DESCRIPTION_MAX) {
-      return failure(res, `Description must be ${DESCRIPTION_MAX} characters or fewer.`);
-    }
-
-    const [existing] = await pool.query(`SELECT id FROM characters WHERE external_api_id = ?`, [externalApiId]);
-    if (existing.length > 0) {
-      return failure(res, 'Character already exists.', 409);
-    }
-
-    // Character names are unique in the table (the Character Guide and theme picker look them up by name).
-    const [sameName] = await pool.query(`SELECT id FROM characters WHERE name = ?`, [name]);
-    if (sameName.length > 0) {
-      return failure(res, `A character named "${name}" already exists.`, 409);
-    }
-
     const [result] = await pool.query(
       `INSERT INTO characters (external_api_id, name, description, image_path) VALUES (?, ?, ?, ?)`,
       [externalApiId, name, description, imageUrl]
     );
-
-    return success(res, { id: result.insertId, external_api_id: externalApiId, name, description, image_path: imageUrl }, 201);
+    return {
+      status: 'imported',
+      character: { id: result.insertId, external_api_id: externalApiId, name, description, image_path: imageUrl },
+    };
   } catch (err) {
     // Two imports of the same character at the same moment: the UNIQUE index still blocks the duplicate.
-    if (err.code === 'ER_DUP_ENTRY') return failure(res, 'Character already exists.', 409);
+    if (err.code === 'ER_DUP_ENTRY') return { status: 'exists', message: 'Character already exists.' };
+    throw err;
+  }
+}
+
+// POST /api/admin/characters/import  { externalApiId, name, imageUrl, description }
+async function importCharacter(req, res, next) {
+  try {
+    const outcome = await saveCharacter(req.body);
+    if (outcome.status === 'invalid') return failure(res, outcome.message);
+    if (outcome.status === 'exists') return failure(res, outcome.message, 409);
+    return success(res, outcome.character, 201);
+  } catch (err) {
     return next(err);
+  }
+}
+
+const BULK_DEFAULT_TARGET = 200;
+const BULK_MAX_TARGET = 500;
+const BULK_PAGE_SIZE = 25; // Jikan's largest page
+const BULK_PAUSE_MS = 1000; // Jikan allows about 3 requests per second and 60 per minute
+let bulkImportRunning = false;
+
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// One Jikan page; if Jikan says "too many requests", wait a little and try once more.
+async function fetchBulkPage(page) {
+  try {
+    return await jikan.fetchCharacters({ page, limit: BULK_PAGE_SIZE });
+  } catch (err) {
+    if (err.status !== 429) throw err;
+    await pause(3000);
+    return jikan.fetchCharacters({ page, limit: BULK_PAGE_SIZE });
+  }
+}
+
+// POST /api/admin/characters/import-bulk  { target: 200 }
+// Walks Jikan's most-popular characters page by page and imports new ones until `target`
+// characters were imported or Jikan has no more pages. Existing characters are skipped,
+// so running it again only adds characters that are not in the database yet.
+async function importBulk(req, res, next) {
+  const target = Number(req.body.target || BULK_DEFAULT_TARGET);
+  if (!Number.isInteger(target) || target < 1 || target > BULK_MAX_TARGET) {
+    return failure(res, `Target must be between 1 and ${BULK_MAX_TARGET}.`);
+  }
+  if (bulkImportRunning) {
+    return failure(res, 'A bulk import is already running. Please wait for it to finish.', 409);
+  }
+
+  bulkImportRunning = true;
+  const counts = { imported: 0, skipped: 0, failed: 0 };
+  const maxPages = Math.ceil(target / BULK_PAGE_SIZE) * 3; // room for skipped characters
+  let pagesFetched = 0;
+  let stoppedEarly = null;
+
+  try {
+    for (let page = 1; page <= maxPages && counts.imported < target; page++) {
+      if (page > 1) await pause(BULK_PAUSE_MS);
+
+      let result;
+      try {
+        result = await fetchBulkPage(page);
+      } catch (err) {
+        if (!err.status) throw err;
+        // Nothing fetched at all: report that Jikan could not be reached. Nothing was imported.
+        if (pagesFetched === 0) return failure(res, `Bulk import failed: ${err.message}`, err.status);
+        // Jikan failed part-way: keep what was imported and say why it stopped.
+        stoppedEarly = err.message;
+        break;
+      }
+      pagesFetched += 1;
+
+      for (const character of result.characters) {
+        if (counts.imported >= target) break;
+        try {
+          const outcome = await saveCharacter(character);
+          if (outcome.status === 'imported') counts.imported += 1;
+          else if (outcome.status === 'exists') counts.skipped += 1;
+          else counts.failed += 1;
+        } catch (err) {
+          console.error('Bulk import could not save character', character.externalApiId, err.message);
+          counts.failed += 1;
+        }
+      }
+
+      if (!result.pagination.hasNextPage) break;
+    }
+
+    return success(res, { ...counts, target, pagesFetched, stoppedEarly });
+  } catch (err) {
+    return next(err);
+  } finally {
+    bulkImportRunning = false;
   }
 }
 
@@ -169,4 +264,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { fetchFromApi, importCharacter, listImported, updateDescription, remove };
+module.exports = { fetchFromApi, importCharacter, importBulk, listImported, updateDescription, remove };
