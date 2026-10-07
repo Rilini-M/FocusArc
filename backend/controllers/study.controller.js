@@ -1,5 +1,6 @@
 const pool = require('../config/database');
 const { success, failure } = require('../utils/responses');
+const { refreshQuestStatus } = require('../services/questStatus.service');
 
 // Starts a live-tracked session (Quest Board's Start Study button). A user may only have
 // one open session (ended_at IS NULL) at a time — enforced here, not just in the UI.
@@ -33,6 +34,8 @@ async function startSession(req, res, next) {
       `INSERT INTO study_sessions (user_id, quest_id, started_at) VALUES (?, ?, NOW())`,
       [req.user.id, questId || null]
     );
+    // Studying a quest moves it from To Do to In Progress (used by Analytics).
+    await refreshQuestStatus(questId);
 
     const [rows] = await pool.query(`SELECT id, quest_id, started_at, ended_at, duration_minutes FROM study_sessions WHERE id = ?`, [
       result.insertId,
@@ -66,6 +69,8 @@ async function stopSession(req, res, next) {
     );
 
     const [rows] = await pool.query(`SELECT id, quest_id, started_at, ended_at, duration_minutes FROM study_sessions WHERE id = ?`, [id]);
+    // Enough study time completes the quest (used by Analytics).
+    await refreshQuestStatus(rows[0].quest_id);
     return success(res, rows[0]);
   } catch (err) {
     return next(err);

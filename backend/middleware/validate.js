@@ -1,6 +1,5 @@
 const { failure } = require('../utils/responses');
 
-const QUEST_STATUSES = ['TODO', 'IN_PROGRESS', 'COMPLETED'];
 // Light/Dark appearance modes. (Study themes are rows in the `themes` table, checked in
 // settings.controller.js.)
 const APPEARANCES = ['dark', 'light'];
@@ -8,7 +7,10 @@ const APPEARANCES = ['dark', 'light'];
 const QUEST_TITLE_MIN = 2;
 const QUEST_TITLE_MAX = 19;
 const QUEST_DESCRIPTION_MIN = 9;
-const QUEST_DESCRIPTION_MAX = 60;
+const QUEST_DESCRIPTION_MAX = 99;
+// Time Required, in whole minutes (up to 24 hours).
+const QUEST_TIME_MIN = 1;
+const QUEST_TIME_MAX = 1440;
 
 // Username and email checks (kept identical in backend/middleware/validate.js and frontend/js/auth.js).
 // A username is a name: 2–50 letters A–Z only (50 matches the users table column).
@@ -93,33 +95,25 @@ function validateLogin(req, res, next) {
   return next();
 }
 
+// Create/edit quest. Runs after the upload parser, so multipart fields arrive as strings.
 function validateQuest(req, res, next) {
-  const { title, description, status } = req.body;
+  const { title, description, timeRequired } = req.body;
 
-  if (!title || !title.trim()) {
+  if (typeof title !== 'string' || !title.trim()) {
     return failure(res, 'Quest title is required.');
   }
   if (title.trim().length < QUEST_TITLE_MIN || title.trim().length > QUEST_TITLE_MAX) {
     return failure(res, `Quest title must be ${QUEST_TITLE_MIN}–${QUEST_TITLE_MAX} characters.`);
   }
-  if (!description || !description.trim()) {
+  if (typeof description !== 'string' || !description.trim()) {
     return failure(res, 'Quest description is required.');
   }
   if (description.trim().length < QUEST_DESCRIPTION_MIN || description.trim().length > QUEST_DESCRIPTION_MAX) {
     return failure(res, `Quest description must be ${QUEST_DESCRIPTION_MIN}–${QUEST_DESCRIPTION_MAX} characters.`);
   }
-  if (status && !QUEST_STATUSES.includes(status)) {
-    return failure(res, 'Invalid quest status.');
-  }
-
-  return next();
-}
-
-function validateStatus(req, res, next) {
-  const { status } = req.body;
-
-  if (!status || !QUEST_STATUSES.includes(status)) {
-    return failure(res, 'Invalid quest status.');
+  const minutes = String(timeRequired ?? '').trim();
+  if (!/^\d+$/.test(minutes) || Number(minutes) < QUEST_TIME_MIN || Number(minutes) > QUEST_TIME_MAX) {
+    return failure(res, `Time required must be a whole number of minutes from ${QUEST_TIME_MIN} to ${QUEST_TIME_MAX}.`);
   }
 
   return next();
@@ -151,7 +145,6 @@ module.exports = {
   validateLogin,
   validateProfile,
   validateQuest,
-  validateStatus,
   validateTheme,
   validateAppearance,
 };

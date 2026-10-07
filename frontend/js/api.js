@@ -2,13 +2,15 @@ const API_BASE = '/api';
 
 async function apiRequest(path, { method = 'GET', body } = {}) {
   let response;
+  // FormData (forms with a file) is sent as multipart; the browser sets its Content-Type.
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
 
   try {
     response = await fetch(`${API_BASE}${path}`, {
       method,
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: body && !isForm ? { 'Content-Type': 'application/json' } : undefined,
       credentials: 'include',
-      body: body ? JSON.stringify(body) : undefined,
+      body: body ? (isForm ? body : JSON.stringify(body)) : undefined,
     });
   } catch (networkErr) {
     throw new Error('Network error. Please check your connection and try again.');

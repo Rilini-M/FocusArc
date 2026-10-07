@@ -1,16 +1,21 @@
 const MAX_QUESTS = 10;
-// Kept identical to backend/middleware/validate.js and the maxlength values in questboard.html.
+// Kept identical to backend/middleware/validate.js and the maxlength/min/max values in questboard.html.
 const QUEST_LIMITS = {
   title: { min: 2, max: 19, label: 'Title' },
-  description: { min: 9, max: 60, label: 'Description' },
+  description: { min: 9, max: 99, label: 'Description' },
 };
-const STATUS_LABELS = { TODO: 'To Do', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed' };
+const TIME_LIMITS = { min: 1, max: 1440 }; // minutes
+// Kept identical to FILE_TYPES / MAX_FILE_SIZE in backend/services/questFiles.service.js.
+const FILE_EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'txt', 'md', 'csv', 'doc', 'xls', 'ppt', 'docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp'];
+const MAX_FILE_MB = 10;
 
-let quests = [];
-let activeFilter = 'ALL';
+let quests = []; // newest first, as returned by the API
 let quoteRotationTimer = null;
 let activeStudySession = null; // { id, quest_id, started_at } | null
 let studyTickInterval = null;
+
+// Attachment choice in the open form: the quest's current file, a newly picked file, or removal.
+let formAttachment = { existing: null, removed: false };
 
 function formatDuration(totalSeconds) {
   const pad = (n) => String(n).padStart(2, '0');
@@ -18,6 +23,20 @@ function formatDuration(totalSeconds) {
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
   return `${pad(h)}:${pad(m)}:${pad(s)}`;
+}
+
+// "45 min", "1 h", "1 h 30 min"
+function formatMinutes(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (!h) return `${m} min`;
+  return m ? `${h} h ${m} min` : `${h} h`;
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
 // Re-renders only the ticking number, not the whole list — the elapsed time is always
@@ -50,80 +69,71 @@ function renderQuestCount() {
   document.getElementById('add-quest-btn').disabled = quests.length >= MAX_QUESTS;
 }
 
+function questCardHTML(quest) {
+  const isStudyingThis = activeStudySession && activeStudySession.quest_id === quest.id;
+  const anotherActive = activeStudySession && !isStudyingThis;
+
+  const studyControl = isStudyingThis
+    ? `
+      <div class="timer">${icon('timer', 15)}<span data-quest-timer="${quest.id}">00:00:00</span></div>
+      <button type="button" class="btn btn-d s-btn" data-action="stop-study">${icon('circle-stop', 16)} Stop Study</button>`
+    : `
+      <button type="button" class="btn btn-p s-btn" data-action="start-study"${anotherActive ? ' disabled title="Finish your current study session first"' : ''}>${icon('play', 16)} Start Study</button>`;
+
+  const attachment = quest.attachment
+    ? `<a class="q-chip q-attach" href="${quest.attachment.url}" target="_blank" rel="noopener"
+         title="Open ${escapeHtml(quest.attachment.name)} (${formatFileSize(quest.attachment.size)})">
+         ${icon('paperclip', 14)}<span>${escapeHtml(quest.attachment.name)}</span></a>`
+    : '';
+
+  return `
+    <article class="card quest-card fade${isStudyingThis ? ' studying' : ''}" data-quest-id="${quest.id}">
+      <div class="q-top">
+        <h3 class="q-title">${escapeHtml(quest.title)}</h3>
+        <div class="q-acts">
+          <button class="i-btn" data-action="edit" aria-label="Edit quest">${icon('pencil', 16)}</button>
+          <button class="i-btn danger" data-action="delete" aria-label="Delete quest">${icon('trash-2', 16)}</button>
+        </div>
+      </div>
+      <p class="q-desc">${escapeHtml(quest.description)}</p>
+      <div class="q-meta">
+        ${attachment}
+        <span class="q-chip q-time-chip">${icon('hourglass', 14)}<span>Time Required: <strong>${formatMinutes(quest.time_required)}</strong></span></span>
+      </div>
+      <div class="q-study">${studyControl}</div>
+    </article>`;
+}
+
 function renderQuestList() {
   const container = document.getElementById('quest-list');
-  const visible =
-    activeFilter === 'ALL' ? quests : quests.filter((q) => q.status === activeFilter);
 
-  if (visible.length === 0) {
+  if (quests.length === 0) {
     container.innerHTML = `
       <div class="empty card">
-        <h3>${quests.length === 0 ? 'No quests yet.' : 'Nothing here yet.'}</h3>
-        <p>${quests.length === 0 ? 'Create your first study quest.' : 'Try a different filter.'}</p>
+        <h3>No quests yet.</h3>
+        <p>Create your first study quest.</p>
       </div>`;
     return;
   }
 
-  container.innerHTML = visible
-    .map((quest) => {
-      const isStudyingThis = activeStudySession && activeStudySession.quest_id === quest.id;
-      const anotherActive = activeStudySession && !isStudyingThis;
-
-      const studyControl = isStudyingThis
-        ? `
-          <div class="timer">${icon('timer', 15)}<span data-quest-timer="${quest.id}">00:00:00</span></div>
-          <button type="button" class="btn btn-d s-btn" data-action="stop-study">${icon('circle-stop', 16)} Stop Study</button>`
-        : `
-          <button type="button" class="btn btn-p s-btn" data-action="start-study"${anotherActive ? ' disabled title="Finish your current study session first"' : ''}>${icon('play', 16)} Start Study</button>`;
-
-      return `
-      <div class="card quest-card fade" data-quest-id="${quest.id}" data-status="${quest.status}">
-        <div class="q-top">
-          <div class="q-body">
-            <h3 class="q-title">${escapeHtml(quest.title)}</h3>
-            <p class="q-desc">${escapeHtml(quest.description)}</p>
-          </div>
-          <div class="q-acts">
-            <select class="q-select" data-action="status">
-              ${Object.entries(STATUS_LABELS)
-                .map(
-                  ([value, label]) =>
-                    `<option value="${value}"${quest.status === value ? ' selected' : ''}>${label}</option>`
-                )
-                .join('')}
-            </select>
-            <button class="i-btn" data-action="edit" aria-label="Edit quest">${icon('pencil', 16)}</button>
-            <button class="i-btn danger" data-action="delete" aria-label="Delete quest">${icon('trash-2', 16)}</button>
-          </div>
-        </div>
-        <div class="q-study">${studyControl}</div>
-      </div>`;
-    })
-    .join('');
-
-  container.querySelectorAll('.quest-card').forEach((card) => {
-    const questId = Number(card.dataset.questId);
-
-    card.querySelector('[data-action="status"]').addEventListener('change', (event) => {
-      updateQuestStatus(questId, event.target.value);
-    });
-    card.querySelector('[data-action="edit"]').addEventListener('click', () => {
-      openQuestModal(quests.find((q) => q.id === questId));
-    });
-    card.querySelector('[data-action="delete"]').addEventListener('click', () => {
-      deleteQuest(questId);
-    });
-
-    const startBtn = card.querySelector('[data-action="start-study"]');
-    if (startBtn) startBtn.addEventListener('click', () => startStudy(questId));
-
-    const stopBtn = card.querySelector('[data-action="stop-study"]');
-    if (stopBtn) stopBtn.addEventListener('click', stopStudy);
-  });
-
+  container.innerHTML = quests.map(questCardHTML).join('');
   refreshIcons();
 
   if (activeStudySession) startTimerTick();
+}
+
+// One delegated click handler for every card, attached once.
+function handleQuestListClick(event) {
+  const button = event.target.closest('[data-action]');
+  const card = event.target.closest('.quest-card');
+  if (!button || !card) return;
+  const questId = Number(card.dataset.questId);
+  const action = button.dataset.action;
+
+  if (action === 'edit') openQuestModal(quests.find((q) => q.id === questId));
+  else if (action === 'delete') deleteQuest(questId);
+  else if (action === 'start-study') startStudy(questId);
+  else if (action === 'stop-study') stopStudy();
 }
 
 async function loadQuests() {
@@ -160,17 +170,6 @@ async function stopStudy() {
   }
 }
 
-async function updateQuestStatus(questId, status) {
-  try {
-    const updated = await api.patch(`/quests/${questId}/status`, { status });
-    quests = quests.map((q) => (q.id === questId ? updated : q));
-    renderQuestList();
-  } catch (err) {
-    showToast(err.message, { isError: true });
-    renderQuestList();
-  }
-}
-
 async function deleteQuest(questId) {
   if (activeStudySession && activeStudySession.quest_id === questId) {
     showToast('Stop the active study session before deleting this quest.', { isError: true });
@@ -189,97 +188,152 @@ async function deleteQuest(questId) {
   }
 }
 
+// ---------------------------------------------------------------- create / edit form
+
+function questForm() {
+  return document.getElementById('quest-form');
+}
+
 function openQuestModal(quest) {
-  const backdrop = document.getElementById('quest-modal-backdrop');
-  const form = document.getElementById('quest-form');
+  const form = questForm();
   form.reset();
   form.elements.questId.value = quest ? quest.id : '';
   form.elements.title.value = quest ? quest.title : '';
   form.elements.description.value = quest ? quest.description : '';
-  document.getElementById('quest-modal-title').textContent = quest ? 'Edit Quest' : 'New Quest';
+  form.elements.timeRequired.value = quest ? quest.time_required : 60;
+  formAttachment = { existing: quest ? quest.attachment : null, removed: false };
+  document.getElementById('quest-modal-title').textContent = quest ? 'Edit Quest' : 'Create Quest';
+  document.getElementById('quest-modal-submit').textContent = quest ? 'Save Quest' : 'Create Quest';
   form.dataset.submitted = '';
-  updateLengthErrors();
-  backdrop.classList.add('open');
-}
-
-function questFieldValid(name, value) {
-  const { min, max } = QUEST_LIMITS[name];
-  const length = value.trim().length;
-  return length >= min && length <= max;
-}
-
-// maxlength stops typing past the limit; this tells the user why. A quest saved before the
-// limits existed can still be longer, so that case asks them to shorten it. "Too short" only
-// shows after a save attempt, so it doesn't nag while the user is still typing.
-function lengthError(name, value, showMin) {
-  const { min, max, label } = QUEST_LIMITS[name];
-  const length = value.trim().length;
-  if (length > max) return `${label} must be ${max} characters or fewer (currently ${length}).`;
-  if (value.length >= max) return `${label} has reached the ${max}-character limit.`;
-  if (showMin && length < min) return `${label} must be at least ${min} characters.`;
-  return null;
-}
-
-function updateLengthErrors() {
-  const form = document.getElementById('quest-form');
-  const showMin = form.dataset.submitted === 'true';
-  Object.keys(QUEST_LIMITS).forEach((name) => {
-    const message = lengthError(name, form.elements[name].value, showMin);
-    const el = document.getElementById(`${name}-error`);
-    el.textContent = message || '';
-    el.hidden = !message;
-  });
-}
-
-// Backstop for maxlength: if inserted text (typed, pasted or dropped) still overshoots the
-// limit, cut it back. Deletions are left alone so an over-long saved quest can be shortened.
-function enforceMaxLength(event) {
-  const field = event.target;
-  const limit = QUEST_LIMITS[field.name];
-  if (limit && (event.inputType || '').startsWith('insert') && field.value.length > limit.max) {
-    field.value = field.value.slice(0, limit.max);
-  }
-  updateLengthErrors();
+  renderFileChoice();
+  updateFormErrors();
+  document.getElementById('quest-modal-backdrop').classList.add('open');
+  form.elements.title.focus();
 }
 
 function closeQuestModal() {
   document.getElementById('quest-modal-backdrop').classList.remove('open');
 }
 
+// Shows the picked file, else the quest's current attachment, else "No file chosen".
+function renderFileChoice() {
+  const picked = questForm().elements.file.files[0];
+  const current = !formAttachment.removed && formAttachment.existing;
+  const nameEl = document.getElementById('quest-file-name');
+  const hintEl = document.getElementById('quest-file-hint');
+
+  nameEl.textContent = picked ? picked.name : current ? current.name : 'No file chosen';
+  nameEl.classList.toggle('chosen', Boolean(picked || current));
+  document.getElementById('quest-file-clear').hidden = !(picked || current);
+  hintEl.textContent = picked
+    ? `${formatFileSize(picked.size)}${formAttachment.existing ? ' — replaces the current file' : ''}`
+    : current
+      ? 'Current file. Choose another to replace it.'
+      : `PDF, images, text or Office files, up to ${MAX_FILE_MB} MB.`;
+}
+
+function clearFileChoice() {
+  const input = questForm().elements.file;
+  if (input.files.length) {
+    input.value = ''; // drop the newly picked file (the current attachment, if any, stays)
+  } else {
+    formAttachment.removed = true; // remove the quest's current attachment on save
+  }
+  renderFileChoice();
+  updateFormErrors();
+}
+
+// Error message per field, or null. "Too short" / "required" only show after a save attempt,
+// so they don't nag while the user is still typing.
+function fieldErrors() {
+  const form = questForm();
+  const showMin = form.dataset.submitted === 'true';
+  const errors = {};
+
+  Object.entries(QUEST_LIMITS).forEach(([name, { min, max, label }]) => {
+    const value = form.elements[name].value;
+    const length = value.trim().length;
+    if (length > max) errors[name] = `${label} must be ${max} characters or fewer (currently ${length}).`;
+    else if (value.length >= max) errors[name] = `${label} has reached the ${max}-character limit.`;
+    else if (showMin && length < min) errors[name] = `${label} must be at least ${min} characters.`;
+  });
+
+  const time = form.elements.timeRequired.value.trim();
+  if (time !== '' || showMin) {
+    if (!/^\d+$/.test(time) || Number(time) < TIME_LIMITS.min || Number(time) > TIME_LIMITS.max) {
+      errors.timeRequired = `Enter a whole number of minutes from ${TIME_LIMITS.min} to ${TIME_LIMITS.max}.`;
+    }
+  }
+
+  const file = form.elements.file.files[0];
+  if (file) {
+    const ext = (file.name.split('.').length > 1 ? file.name.split('.').pop() : '').toLowerCase();
+    if (!FILE_EXTENSIONS.includes(ext)) errors.file = `This file type is not allowed. Use: ${FILE_EXTENSIONS.join(', ')}.`;
+    else if (file.size === 0) errors.file = 'The file is empty.';
+    else if (file.size > MAX_FILE_MB * 1024 * 1024) errors.file = `The file is too large. The limit is ${MAX_FILE_MB} MB.`;
+  }
+  return errors;
+}
+
+function updateFormErrors() {
+  // Highlight the quick-time chip that matches the entered minutes.
+  const minutes = questForm().elements.timeRequired.value.trim();
+  document.querySelectorAll('.q-preset').forEach((preset) => {
+    preset.classList.toggle('active', preset.dataset.minutes === minutes);
+  });
+
+  const errors = fieldErrors();
+  ['title', 'description', 'timeRequired', 'file'].forEach((name) => {
+    const el = document.getElementById(`${name}-error`);
+    el.textContent = errors[name] || '';
+    el.hidden = !errors[name];
+  });
+  // "reached the limit" is a notice, not a blocking error.
+  return Object.entries(errors).filter(([, message]) => !message.includes('has reached the')).length === 0;
+}
+
+// Backstop for maxlength: if inserted text (typed, pasted or dropped) still overshoots the
+// limit, cut it back. Deletions are left alone so an over-long saved quest can be shortened.
+function handleFormInput(event) {
+  const field = event.target;
+  const limit = QUEST_LIMITS[field.name];
+  if (limit && (event.inputType || '').startsWith('insert') && field.value.length > limit.max) {
+    field.value = field.value.slice(0, limit.max);
+  }
+  if (field.name === 'file') renderFileChoice();
+  updateFormErrors();
+}
+
 async function submitQuestForm(event) {
   event.preventDefault();
   const form = event.target;
-  const questId = form.elements.questId.value;
-  const title = form.elements.title.value.trim();
-  const description = form.elements.description.value.trim();
+  form.dataset.submitted = 'true';
+  if (!updateFormErrors()) {
+    showToast('Please fix the highlighted fields.', { isError: true });
+    return;
+  }
 
-  if (!title || !description) {
-    showToast('Title and description are required.', { isError: true });
-    return;
-  }
-  if (!questFieldValid('title', title) || !questFieldValid('description', description)) {
-    form.dataset.submitted = 'true';
-    updateLengthErrors();
-    const { title: t, description: d } = QUEST_LIMITS;
-    showToast(`Title must be ${t.min}–${t.max} characters and description ${d.min}–${d.max} characters.`, { isError: true });
-    return;
-  }
+  const questId = form.elements.questId.value;
+  const data = new FormData();
+  data.append('title', form.elements.title.value.trim());
+  data.append('description', form.elements.description.value.trim());
+  data.append('timeRequired', form.elements.timeRequired.value.trim());
+  const file = form.elements.file.files[0];
+  if (file) data.append('file', file);
+  else if (questId && formAttachment.removed) data.append('removeAttachment', 'true');
 
   const submitBtn = document.getElementById('quest-modal-submit');
   submitBtn.disabled = true;
 
   try {
     if (questId) {
-      const existing = quests.find((q) => q.id === Number(questId));
-      const updated = await api.put(`/quests/${questId}`, {
-        title,
-        description,
-        status: existing.status,
-      });
+      const updated = await api.put(`/quests/${questId}`, data);
       quests = quests.map((q) => (q.id === updated.id ? updated : q));
+      showToast('Quest updated.');
     } else {
-      const created = await api.post('/quests', { title, description, status: 'TODO' });
-      quests.push(created);
+      const created = await api.post('/quests', data);
+      quests = [created, ...quests].slice(0, MAX_QUESTS);
+      showToast('Quest created.');
     }
     renderQuestCount();
     renderQuestList();
@@ -290,6 +344,8 @@ async function submitQuestForm(event) {
     submitBtn.disabled = false;
   }
 }
+
+// ---------------------------------------------------------------- companion banner
 
 async function initCompanion() {
   const quoteEl = document.getElementById('companion-quote');
@@ -353,6 +409,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderQuestCount();
   renderQuestList();
 
+  document.getElementById('quest-list').addEventListener('click', handleQuestListClick);
+
   document.getElementById('add-quest-btn').addEventListener('click', () => {
     if (quests.length >= MAX_QUESTS) {
       showToast(`You have reached the maximum of ${MAX_QUESTS} quests.`, { isError: true });
@@ -361,19 +419,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     openQuestModal(null);
   });
 
+  const form = questForm();
+  form.elements.file.accept = FILE_EXTENSIONS.map((ext) => `.${ext}`).join(',');
   document.getElementById('quest-modal-cancel').addEventListener('click', closeQuestModal);
   document.getElementById('quest-modal-backdrop').addEventListener('click', (event) => {
     if (event.target.id === 'quest-modal-backdrop') closeQuestModal();
   });
-  document.getElementById('quest-form').addEventListener('submit', submitQuestForm);
-  document.getElementById('quest-form').addEventListener('input', enforceMaxLength);
-
-  document.querySelectorAll('.tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
-      tab.classList.add('active');
-      activeFilter = tab.dataset.filter;
-      renderQuestList();
+  form.addEventListener('submit', submitQuestForm);
+  form.addEventListener('input', handleFormInput); // also fires when a file is picked
+  document.getElementById('quest-file-clear').addEventListener('click', clearFileChoice);
+  document.querySelectorAll('.q-preset').forEach((preset) => {
+    preset.addEventListener('click', () => {
+      form.elements.timeRequired.value = preset.dataset.minutes;
+      updateFormErrors();
     });
   });
 });

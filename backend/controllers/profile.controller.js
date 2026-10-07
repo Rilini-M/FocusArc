@@ -2,6 +2,7 @@ const pool = require('../config/database');
 const { hashPassword, verifyPassword } = require('../utils/password');
 const { clearAuthCookie } = require('../utils/jwt');
 const { success, failure } = require('../utils/responses');
+const { removeQuestFile } = require('../services/questFiles.service');
 
 async function get(req, res, next) {
   try {
@@ -72,7 +73,10 @@ async function updatePassword(req, res, next) {
 
 async function remove(req, res, next) {
   try {
+    // Quests are deleted with the user (ON DELETE CASCADE); their attachment files go too.
+    const [files] = await pool.query(`SELECT file_path FROM quests WHERE user_id = ? AND file_path IS NOT NULL`, [req.user.id]);
     await pool.query(`DELETE FROM users WHERE id = ?`, [req.user.id]);
+    await Promise.all(files.map((row) => removeQuestFile(row.file_path)));
     clearAuthCookie(res);
     return success(res, {});
   } catch (err) {
