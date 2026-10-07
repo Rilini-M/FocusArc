@@ -226,6 +226,11 @@
   margin: 8px 0;
 }
 
+/* display: flex below would otherwise override the hidden attribute. */
+.c-pager[hidden] {
+  display: none;
+}
+
 .c-pager {
   display: flex;
   align-items: center;

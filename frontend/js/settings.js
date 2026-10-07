@@ -31,18 +31,53 @@ function renderCharacterOptions(characters, selectedId) {
   });
 }
 
+// Study themes come from FOCUSARC_THEMES in theme.js. Each chip has data-theme, so it shows
+// its own theme's colors and symbol.
 function renderThemeOptions(selectedTheme) {
-  const swatches = document.querySelectorAll('.swatch');
-  swatches.forEach((swatch) => {
-    swatch.classList.toggle('selected', swatch.dataset.themeOption === selectedTheme);
-    swatch.addEventListener('click', async () => {
-      const theme = swatch.dataset.themeOption;
+  const container = document.getElementById('theme-options');
+  container.innerHTML = FOCUSARC_THEMES.map(
+    (t) => `
+      <button type="button" class="th-chip${t.key === selectedTheme ? ' selected' : ''}" data-theme="${t.key}"
+        role="radio" aria-checked="${t.key === selectedTheme}">
+        <span class="th-dot" aria-hidden="true"></span>${escapeHtml(t.label)}
+      </button>`
+  ).join('');
+
+  container.querySelectorAll('.th-chip').forEach((chip) => {
+    chip.addEventListener('click', async () => {
+      const theme = chip.dataset.theme;
       try {
         await api.patch('/settings/theme', { theme });
         applyTheme(theme);
-        swatches.forEach((s) => s.classList.remove('selected'));
-        swatch.classList.add('selected');
-        showToast('Theme updated.');
+        container.querySelectorAll('.th-chip').forEach((c) => {
+          c.classList.toggle('selected', c === chip);
+          c.setAttribute('aria-checked', String(c === chip));
+        });
+        showToast('Study theme updated.');
+      } catch (err) {
+        showToast(err.message, { isError: true });
+      }
+    });
+  });
+}
+
+function renderAppearanceOptions(selectedMode) {
+  const options = document.querySelectorAll('[data-mode-option]');
+  const mark = (mode) =>
+    options.forEach((o) => {
+      o.classList.toggle('selected', o.dataset.modeOption === mode);
+      o.setAttribute('aria-checked', String(o.dataset.modeOption === mode));
+    });
+  mark(selectedMode);
+
+  options.forEach((option) => {
+    option.addEventListener('click', async () => {
+      const appearance = option.dataset.modeOption;
+      try {
+        await api.patch('/settings/appearance', { appearance });
+        applyAppearance(appearance);
+        mark(appearance);
+        showToast(appearance === 'light' ? 'Light mode on.' : 'Dark mode on.');
       } catch (err) {
         showToast(err.message, { isError: true });
       }
@@ -67,11 +102,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!user) return;
 
   const settings = await loadAndApplyTheme();
+  renderAppearanceOptions(settings ? settings.appearance : 'dark');
+  renderThemeOptions(settings ? settings.theme : 'default');
 
   try {
     const characters = await api.get('/characters');
     renderCharacterOptions(characters, settings ? settings.character_id : null);
-    renderThemeOptions(settings ? settings.theme : 'default');
   } catch (err) {
     showToast(err.message, { isError: true });
   }

@@ -1,58 +1,37 @@
 /*
   Ambient particle background. Single canvas, requestAnimationFrame loop, no external
   library. Sits behind all UI (pointer-events: none, low z-index) and never intercepts
-  clicks. Each theme gets its own particle "cast" — not just a recolor — so the
-  atmosphere reads as distinct per theme: leaves for the default/nature look, dust for
-  dark, sparkles for royal, embers for vampire, neon sparks for cyberpunk.
+  clicks. Every study theme picks one particle style (leaves, sparkles, embers, ...); the
+  particle colors come from that theme's two colors in css/themes.css, so all 21 themes are
+  treated the same way.
 */
 
-const FOCUSARC_PARTICLE_THEMES = {
-  default: {
-    glow: 12,
-    mix: [
-      { kind: 'leaf', weight: 0.35, colors: ['#2dd4bf', '#67e8f9'] },
-      { kind: 'dot', weight: 0.45, colors: ['#2dd4bf', '#67e8f9'] },
-      { kind: 'sparkle', weight: 0.2, colors: ['#eafdfb'] },
-    ],
-  },
-  nature: {
-    glow: 10,
-    mix: [
-      { kind: 'leaf', weight: 0.4, colors: ['#4ade80', '#a3e635'] },
-      { kind: 'dot', weight: 0.5, colors: ['#4ade80', '#86efac'] },
-      { kind: 'sparkle', weight: 0.1, colors: ['#edfdf3'] },
-    ],
-  },
-  dark: {
-    glow: 6,
-    mix: [
-      { kind: 'dust', weight: 0.75, colors: ['#d1d5db', '#f9fafb'] },
-      { kind: 'sparkle', weight: 0.25, colors: ['#f9fafb'] },
-    ],
-  },
-  royal: {
-    glow: 13,
-    mix: [
-      { kind: 'sparkle', weight: 0.45, colors: ['#f4c95d', '#5b7cfa'] },
-      { kind: 'dot', weight: 0.55, colors: ['#f4c95d', '#5b7cfa'] },
-    ],
-  },
-  vampire: {
-    glow: 11,
-    mix: [
-      { kind: 'ember', weight: 0.55, colors: ['#e11d48', '#f87171'] },
-      { kind: 'dust', weight: 0.45, colors: ['#f87171', '#b78a8c'] },
-    ],
-  },
-  cyberpunk: {
-    glow: 15,
-    mix: [
-      { kind: 'spark', weight: 0.45, colors: ['#ff2e9f', '#22d3ee'] },
-      { kind: 'dot', weight: 0.35, colors: ['#22d3ee', '#ff2e9f'] },
-      { kind: 'sparkle', weight: 0.2, colors: ['#e879f9', '#22d3ee'] },
-    ],
-  },
+// Particle "casts": which shapes appear and how much they glow.
+const FOCUSARC_PARTICLE_STYLES = {
+  leaf: { glow: 10, mix: [{ kind: 'leaf', weight: 0.4 }, { kind: 'dot', weight: 0.45 }, { kind: 'sparkle', weight: 0.15 }] },
+  sparkle: { glow: 13, mix: [{ kind: 'sparkle', weight: 0.45 }, { kind: 'dot', weight: 0.55 }] },
+  ember: { glow: 11, mix: [{ kind: 'ember', weight: 0.55 }, { kind: 'dust', weight: 0.45 }] },
+  spark: { glow: 15, mix: [{ kind: 'spark', weight: 0.45 }, { kind: 'dot', weight: 0.35 }, { kind: 'sparkle', weight: 0.2 }] },
+  dust: { glow: 6, mix: [{ kind: 'dust', weight: 0.75 }, { kind: 'sparkle', weight: 0.25 }] },
+  dot: { glow: 9, mix: [{ kind: 'dot', weight: 0.7 }, { kind: 'sparkle', weight: 0.3 }] },
 };
+
+// The particle style used by each study theme (keys match css/themes.css).
+const FOCUSARC_THEME_PARTICLES = {
+  default: 'leaf', nature: 'leaf', cyberpunk: 'spark', royal: 'sparkle', vampire: 'ember',
+  sakura: 'leaf', cosmic: 'sparkle', ocean: 'dot', frost: 'dust', ember: 'ember',
+  moonlight: 'dust', academia: 'dust', 'japanese-night': 'ember', sunset: 'ember',
+  forest: 'leaf', lavender: 'dot', crimson: 'ember', neon: 'spark', celestial: 'sparkle',
+  mist: 'dust', twilight: 'sparkle',
+};
+
+// The theme's two raw colors, read from CSS so colors are defined in one place only.
+function themeParticleConfig(theme) {
+  const style = FOCUSARC_PARTICLE_STYLES[FOCUSARC_THEME_PARTICLES[theme] || 'leaf'];
+  const css = getComputedStyle(document.documentElement);
+  const colors = [css.getPropertyValue('--theme-accent').trim() || '#2dd4bf', css.getPropertyValue('--theme-accent-2').trim() || '#67e8f9'];
+  return { glow: style.glow, mix: style.mix.map((entry) => ({ ...entry, colors })) };
+}
 
 (function initFocusArcParticles() {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -277,8 +256,7 @@ const FOCUSARC_PARTICLE_THEMES = {
   }
 
   function setTheme(theme) {
-    const config = FOCUSARC_PARTICLE_THEMES[theme] || FOCUSARC_PARTICLE_THEMES.default;
-    spawnParticles(config);
+    spawnParticles(themeParticleConfig(theme));
   }
 
   resize();

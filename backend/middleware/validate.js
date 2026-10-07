@@ -1,7 +1,14 @@
 const { failure } = require('../utils/responses');
 
 const QUEST_STATUSES = ['TODO', 'IN_PROGRESS', 'COMPLETED'];
-const THEMES = ['default', 'nature', 'dark', 'royal', 'vampire', 'cyberpunk'];
+// Study themes (kept identical to FOCUSARC_THEMES in frontend/js/theme.js and the
+// user_settings.theme ENUM) and Light/Dark appearance modes.
+const THEMES = [
+  'default', 'nature', 'cyberpunk', 'royal', 'vampire', 'sakura', 'cosmic',
+  'ocean', 'frost', 'ember', 'moonlight', 'academia', 'japanese-night', 'sunset',
+  'forest', 'lavender', 'crimson', 'neon', 'celestial', 'mist', 'twilight',
+];
+const APPEARANCES = ['dark', 'light'];
 // Kept identical to QUEST_LIMITS in frontend/js/questboard.js.
 const QUEST_TITLE_MIN = 2;
 const QUEST_TITLE_MAX = 19;
@@ -133,6 +140,16 @@ function validateTheme(req, res, next) {
   return next();
 }
 
+function validateAppearance(req, res, next) {
+  const { appearance } = req.body;
+
+  if (!APPEARANCES.includes(appearance)) {
+    return failure(res, 'Appearance must be light or dark.');
+  }
+
+  return next();
+}
+
 module.exports = {
   validateRegistration,
   validateLogin,
@@ -140,4 +157,5 @@ module.exports = {
   validateQuest,
   validateStatus,
   validateTheme,
+  validateAppearance,
 };

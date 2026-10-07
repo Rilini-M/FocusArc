@@ -233,7 +233,7 @@
 
 .modal textarea {
   width: 100%;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--field-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 13px 16px;

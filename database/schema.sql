@@ -54,7 +54,9 @@ CREATE TABLE study_sessions (
 CREATE TABLE user_settings (
   user_id       INT PRIMARY KEY,
   character_id  INT NOT NULL DEFAULT 1,
-  theme         ENUM('default', 'nature', 'dark', 'royal', 'vampire', 'cyberpunk') NOT NULL DEFAULT 'default',
+  -- Study theme (colors) and Light/Dark website mode are separate choices.
+  theme         ENUM('default', 'nature', 'cyberpunk', 'royal', 'vampire', 'sakura', 'cosmic', 'ocean', 'frost', 'ember', 'moonlight', 'academia', 'japanese-night', 'sunset', 'forest', 'lavender', 'crimson', 'neon', 'celestial', 'mist', 'twilight') NOT NULL DEFAULT 'default',
+  appearance    ENUM('dark', 'light') NOT NULL DEFAULT 'dark',
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (character_id) REFERENCES characters(id)
 );

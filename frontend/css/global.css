@@ -25,12 +25,13 @@ body {
   padding: 0;
 }
 
+/* Page background: soft glows from the study theme's colors. CSS only, the same for every
+   theme (no background photos). */
 body {
   background-color: var(--bg-primary);
-  background-image: var(--theme-bg-image), radial-gradient(ellipse at 22% 12%, var(--glow), transparent 55%),
-    radial-gradient(ellipse at 82% 88%, var(--bg-tertiary), transparent 55%);
-  background-size: cover, auto, auto;
-  background-position: center, center, center;
+  background-image: radial-gradient(ellipse at 22% 12%, var(--glow), transparent 55%),
+    radial-gradient(ellipse at 82% 88%, var(--bg-tertiary), transparent 55%),
+    radial-gradient(ellipse at 90% 8%, color-mix(in srgb, var(--accent-secondary) 10%, transparent), transparent 40%);
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text-primary);
@@ -44,7 +45,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: linear-gradient(180deg, rgba(3, 6, 7, 0.6), rgba(3, 6, 7, 0.82));
+  background: var(--page-overlay);
   z-index: 0;
   pointer-events: none;
 }
@@ -119,6 +120,12 @@ button {
   mix-blend-mode: screen;
 }
 
+/* Light mode: invert the logo (black square -> white) and multiply, so the mark shows dark. */
+[data-mode='light'] .sb-icon {
+  filter: invert(1);
+  mix-blend-mode: multiply;
+}
+
 .sb-text {
   font-size: 1.15rem;
   color: var(--text-primary);
@@ -131,6 +138,14 @@ button {
   color: var(--text-secondary);
   padding: 0 6px;
   margin-bottom: 28px;
+}
+
+/* The study theme's small decorative symbol, e.g. "❀ Study Quest System" for Nature. */
+.side-tag::before {
+  content: var(--theme-symbol);
+  color: var(--accent);
+  margin-right: 6px;
+  text-shadow: 0 0 10px var(--glow);
 }
 
 .nav-ul {
@@ -287,8 +302,8 @@ button {
 }
 
 .btn-p {
-  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-  color: #05090a;
+  background: var(--theme-gradient);
+  color: var(--on-accent);
   box-shadow: 0 0 22px var(--glow);
 }
 
@@ -327,7 +342,7 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--field-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 13px 16px;
@@ -424,7 +439,7 @@ button {
   flex: 1;
   margin: 22px 22px 22px 0;
   padding: 18px 22px;
-  background: rgba(0, 0, 0, 0.28);
+  background: var(--inset-bg);
   border: 1px solid var(--border);
   border-radius: 16px;
   min-height: 90px;
@@ -538,4 +553,98 @@ button {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* ---- Study theme and Light/Dark pickers (Settings page and the post-login theme screen) ---- */
+
+.th-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+  gap: 10px;
+}
+
+/* Each chip carries data-theme="<key>", so its colors are that theme's own (see themes.css). */
+.th-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.th-chip:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.th-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--theme-gradient);
+  box-shadow: 0 0 10px var(--glow);
+  color: var(--on-accent);
+  font-size: 0.72rem;
+}
+
+.th-dot::before {
+  content: var(--theme-symbol);
+}
+
+.th-chip.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 18px -4px var(--glow);
+}
+
+.th-chip.selected::after {
+  content: '✓';
+  margin-left: auto;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.mode-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--field-bg);
+}
+
+.mode-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.mode-opt svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mode-opt.selected {
+  background: var(--theme-gradient);
+  color: var(--on-accent);
+  box-shadow: 0 0 14px var(--glow);
 }
