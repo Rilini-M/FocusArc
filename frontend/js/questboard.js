@@ -5,17 +5,38 @@ const QUEST_LIMITS = {
   description: { min: 9, max: 99, label: 'Description' },
 };
 const TIME_LIMITS = { min: 1, max: 1440 }; // minutes
-// Kept identical to FILE_TYPES / MAX_FILE_SIZE in backend/services/questFiles.service.js.
+// Kept identical to FILE_TYPES / MAX_FILE_SIZE / MAX_FILES in backend/services/questFiles.service.js.
 const FILE_EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'txt', 'md', 'csv', 'doc', 'xls', 'ppt', 'docx', 'xlsx', 'pptx', 'odt', 'ods', 'odp'];
 const MAX_FILE_MB = 10;
+const MAX_FILES = 5;
+const TOO_MANY_FILES = `You can attach a maximum of ${MAX_FILES} files per quest.`;
+// Icon per file type, for the form and the quest cards (anything else: file-text).
+const FILE_ICONS = {
+  image: ['png', 'jpg', 'jpeg', 'gif', 'webp'],
+  'file-spreadsheet': ['csv', 'xls', 'xlsx', 'ods'],
+  presentation: ['ppt', 'pptx', 'odp'],
+};
 
 let quests = []; // newest first, as returned by the API
 let quoteRotationTimer = null;
 let activeStudySession = null; // { id, quest_id, started_at } | null
 let studyTickInterval = null;
 
-// Attachment choice in the open form: the quest's current file, a newly picked file, or removal.
-let formAttachment = { existing: null, removed: false };
+// Attachments in the open form: the quest's current files (minus any marked for removal) plus
+// newly picked ones. Picking more files adds to the list; each file can be removed with x.
+let formFiles = { existing: [], removedIds: new Set(), added: [] };
+let fileNotice = ''; // why some picked files weren't added (shown under the file list)
+
+function fileExtension(name) {
+  const parts = String(name).split('.');
+  return parts.length > 1 ? parts.pop().toLowerCase() : '';
+}
+
+function fileIcon(name) {
+  const ext = fileExtension(name);
+  const found = Object.entries(FILE_ICONS).find(([, exts]) => exts.includes(ext));
+  return found ? found[0] : 'file-text';
+}
 
 function formatDuration(totalSeconds) {
   const pad = (n) => String(n).padStart(2, '0');
@@ -80,10 +101,22 @@ function questCardHTML(quest) {
     : `
       <button type="button" class="btn btn-p s-btn" data-action="start-study"${anotherActive ? ' disabled title="Finish your current study session first"' : ''}>${icon('play', 16)} Start Study</button>`;
 
-  const attachment = quest.attachment
-    ? `<a class="q-chip q-attach" href="${quest.attachment.url}" target="_blank" rel="noopener"
-         title="Open ${escapeHtml(quest.attachment.name)} (${formatFileSize(quest.attachment.size)})">
-         ${icon('paperclip', 14)}<span>${escapeHtml(quest.attachment.name)}</span></a>`
+  // Each file opens in a new tab (PDFs in the browser's PDF viewer); the Quest Board stays open.
+  const attachments = quest.attachments.length
+    ? `
+      <div class="q-attachments">
+        <span class="q-att-label">Attachments</span>
+        <ul class="q-att-list">
+          ${quest.attachments
+            .map(
+              (a) => `
+            <li><a class="q-att" href="${a.url}" target="_blank" rel="noopener noreferrer"
+                 title="Open ${escapeHtml(a.name)} (${formatFileSize(a.size)}) in a new tab">
+              ${icon(fileIcon(a.name), 14)}<span>${escapeHtml(a.name)}</span></a></li>`
+            )
+            .join('')}
+        </ul>
+      </div>`
     : '';
 
   return `
@@ -97,9 +130,9 @@ function questCardHTML(quest) {
       </div>
       <p class="q-desc">${escapeHtml(quest.description)}</p>
       <div class="q-meta">
-        ${attachment}
         <span class="q-chip q-time-chip">${icon('hourglass', 14)}<span>Time Required: <strong>${formatMinutes(quest.time_required)}</strong></span></span>
       </div>
+      ${attachments}
       <div class="q-study">${studyControl}</div>
     </article>`;
 }
@@ -201,11 +234,12 @@ function openQuestModal(quest) {
   form.elements.title.value = quest ? quest.title : '';
   form.elements.description.value = quest ? quest.description : '';
   form.elements.timeRequired.value = quest ? quest.time_required : 60;
-  formAttachment = { existing: quest ? quest.attachment : null, removed: false };
+  formFiles = { existing: quest ? quest.attachments : [], removedIds: new Set(), added: [] };
+  fileNotice = '';
   document.getElementById('quest-modal-title').textContent = quest ? 'Edit Quest' : 'Create Quest';
   document.getElementById('quest-modal-submit').textContent = quest ? 'Save Quest' : 'Create Quest';
   form.dataset.submitted = '';
-  renderFileChoice();
+  renderFileList();
   updateFormErrors();
   document.getElementById('quest-modal-backdrop').classList.add('open');
   form.elements.title.focus();
@@ -215,31 +249,69 @@ function closeQuestModal() {
   document.getElementById('quest-modal-backdrop').classList.remove('open');
 }
 
-// Shows the picked file, else the quest's current attachment, else "No file chosen".
-function renderFileChoice() {
-  const picked = questForm().elements.file.files[0];
-  const current = !formAttachment.removed && formAttachment.existing;
-  const nameEl = document.getElementById('quest-file-name');
-  const hintEl = document.getElementById('quest-file-hint');
-
-  nameEl.textContent = picked ? picked.name : current ? current.name : 'No file chosen';
-  nameEl.classList.toggle('chosen', Boolean(picked || current));
-  document.getElementById('quest-file-clear').hidden = !(picked || current);
-  hintEl.textContent = picked
-    ? `${formatFileSize(picked.size)}${formAttachment.existing ? ' — replaces the current file' : ''}`
-    : current
-      ? 'Current file. Choose another to replace it.'
-      : `PDF, images, text or Office files, up to ${MAX_FILE_MB} MB.`;
+function keptFiles() {
+  return formFiles.existing.filter((f) => !formFiles.removedIds.has(f.id));
 }
 
-function clearFileChoice() {
-  const input = questForm().elements.file;
-  if (input.files.length) {
-    input.value = ''; // drop the newly picked file (the current attachment, if any, stays)
-  } else {
-    formAttachment.removed = true; // remove the quest's current attachment on save
-  }
-  renderFileChoice();
+function fileCount() {
+  return keptFiles().length + formFiles.added.length;
+}
+
+// The form's file list: kept current files and newly added ones, each with a remove button.
+function renderFileList() {
+  const row = (name, size, attrs, isNew) => `
+    <li class="q-file-row${isNew ? ' new' : ''}">
+      ${icon(fileIcon(name), 15)}
+      <span class="q-file-row-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+      <span class="q-file-row-size">${isNew ? 'new · ' : ''}${formatFileSize(size)}</span>
+      <button type="button" class="q-file-remove" ${attrs} aria-label="Remove ${escapeHtml(name)}">${icon('x', 14)}</button>
+    </li>`;
+
+  document.getElementById('quest-file-list').innerHTML = [
+    ...keptFiles().map((f) => row(f.name, f.size, `data-remove-existing="${f.id}"`, false)),
+    ...formFiles.added.map((f, i) => row(f.name, f.size, `data-remove-added="${i}"`, true)),
+  ].join('');
+
+  const count = fileCount();
+  const full = count >= MAX_FILES;
+  const countEl = document.getElementById('quest-files-count');
+  countEl.textContent = `${count} / ${MAX_FILES} files`;
+  countEl.classList.toggle('full', full);
+  document.getElementById('quest-files').disabled = full;
+  document.getElementById('quest-files-btn').classList.toggle('disabled', full);
+  document.getElementById('quest-files-btn-text').textContent = count ? 'Add Files' : 'Choose Files';
+  refreshIcons();
+}
+
+// Adds newly picked files to the selection (never replacing earlier ones). Invalid files and
+// files over the 5-file limit are not added, and the user is told which and why.
+function addPickedFiles(input) {
+  if (!input.files.length) return; // nothing picked: keep the list and any message as they are
+  const problems = [];
+  const overLimit = [];
+  [...input.files].forEach((file) => {
+    const ext = fileExtension(file.name);
+    if (!FILE_EXTENSIONS.includes(ext)) problems.push(`"${file.name}": this file type is not allowed.`);
+    else if (file.size === 0) problems.push(`"${file.name}" is empty.`);
+    else if (file.size > MAX_FILE_MB * 1024 * 1024) problems.push(`"${file.name}" is larger than ${MAX_FILE_MB} MB.`);
+    else if (formFiles.added.some((f) => f.name === file.name && f.size === file.size)) problems.push(`"${file.name}" is already in the list.`);
+    else if (fileCount() >= MAX_FILES) overLimit.push(file.name);
+    else formFiles.added.push(file);
+  });
+  if (overLimit.length) problems.unshift(`${TOO_MANY_FILES} Not added: ${overLimit.join(', ')}.`);
+  fileNotice = problems.join(' ');
+  input.value = ''; // so the same file can be picked again after removing it
+  renderFileList();
+  updateFormErrors();
+}
+
+function handleFileListClick(event) {
+  const button = event.target.closest('.q-file-remove');
+  if (!button) return;
+  if (button.dataset.removeExisting) formFiles.removedIds.add(Number(button.dataset.removeExisting));
+  else formFiles.added.splice(Number(button.dataset.removeAdded), 1);
+  fileNotice = '';
+  renderFileList();
   updateFormErrors();
 }
 
@@ -265,13 +337,7 @@ function fieldErrors() {
     }
   }
 
-  const file = form.elements.file.files[0];
-  if (file) {
-    const ext = (file.name.split('.').length > 1 ? file.name.split('.').pop() : '').toLowerCase();
-    if (!FILE_EXTENSIONS.includes(ext)) errors.file = `This file type is not allowed. Use: ${FILE_EXTENSIONS.join(', ')}.`;
-    else if (file.size === 0) errors.file = 'The file is empty.';
-    else if (file.size > MAX_FILE_MB * 1024 * 1024) errors.file = `The file is too large. The limit is ${MAX_FILE_MB} MB.`;
-  }
+  if (fileCount() > MAX_FILES) errors.file = TOO_MANY_FILES;
   return errors;
 }
 
@@ -283,12 +349,13 @@ function updateFormErrors() {
   });
 
   const errors = fieldErrors();
+  const shown = { ...errors, file: errors.file || fileNotice };
   ['title', 'description', 'timeRequired', 'file'].forEach((name) => {
     const el = document.getElementById(`${name}-error`);
-    el.textContent = errors[name] || '';
-    el.hidden = !errors[name];
+    el.textContent = shown[name] || '';
+    el.hidden = !shown[name];
   });
-  // "reached the limit" is a notice, not a blocking error.
+  // "reached the limit" and notices about files that weren't added don't block saving.
   return Object.entries(errors).filter(([, message]) => !message.includes('has reached the')).length === 0;
 }
 
@@ -300,7 +367,10 @@ function handleFormInput(event) {
   if (limit && (event.inputType || '').startsWith('insert') && field.value.length > limit.max) {
     field.value = field.value.slice(0, limit.max);
   }
-  if (field.name === 'file') renderFileChoice();
+  if (field.type === 'file') {
+    addPickedFiles(field);
+    return;
+  }
   updateFormErrors();
 }
 
@@ -318,9 +388,8 @@ async function submitQuestForm(event) {
   data.append('title', form.elements.title.value.trim());
   data.append('description', form.elements.description.value.trim());
   data.append('timeRequired', form.elements.timeRequired.value.trim());
-  const file = form.elements.file.files[0];
-  if (file) data.append('file', file);
-  else if (questId && formAttachment.removed) data.append('removeAttachment', 'true');
+  formFiles.added.forEach((file) => data.append('files', file));
+  if (questId) formFiles.removedIds.forEach((id) => data.append('removeAttachments', String(id)));
 
   const submitBtn = document.getElementById('quest-modal-submit');
   submitBtn.disabled = true;
@@ -420,14 +489,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   const form = questForm();
-  form.elements.file.accept = FILE_EXTENSIONS.map((ext) => `.${ext}`).join(',');
+  document.getElementById('quest-files').accept = FILE_EXTENSIONS.map((ext) => `.${ext}`).join(',');
   document.getElementById('quest-modal-cancel').addEventListener('click', closeQuestModal);
   document.getElementById('quest-modal-backdrop').addEventListener('click', (event) => {
     if (event.target.id === 'quest-modal-backdrop') closeQuestModal();
   });
   form.addEventListener('submit', submitQuestForm);
   form.addEventListener('input', handleFormInput); // also fires when a file is picked
-  document.getElementById('quest-file-clear').addEventListener('click', clearFileChoice);
+  document.getElementById('quest-file-list').addEventListener('click', handleFileListClick);
   document.querySelectorAll('.q-preset').forEach((preset) => {
     preset.addEventListener('click', () => {
       form.elements.timeRequired.value = preset.dataset.minutes;

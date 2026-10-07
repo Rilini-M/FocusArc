@@ -197,21 +197,63 @@
   font-weight: 600;
 }
 
-.q-attach {
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: border-color 0.2s ease, color 0.2s ease;
+/* Compact attachment list on the card: one short line per file, each opening in a new tab. */
+.q-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.q-attach span {
+.q-att-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.q-att-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.q-att {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  margin: 0 -8px;
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.q-att svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.q-att span {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.q-attach:hover {
-  border-color: var(--accent);
+.q-att:hover {
+  background: var(--bg-tertiary);
   color: var(--accent);
+}
+
+.q-att:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .q-study {
@@ -322,14 +364,18 @@
   color: var(--text-secondary);
 }
 
-.q-file {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 8px 8px 8px;
+.q-files {
+  padding: 10px;
   border: 1px dashed var(--border);
   border-radius: 12px;
   background: var(--field-bg);
+}
+
+.q-files-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 /* The real file input stays focusable for keyboards but is visually replaced by the label. */
@@ -352,18 +398,87 @@
   flex-shrink: 0;
 }
 
-.q-file-name {
+.q-file-btn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.q-files-count {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.q-files-count.full {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.q-file-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.q-file-list:not(:empty) {
+  margin-top: 10px;
+}
+
+.q-file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px 5px 10px;
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+  font-size: 0.84rem;
+}
+
+.q-file-row svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.q-file-row-name {
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.q-file-row-size {
+  flex-shrink: 0;
+  font-size: 0.74rem;
   color: var(--text-secondary);
 }
 
-.q-file-name.chosen {
-  color: var(--text-primary);
+.q-file-remove {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.q-file-remove:hover {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.q-file-remove:focus-visible {
+  outline: 2px solid var(--accent);
 }
 
 .q-hint {

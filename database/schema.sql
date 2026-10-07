@@ -36,16 +36,24 @@ CREATE TABLE quests (
   description  TEXT         NOT NULL,
   -- Minutes the student expects the quest to take.
   time_required SMALLINT UNSIGNED NOT NULL DEFAULT 60,
-  -- Optional attachment: stored on disk under uploads/, only its details are kept here.
-  file_name    VARCHAR(255) NULL,
-  file_path    VARCHAR(255) NULL,
-  file_type    VARCHAR(100) NULL,
-  file_size    INT UNSIGNED NULL,
   -- Set by the server from study sessions (not shown on the Quest Board); used by Analytics.
   status       ENUM('TODO', 'IN_PROGRESS', 'COMPLETED') NOT NULL DEFAULT 'TODO',
   created_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Up to 5 files per quest (enforced by the server). Files are stored on disk under uploads/;
+-- only their details are kept here.
+CREATE TABLE quest_attachments (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  quest_id    INT          NOT NULL,
+  file_name   VARCHAR(255) NOT NULL,
+  file_path   VARCHAR(255) NOT NULL,
+  file_type   VARCHAR(100) NOT NULL,
+  file_size   INT UNSIGNED NOT NULL,
+  created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (quest_id) REFERENCES quests(id) ON DELETE CASCADE
 );
 
 

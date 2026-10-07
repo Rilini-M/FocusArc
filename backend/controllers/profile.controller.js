@@ -73,8 +73,12 @@ async function updatePassword(req, res, next) {
 
 async function remove(req, res, next) {
   try {
-    // Quests are deleted with the user (ON DELETE CASCADE); their attachment files go too.
-    const [files] = await pool.query(`SELECT file_path FROM quests WHERE user_id = ? AND file_path IS NOT NULL`, [req.user.id]);
+    // Quests and their attachment rows are deleted with the user (ON DELETE CASCADE); the
+    // attachment files on disk are deleted here too.
+    const [files] = await pool.query(
+      `SELECT a.file_path FROM quest_attachments a JOIN quests q ON q.id = a.quest_id WHERE q.user_id = ?`,
+      [req.user.id]
+    );
     await pool.query(`DELETE FROM users WHERE id = ?`, [req.user.id]);
     await Promise.all(files.map((row) => removeQuestFile(row.file_path)));
     clearAuthCookie(res);

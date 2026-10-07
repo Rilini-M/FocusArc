@@ -3,14 +3,17 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 
-// Quest attachments. Files are stored on disk in uploads/quests/ (outside frontend/, so they are
-// never served publicly) under a random name; MySQL only keeps the original name, the path
-// inside uploads/, the type and the size. Files are served by GET /api/quests/:id/attachment,
-// to the quest's owner only.
+// Quest attachments (up to MAX_FILES per quest). Files are stored on disk in uploads/quests/
+// (outside frontend/, so they are never served publicly) under a random name; the
+// quest_attachments table only keeps the original name, the path inside uploads/, the type and
+// the size. Files are served by GET /api/quests/:id/attachments/:attachmentId, to the quest's
+// owner only.
 
 const UPLOAD_ROOT = path.join(__dirname, '..', '..', 'uploads');
 const QUEST_DIR = path.join(UPLOAD_ROOT, 'quests');
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB per file
+const MAX_FILES = 5; // per quest
+const TOO_MANY_FILES = `You can attach a maximum of ${MAX_FILES} files per quest.`;
 const NAME_MAX = 120;
 
 fs.mkdirSync(QUEST_DIR, { recursive: true });
@@ -71,39 +74,42 @@ function safeDisplayName(originalName, ext) {
   return `${base}.${ext}`;
 }
 
-// Parses one optional file field named "file" (multipart/form-data) into memory, so nothing
+// Parses the optional files (field "files", multipart/form-data) into memory, so nothing
 // touches the disk before the quest itself has been validated. JSON requests pass through.
 const parser = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_FILE_SIZE, files: 1, fields: 10, fieldSize: 10 * 1024 },
+  limits: { fileSize: MAX_FILE_SIZE, files: MAX_FILES, fields: 20, fieldSize: 10 * 1024 },
   defParamCharset: 'utf8',
-}).single('file');
+}).array('files', MAX_FILES);
 
 function questUpload(req, res, next) {
   parser(req, res, (err) => {
     if (!err) return next();
-    const message =
-      err.code === 'LIMIT_FILE_SIZE'
-        ? `The file is too large. The limit is ${MAX_FILE_SIZE / 1024 / 1024} MB.`
-        : err.code === 'LIMIT_UNEXPECTED_FILE' || err.code === 'LIMIT_FILE_COUNT'
-          ? 'Attach one file only, in the "file" field.'
-          : 'The upload could not be read. Please try again.';
+    let message = 'The upload could not be read. Please try again.';
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      message = `A file is too large. The limit is ${MAX_FILE_SIZE / 1024 / 1024} MB per file.`;
+    } else if (err.code === 'LIMIT_FILE_COUNT' || (err.code === 'LIMIT_UNEXPECTED_FILE' && err.field === 'files')) {
+      message = TOO_MANY_FILES;
+    } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      message = 'Send files in the "files" field.';
+    }
     return res.status(400).json({ success: false, message });
   });
 }
 
-// Returns an error message, or null when the uploaded file is acceptable.
+// Returns an error message naming the file, or null when the uploaded file is acceptable.
 function fileError(file) {
   const ext = extensionOf(file.originalname);
-  if (!ext) return `This file type is not allowed. Allowed types: ${ALLOWED_LIST}.`;
-  if (!file.size) return 'The file is empty.';
+  const name = path.basename(String(file.originalname || 'file').replace(/\\/g, '/'));
+  if (!ext) return `"${name}": this file type is not allowed. Allowed types: ${ALLOWED_LIST}.`;
+  if (!file.size) return `"${name}" is empty.`;
   if (!MAGIC_CHECKS[FILE_TYPES[ext].magic](file.buffer)) {
-    return `The file's contents don't match its .${ext} extension.`;
+    return `"${name}": the file's contents don't match its .${ext} extension.`;
   }
   return null;
 }
 
-// Writes a checked file to disk under a random name. Returns the columns for the quests table.
+// Writes a checked file to disk under a random name. Returns its quest_attachments columns.
 async function saveQuestFile(file) {
   const ext = extensionOf(file.originalname);
   const storedName = `${crypto.randomBytes(16).toString('hex')}.${ext}`;
@@ -134,23 +140,32 @@ async function removeQuestFile(filePath) {
   }
 }
 
-// Headers for sending a stored file back to its owner.
-function downloadInfo(filePath, fileName) {
+// Response headers for sending a stored file back to its owner. PDFs, images and text open in
+// the browser (the Quest Board opens them in a new tab); other types download.
+function downloadHeaders(filePath, fileName) {
   const ext = extensionOf(filePath);
   const info = ext ? FILE_TYPES[ext] : { type: 'application/octet-stream', inline: false };
   const asciiName = fileName.replace(/[^\x20-\x7e]/g, '_').replace(/["\\]/g, '_');
-  return {
-    contentType: info.type,
-    disposition: `${info.inline ? 'inline' : 'attachment'}; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(fileName)}`,
+  const headers = {
+    'Content-Type': info.type,
+    'Content-Disposition': `${info.inline ? 'inline' : 'attachment'}; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(fileName)}`,
+    'X-Content-Type-Options': 'nosniff',
+    'Cache-Control': 'private, no-store',
   };
+  // Images and text can't run scripts or reach the rest of the app. PDFs are left out because
+  // the browser's built-in PDF viewer doesn't load inside a sandboxed page.
+  if (ext !== 'pdf') headers['Content-Security-Policy'] = 'sandbox';
+  return headers;
 }
 
 module.exports = {
   MAX_FILE_SIZE,
+  MAX_FILES,
+  TOO_MANY_FILES,
   questUpload,
   fileError,
   saveQuestFile,
   storedFilePath,
   removeQuestFile,
-  downloadInfo,
+  downloadHeaders,
 };

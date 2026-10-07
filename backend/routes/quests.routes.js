@@ -13,7 +13,7 @@ router.use(authenticate);
 router.get('/', controller.list);
 router.post('/', questUpload, validateQuest, controller.create);
 router.put('/:id', questUpload, validateQuest, controller.update);
-router.get('/:id/attachment', controller.attachment);
+router.get('/:id/attachments/:attachmentId', controller.attachment);
 router.delete('/:id', controller.remove);
 
 module.exports = router;

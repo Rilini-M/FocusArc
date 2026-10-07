@@ -58,14 +58,16 @@
         <textarea id="quest-description" name="description" placeholder="What will you study?" maxlength="99" required></textarea>
         <p class="f-err" id="description-error" hidden></p>
 
-        <span class="q-label" id="quest-file-label">Attach File <span class="q-optional">(optional)</span></span>
-        <div class="q-file" aria-labelledby="quest-file-label">
-          <input type="file" id="quest-file" name="file" class="q-file-input" />
-          <label for="quest-file" class="btn btn-s q-file-btn"><i data-lucide="paperclip" style="width:15px;height:15px;"></i> Choose File</label>
-          <span class="q-file-name" id="quest-file-name">No file chosen</span>
-          <button type="button" class="i-btn danger" id="quest-file-clear" aria-label="Remove attachment" hidden><i data-lucide="x" style="width:15px;height:15px;"></i></button>
+        <span class="q-label" id="quest-files-label">Attach Study Material <span class="q-optional">(optional)</span></span>
+        <div class="q-files" role="group" aria-labelledby="quest-files-label">
+          <div class="q-files-head">
+            <input type="file" id="quest-files" class="q-file-input" multiple />
+            <label for="quest-files" class="btn btn-s q-file-btn" id="quest-files-btn"><i data-lucide="paperclip" style="width:15px;height:15px;"></i> <span id="quest-files-btn-text">Choose Files</span></label>
+            <span class="q-files-count" id="quest-files-count" aria-live="polite">0 / 5 files</span>
+          </div>
+          <ul class="q-file-list" id="quest-file-list"></ul>
         </div>
-        <p class="q-hint" id="quest-file-hint"></p>
+        <p class="q-hint">PDF, images, text or Office files, up to 10 MB each.</p>
         <p class="f-err" id="file-error" hidden></p>
 
         <label class="q-label" for="quest-time">Time Required</label>
