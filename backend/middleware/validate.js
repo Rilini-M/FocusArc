@@ -1,13 +1,8 @@
 const { failure } = require('../utils/responses');
 
 const QUEST_STATUSES = ['TODO', 'IN_PROGRESS', 'COMPLETED'];
-// Study themes (kept identical to FOCUSARC_THEMES in frontend/js/theme.js and the
-// user_settings.theme ENUM) and Light/Dark appearance modes.
-const THEMES = [
-  'default', 'nature', 'cyberpunk', 'royal', 'vampire', 'sakura', 'cosmic',
-  'ocean', 'frost', 'ember', 'moonlight', 'academia', 'japanese-night', 'sunset',
-  'forest', 'lavender', 'crimson', 'neon', 'celestial', 'mist', 'twilight',
-];
+// Light/Dark appearance modes. (Study themes are rows in the `themes` table, checked in
+// settings.controller.js.)
 const APPEARANCES = ['dark', 'light'];
 // Kept identical to QUEST_LIMITS in frontend/js/questboard.js.
 const QUEST_TITLE_MIN = 2;
@@ -133,7 +128,8 @@ function validateStatus(req, res, next) {
 function validateTheme(req, res, next) {
   const { theme } = req.body;
 
-  if (!theme || !THEMES.includes(theme)) {
+  // Shape check only; whether the theme exists is checked against the database.
+  if (typeof theme !== 'string' || !/^[a-z0-9-]{1,40}$/.test(theme)) {
     return failure(res, 'Invalid theme.');
   }
 

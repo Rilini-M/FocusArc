@@ -22,20 +22,27 @@ const FOCUSARC_PARTICLE_STYLES = {
   lantern: { glow: 10, mix: [{ kind: 'ember', weight: 0.45 }, { kind: 'petal', weight: 0.55 }] },
 };
 
-// The particle style and density (1 = FocusArc's full count) of each study theme
-// (keys match css/themes.css).
-const FOCUSARC_THEME_PARTICLES = {
-  default: ['leaf', 1], nature: ['leaf', 0.7], cyberpunk: ['spark', 0.55], royal: ['sparkle', 0.55],
-  vampire: ['ember', 0.6], sakura: ['petal', 0.7], cosmic: ['star', 0.9], ocean: ['bubble', 0.6],
-  frost: ['snow', 0.8], ember: ['ember', 0.8], moonlight: ['star', 0.7], academia: ['dust', 0.5],
-  'japanese-night': ['lantern', 0.6], sunset: ['ember', 0.5], forest: ['firefly', 0.55],
-  lavender: ['petal', 0.55], crimson: ['ember', 0.55], neon: ['spark', 0.5], celestial: ['star', 0.8],
-  mist: ['dust', 0.7], twilight: ['star', 0.6],
-};
+// A theme's particle style and density (1 = FocusArc's full count) come with the theme from
+// the database (particleStyle / particleDensity in GET /api/themes). `info` is that theme
+// object; when it isn't passed, it is looked up in the loaded or cached theme list.
+function findParticleTheme(theme) {
+  let catalog = window.FOCUSARC_THEME_CATALOG;
+  if (!catalog) {
+    try {
+      catalog = JSON.parse(localStorage.getItem('focusarc_theme_catalog') || '[]');
+    } catch (err) {
+      catalog = [];
+    }
+  }
+  return catalog.find((t) => t.key === theme) || null;
+}
 
 // The theme's raw colors, read from CSS so colors are defined in one place only.
-function themeParticleConfig(theme) {
-  const [styleName, density] = FOCUSARC_THEME_PARTICLES[theme] || FOCUSARC_THEME_PARTICLES.default;
+function themeParticleConfig(theme, info) {
+  const found = info || findParticleTheme(theme);
+  // Without theme info (nothing loaded yet), use FocusArc's leaves.
+  const styleName = found && FOCUSARC_PARTICLE_STYLES[found.particleStyle] ? found.particleStyle : 'leaf';
+  const density = found && Number.isFinite(found.particleDensity) ? found.particleDensity : 1;
   const style = FOCUSARC_PARTICLE_STYLES[styleName];
   const css = getComputedStyle(document.documentElement);
   const colors = ['--theme-accent', '--theme-accent-2', '--theme-accent-3']
@@ -364,8 +371,8 @@ function themeParticleConfig(theme) {
     requestAnimationFrame(step);
   }
 
-  function setTheme(theme) {
-    spawnParticles(themeParticleConfig(theme));
+  function setTheme(theme, info) {
+    spawnParticles(themeParticleConfig(theme, info));
   }
 
   resize();

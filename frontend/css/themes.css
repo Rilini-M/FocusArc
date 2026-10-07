@@ -9,15 +9,18 @@
      accents, borders, glow, atmosphere tones and pattern ink. Light mode re-runs the same recipe
      with lighter surfaces and darker accents, so every theme works in both modes.
 
-  3. Study themes  ([data-theme='nature'], ...)
-     Each theme describes its own "world" with raw values only:
+  3. Study themes
+     Which themes exist and their core values come from the database (`themes` table, loaded by
+     js/theme.js from GET /api/themes, which writes a [data-theme='key'] rule for each):
        --theme-accent / -2 / -3   its colors
        --theme-deep               the dark-mode page base (light mode only borrows a hint of it)
        --theme-symbol             small decorative icon (sidebar tag, theme cards)
+     This file can add optional decoration for a theme key ([data-theme='nature'], ...):
        --theme-atmos              layered gradients behind the page (built from --t1/--t2/--t3)
        --theme-pattern(-size)     a subtle CSS/SVG pattern, used as a mask over --pattern-ink
        --card-sheen / --card-frame, --radius-card / --radius-btn, --font-display
-     Anything a theme leaves out falls back to the FocusArc defaults below.
+     Anything a theme leaves out falls back to the FocusArc defaults below, so a theme that only
+     exists in the database still gets a complete look in its own colors.
 
   The rest of the CSS only uses the derived variables (--bg-primary, --accent, --text-primary,
   ...), so pages never need to know which mode or theme is active. Any element can carry
@@ -76,6 +79,7 @@
   /* Defaults (= FocusArc) for anything a theme doesn't set. */
   --theme-accent-3: var(--theme-accent-2);
   --theme-deep: #07090c;
+  --theme-symbol: '✦';
   --theme-pattern: linear-gradient(transparent, transparent); /* = no pattern */
   --theme-pattern-size: auto;
   --card-sheen: none;
@@ -142,14 +146,13 @@
   --font-clean: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* ---------- 4. Study themes ---------- */
+/* ---------- 4. Study theme decoration (colors come from the database) ---------- */
 
+/* FocusArc's colors, only used until the theme list has loaded (e.g. very first visit). */
 :root,
 [data-theme='default'] { --theme-accent: #2dd4bf; --theme-accent-2: #67e8f9; --theme-symbol: '✦'; }
 
 [data-theme='nature'] {
-  --theme-accent: #4ade80; --theme-accent-2: #a3e635; --theme-accent-3: #d9a441; --theme-symbol: '❀';
-  --theme-deep: #06140e;
   --theme-atmos: radial-gradient(ellipse 70% 50% at 15% 0%, var(--t2-soft), transparent 70%),
     radial-gradient(ellipse 60% 60% at 90% 100%, var(--t1), transparent 70%),
     radial-gradient(ellipse 40% 30% at 70% 15%, var(--t3-soft), transparent 70%);
@@ -161,8 +164,6 @@
 }
 
 [data-theme='cyberpunk'] {
-  --theme-accent: #22d3ee; --theme-accent-2: #e879f9; --theme-symbol: '◈';
-  --theme-deep: #070a18;
   --theme-atmos: radial-gradient(ellipse 60% 50% at 0% 0%, var(--t1), transparent 70%),
     radial-gradient(ellipse 60% 55% at 100% 100%, var(--t2), transparent 70%),
     linear-gradient(115deg, transparent 42%, var(--t2-soft) 50%, transparent 58%);
@@ -177,8 +178,6 @@
 }
 
 [data-theme='royal'] {
-  --theme-accent: #f4c95d; --theme-accent-2: #5b7cfa; --theme-accent-3: #7c3aed; --theme-symbol: '♛';
-  --theme-deep: #0a0b22;
   --theme-atmos: radial-gradient(ellipse 60% 40% at 50% -5%, var(--t1), transparent 70%),
     radial-gradient(ellipse 55% 55% at 100% 100%, var(--t3), transparent 70%),
     radial-gradient(ellipse 50% 50% at 0% 80%, var(--t2-soft), transparent 70%);
@@ -190,8 +189,6 @@
 }
 
 [data-theme='vampire'] {
-  --theme-accent: #e11d48; --theme-accent-2: #f87171; --theme-accent-3: #7f1d1d; --theme-symbol: '❖';
-  --theme-deep: #12060a;
   --theme-atmos: radial-gradient(ellipse 80% 45% at 50% 0%, var(--t1), transparent 70%),
     radial-gradient(ellipse 70% 40% at 50% 105%, var(--t3), transparent 70%),
     radial-gradient(ellipse 30% 40% at 95% 30%, var(--t2-soft), transparent 70%);
@@ -203,8 +200,6 @@
 }
 
 [data-theme='sakura'] {
-  --theme-accent: #f472b6; --theme-accent-2: #fda4af; --theme-accent-3: #c084fc; --theme-symbol: '✿';
-  --theme-deep: #170a15;
   --theme-atmos: radial-gradient(ellipse 60% 50% at 85% 5%, var(--t1), transparent 70%),
     radial-gradient(ellipse 60% 50% at 5% 95%, var(--t2-soft), transparent 70%),
     radial-gradient(ellipse 40% 40% at 40% 40%, var(--t3-soft), transparent 70%);
@@ -216,8 +211,6 @@
 }
 
 [data-theme='cosmic'] {
-  --theme-accent: #a78bfa; --theme-accent-2: #38bdf8; --theme-accent-3: #f0abfc; --theme-symbol: '✧';
-  --theme-deep: #080920;
   --theme-atmos: radial-gradient(ellipse 50% 45% at 20% 30%, var(--t1), transparent 70%),
     radial-gradient(ellipse 55% 45% at 78% 72%, var(--t2), transparent 70%),
     radial-gradient(ellipse 30% 25% at 62% 18%, var(--t3-soft), transparent 70%);
@@ -229,8 +222,6 @@
 }
 
 [data-theme='ocean'] {
-  --theme-accent: #0ea5e9; --theme-accent-2: #2dd4bf; --theme-symbol: '≋';
-  --theme-deep: #041420;
   --theme-atmos: linear-gradient(180deg, var(--t2-soft), transparent 40%),
     radial-gradient(ellipse 120% 45% at 50% 105%, var(--t1), transparent 70%),
     radial-gradient(ellipse 40% 35% at 15% 20%, var(--t2-soft), transparent 70%);
@@ -242,8 +233,6 @@
 }
 
 [data-theme='frost'] {
-  --theme-accent: #93c5fd; --theme-accent-2: #c7d2fe; --theme-accent-3: #e0f2fe; --theme-symbol: '❄';
-  --theme-deep: #0a1422;
   --theme-atmos: radial-gradient(ellipse 80% 45% at 50% -8%, var(--t3), transparent 70%),
     radial-gradient(ellipse 50% 50% at 0% 100%, var(--t1-soft), transparent 70%),
     radial-gradient(ellipse 45% 45% at 100% 60%, var(--t2-soft), transparent 70%);
@@ -255,8 +244,6 @@
 }
 
 [data-theme='ember'] {
-  --theme-accent: #fb923c; --theme-accent-2: #fbbf24; --theme-accent-3: #ef4444; --theme-symbol: '✺';
-  --theme-deep: #110c09;
   --theme-atmos: radial-gradient(ellipse 90% 45% at 50% 108%, var(--t1), transparent 70%),
     radial-gradient(ellipse 40% 40% at 85% 95%, var(--t3), transparent 70%),
     radial-gradient(ellipse 50% 35% at 15% 0%, var(--t2-soft), transparent 70%);
@@ -267,8 +254,6 @@
 }
 
 [data-theme='moonlight'] {
-  --theme-accent: #cbd5e1; --theme-accent-2: #a5b4fc; --theme-symbol: '☾';
-  --theme-deep: #070c1c;
   --theme-atmos: radial-gradient(circle at 84% 14%, var(--t1) 0, var(--t1-soft) 6%, transparent 30%),
     radial-gradient(ellipse 60% 50% at 10% 95%, var(--t2-soft), transparent 70%),
     radial-gradient(ellipse 70% 40% at 50% 0%, var(--t2-soft), transparent 70%);
@@ -278,8 +263,6 @@
 }
 
 [data-theme='academia'] {
-  --theme-accent: #d4a373; --theme-accent-2: #a3b18a; --theme-accent-3: #e9c46a; --theme-symbol: '✎';
-  --theme-deep: #14100b;
   --theme-atmos: radial-gradient(ellipse 55% 50% at 12% 8%, var(--t3), transparent 70%),
     radial-gradient(ellipse 50% 50% at 92% 100%, var(--t2-soft), transparent 70%),
     radial-gradient(ellipse 40% 30% at 80% 10%, var(--t1-soft), transparent 70%);
@@ -294,8 +277,6 @@
 }
 
 [data-theme='japanese-night'] {
-  --theme-accent: #f87171; --theme-accent-2: #818cf8; --theme-accent-3: #f9a8d4; --theme-symbol: '◎';
-  --theme-deep: #0a0b20;
   --theme-atmos: radial-gradient(circle at 12% 28%, var(--t1), transparent 18%),
     radial-gradient(circle at 88% 20%, var(--t1-soft), transparent 16%),
     radial-gradient(ellipse 90% 50% at 50% 105%, var(--t2), transparent 70%),
@@ -309,8 +290,6 @@
 }
 
 [data-theme='sunset'] {
-  --theme-accent: #fb7185; --theme-accent-2: #fdba74; --theme-accent-3: #a855f7; --theme-symbol: '☼';
-  --theme-deep: #160b1a;
   --theme-atmos: linear-gradient(180deg, var(--t3-soft) 0%, transparent 40%, var(--t1-soft) 78%, var(--t2) 100%),
     radial-gradient(ellipse 70% 35% at 50% 105%, var(--t2), transparent 70%);
   --theme-pattern: repeating-linear-gradient(180deg, transparent 0 22px, rgba(0, 0, 0, 0.5) 22px 23px);
@@ -319,8 +298,6 @@
 }
 
 [data-theme='forest'] {
-  --theme-accent: #10b981; --theme-accent-2: #d9a441; --theme-symbol: '♣';
-  --theme-deep: #06100a;
   --theme-atmos: radial-gradient(ellipse 60% 40% at 50% -5%, var(--t2-soft), transparent 70%),
     radial-gradient(ellipse 55% 60% at 0% 100%, var(--t1), transparent 70%),
     radial-gradient(ellipse 45% 50% at 100% 75%, var(--t1-soft), transparent 70%);
@@ -331,8 +308,6 @@
 }
 
 [data-theme='lavender'] {
-  --theme-accent: #c4b5fd; --theme-accent-2: #f0abfc; --theme-symbol: '❁';
-  --theme-deep: #120d1f;
   --theme-atmos: radial-gradient(ellipse 55% 50% at 18% 15%, var(--t1), transparent 70%),
     radial-gradient(ellipse 55% 50% at 85% 85%, var(--t2-soft), transparent 70%),
     radial-gradient(ellipse 35% 30% at 85% 10%, var(--t2-soft), transparent 70%);
@@ -344,8 +319,6 @@
 }
 
 [data-theme='crimson'] {
-  --theme-accent: #ef4444; --theme-accent-2: #fbbf24; --theme-symbol: '♦';
-  --theme-deep: #110607;
   --theme-atmos: linear-gradient(135deg, var(--t1-soft), transparent 40%),
     radial-gradient(ellipse 60% 55% at 100% 100%, var(--t1), transparent 70%),
     radial-gradient(ellipse 30% 25% at 10% 90%, var(--t2-soft), transparent 70%);
@@ -356,8 +329,6 @@
 }
 
 [data-theme='neon'] {
-  --theme-accent: #a3e635; --theme-accent-2: #f472b6; --theme-accent-3: #22d3ee; --theme-symbol: 'ϟ';
-  --theme-deep: #08080f;
   --theme-atmos: radial-gradient(ellipse 50% 45% at 0% 0%, var(--t1-soft), transparent 70%),
     radial-gradient(ellipse 50% 45% at 100% 0%, var(--t2-soft), transparent 70%),
     radial-gradient(ellipse 70% 40% at 50% 105%, var(--t3), transparent 70%);
@@ -372,8 +343,6 @@
 }
 
 [data-theme='celestial'] {
-  --theme-accent: #fde68a; --theme-accent-2: #a5b4fc; --theme-accent-3: #ffffff; --theme-symbol: '✶';
-  --theme-deep: #060813;
   --theme-atmos: radial-gradient(ellipse 70% 40% at 50% -5%, var(--t1), transparent 70%),
     radial-gradient(ellipse 50% 50% at 100% 100%, var(--t2-soft), transparent 70%),
     radial-gradient(ellipse 40% 40% at 0% 60%, var(--t2-soft), transparent 70%);
@@ -385,8 +354,6 @@
 }
 
 [data-theme='mist'] {
-  --theme-accent: #94a3b8; --theme-accent-2: #99f6e4; --theme-symbol: '∿';
-  --theme-deep: #0e1216;
   /* Fog: wide, low ellipses layered at different heights. */
   --theme-atmos: radial-gradient(ellipse 100% 28% at 30% 28%, var(--t1-soft), transparent 70%),
     radial-gradient(ellipse 100% 26% at 72% 62%, var(--t1-soft), transparent 70%),
@@ -398,8 +365,6 @@
 }
 
 [data-theme='twilight'] {
-  --theme-accent: #6366f1; --theme-accent-2: #fb923c; --theme-accent-3: #f472b6; --theme-symbol: '✵';
-  --theme-deep: #0b0b21;
   --theme-atmos: linear-gradient(180deg, var(--t1-soft), transparent 45%, var(--t3-soft) 82%, var(--t2) 100%),
     radial-gradient(ellipse 60% 30% at 70% 102%, var(--t2), transparent 70%);
   --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg fill='black'%3E%3Ccircle cx='24' cy='20' r='1'/%3E%3Ccircle cx='120' cy='44' r='.8'/%3E%3Ccircle cx='190' cy='14' r='1.2'/%3E%3Ccircle cx='70' cy='96' r='.7'/%3E%3C/g%3E%3C/svg%3E");

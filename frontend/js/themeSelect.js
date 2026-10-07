@@ -9,12 +9,13 @@
 async function openThemeSelect() {
   let currentTheme = null;
   try {
-    const settings = await api.get('/settings');
+    const [settings] = await Promise.all([api.get('/settings'), loadThemeCatalog()]);
     currentTheme = settings.theme;
     rememberAppearance(settings.appearance);
   } catch (err) {
     // The screen still works; saving will surface any error.
   }
+  if (FOCUSARC_THEMES.length === 0) return; // no theme list (API down, nothing cached): skip the screen
 
   return new Promise((resolve) => {
     const root = document.createElement('div');

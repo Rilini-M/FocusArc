@@ -1,5 +1,6 @@
 const pool = require('../config/database');
 const { success, failure } = require('../utils/responses');
+const { isSelectable } = require('./themes.controller');
 
 async function get(req, res, next) {
   try {
@@ -47,6 +48,10 @@ async function updateCharacter(req, res, next) {
 async function updateTheme(req, res, next) {
   try {
     const { theme } = req.body;
+
+    if (!(await isSelectable(theme))) {
+      return failure(res, 'Invalid theme.');
+    }
 
     await pool.query(`UPDATE user_settings SET theme = ? WHERE user_id = ?`, [
       theme,
