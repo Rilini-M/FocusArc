@@ -8,5 +8,9 @@ USE focusarc;
 ALTER TABLE characters
   ADD COLUMN external_api_id INT NULL UNIQUE AFTER id,
   MODIFY COLUMN name VARCHAR(100) NOT NULL,
-  ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Some existing databases already have created_at. If so, this last statement fails with
+-- "Duplicate column name 'created_at'"; that is expected and safe to ignore.
+ALTER TABLE characters
+  ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
