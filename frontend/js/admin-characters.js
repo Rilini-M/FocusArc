@@ -80,7 +80,7 @@ async function importCharacter(index, button) {
       externalApiId: c.externalApiId,
       name: c.name,
       imageUrl: c.imageUrl,
-      description: c.description,
+      traits: c.traits,
     });
     c.alreadyImported = true;
     button.outerHTML = '<span class="ad-tag">Imported</span>';
@@ -210,6 +210,30 @@ async function bulkImport() {
   }
 }
 
+// ---- Motivational quotes for characters imported before quotes existed ----
+
+async function addMissingQuotes() {
+  const button = document.getElementById('quotes-btn');
+  const resultEl = document.getElementById('bulk-import-result');
+  button.disabled = true;
+  resultEl.hidden = false;
+  resultEl.classList.remove('ad-err');
+  resultEl.textContent = 'Adding motivational quotes… this takes a few seconds.';
+
+  try {
+    const result = await api.post('/admin/characters/generate-quotes');
+    resultEl.textContent = result.total === 0
+      ? 'Every imported character already has motivational quotes.'
+      : `Added quotes for ${result.updated} of ${result.total} characters.`;
+    loadImported();
+  } catch (err) {
+    resultEl.classList.add('ad-err');
+    resultEl.textContent = err.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   renderSidebar('admin');
   refreshIcons();
@@ -237,6 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     fetchCharacters(1);
   });
   document.getElementById('bulk-import-btn').addEventListener('click', bulkImport);
+  document.getElementById('quotes-btn').addEventListener('click', addMissingQuotes);
   document.getElementById('prev-page').addEventListener('click', () => fetchCharacters(currentPage - 1));
   document.getElementById('next-page').addEventListener('click', () => fetchCharacters(currentPage + 1));
 

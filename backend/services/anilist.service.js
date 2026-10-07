@@ -3,6 +3,8 @@
   The frontend never calls AniList directly: it calls our admin routes, which call this service.
 */
 
+const { detectTraits } = require('./characterQuotes.service');
+
 const ANILIST_URL = process.env.ANILIST_API_URL || 'https://graphql.anilist.co';
 const TIMEOUT_MS = 15000;
 const MAX_LIMIT = 50; // AniList's largest page size
@@ -22,6 +24,20 @@ const CHARACTERS_QUERY = `
   }
 `;
 
+// Specific characters by AniList id (used to add quotes to characters imported earlier).
+const CHARACTERS_BY_ID_QUERY = `
+  query ($ids: [Int], $perPage: Int) {
+    Page(page: 1, perPage: $perPage) {
+      characters(id_in: $ids) {
+        id
+        name { full }
+        image { large medium }
+        description(asHtml: false)
+      }
+    }
+  }
+`;
+
 // Errors thrown here carry an HTTP status (and, for 429, how long to wait) so the controller can
 // pass a clear message to the admin. Raw AniList or database details are never sent to the browser.
 function aniListError(message, status, retryAfterSeconds) {
@@ -31,14 +47,14 @@ function aniListError(message, status, retryAfterSeconds) {
   return err;
 }
 
-async function requestAniList(variables) {
+async function requestAniList(query, variables) {
   let response;
   try {
     // AbortSignal.timeout stops the request if AniList does not answer, so the server never hangs.
     response = await fetch(ANILIST_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ query: CHARACTERS_QUERY, variables }),
+      body: JSON.stringify({ query, variables }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch (err) {
@@ -100,13 +116,15 @@ function shortDescription(raw) {
   return sentence.length > 200 ? `${sentence.slice(0, 197).trimEnd()}...` : sentence;
 }
 
-// Keep only the fields FocusArc needs instead of the whole AniList response.
+// Keep only the fields FocusArc needs instead of the whole AniList response. `traits` are
+// personality traits read from the full description, used to choose motivational quotes.
 function simplify(character) {
   return {
     externalApiId: character.id,
     name: ((character.name && character.name.full) || '').trim(),
     imageUrl: imageUrlOf(character),
     description: shortDescription(character.description),
+    traits: detectTraits(character.description),
   };
 }
 
@@ -119,7 +137,7 @@ async function fetchCharacters({ page, limit, search }) {
   };
   if (search) variables.search = search;
 
-  const result = await requestAniList(variables);
+  const result = await requestAniList(CHARACTERS_QUERY, variables);
   const pageInfo = result.pageInfo || {};
 
   return {
@@ -132,4 +150,10 @@ async function fetchCharacters({ page, limit, search }) {
   };
 }
 
-module.exports = { fetchCharacters, MAX_LIMIT };
+// Up to 50 characters by AniList id, in one request.
+async function fetchCharactersByIds(ids) {
+  const result = await requestAniList(CHARACTERS_BY_ID_QUERY, { ids, perPage: Math.min(ids.length, MAX_LIMIT) });
+  return (result.characters || []).map(simplify);
+}
+
+module.exports = { fetchCharacters, fetchCharactersByIds, MAX_LIMIT };

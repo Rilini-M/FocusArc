@@ -1,5 +1,6 @@
 const pool = require('../config/database');
 const anilist = require('../services/anilist.service');
+const { detectTraits, buildPersonality } = require('../services/characterQuotes.service');
 const { success, failure } = require('../utils/responses');
 
 const NAME_MAX = 100; // characters.name column size
@@ -54,13 +55,24 @@ async function fetchFromApi(req, res, next) {
   }
 }
 
-// Validates one AniList character and saves it. Shared by the single and the bulk import.
+// Saves an imported character's motivational quotes and its trait line (shown under the name,
+// like "Brave and loyal."). Runs inside the caller's transaction.
+async function savePersonality(connection, characterId, personality) {
+  await connection.query(`INSERT INTO quotes (character_id, quote_text) VALUES ?`, [
+    personality.quotes.map((quote) => [characterId, quote]),
+  ]);
+  await connection.query(`UPDATE characters SET description = ? WHERE id = ?`, [personality.traitLine, characterId]);
+}
+
+// Validates one AniList character and saves it together with its motivational quotes.
+// Shared by the single and the bulk import.
 // Returns { status: 'imported' | 'exists' | 'invalid', message, character }.
 async function saveCharacter(input) {
   const externalApiId = Number(input.externalApiId);
   const name = text(input.name);
   const imageUrl = text(input.imageUrl);
-  const description = text(input.description);
+  // Traits come from the AniList description (see anilist.service.js); unknown values are ignored.
+  const traits = Array.isArray(input.traits) ? input.traits.filter((t) => typeof t === 'string') : [];
 
   if (!Number.isInteger(externalApiId) || externalApiId < 1) {
     return { status: 'invalid', message: 'A valid AniList character id is required.' };
@@ -71,9 +83,6 @@ async function saveCharacter(input) {
   // https only, and no spaces, quotes or angle brackets, since the URL is placed in an <img src="">.
   if (!/^https:\/\/[^\s"'<>]+$/.test(imageUrl) || imageUrl.length > 255) {
     return { status: 'invalid', message: 'This character has no usable image, so it cannot be imported.' };
-  }
-  if (description.length > DESCRIPTION_MAX) {
-    return { status: 'invalid', message: `Description must be ${DESCRIPTION_MAX} characters or fewer.` };
   }
 
   const [existing] = await pool.query(`SELECT id FROM characters WHERE external_api_id = ?`, [externalApiId]);
@@ -87,19 +96,30 @@ async function saveCharacter(input) {
     return { status: 'exists', message: `A character named "${name}" already exists.` };
   }
 
+  const personality = buildPersonality({ id: externalApiId, traits });
+
+  // The character and its quotes are saved together: either both are stored or neither is.
+  let connection;
   try {
-    const [result] = await pool.query(
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    const [result] = await connection.query(
       `INSERT INTO characters (external_api_id, name, description, image_path) VALUES (?, ?, ?, ?)`,
-      [externalApiId, name, description, imageUrl]
+      [externalApiId, name, personality.traitLine, imageUrl]
     );
+    await savePersonality(connection, result.insertId, personality);
+    await connection.commit();
     return {
       status: 'imported',
-      character: { id: result.insertId, external_api_id: externalApiId, name, description, image_path: imageUrl },
+      character: { id: result.insertId, external_api_id: externalApiId, name, description: personality.traitLine, image_path: imageUrl },
     };
   } catch (err) {
+    if (connection) await connection.rollback();
     // Two imports of the same character at the same moment: the UNIQUE index still blocks the duplicate.
     if (err.code === 'ER_DUP_ENTRY') return { status: 'exists', message: 'Character already exists.' };
     throw err;
+  } finally {
+    if (connection) connection.release();
   }
 }
 
@@ -148,7 +168,7 @@ async function importBulk(req, res, next) {
     return failure(res, `Target must be between 1 and ${BULK_MAX_TARGET}.`);
   }
   if (bulkImportRunning) {
-    return failure(res, 'A bulk import is already running. Please wait for it to finish.', 409);
+    return failure(res, 'A bulk import or quote update is already running. Please wait for it to finish.', 409);
   }
 
   bulkImportRunning = true;
@@ -197,6 +217,82 @@ async function importBulk(req, res, next) {
     }
 
     return success(res, { ...counts, target, pagesFetched, stoppedEarly });
+  } catch (err) {
+    return next(err);
+  } finally {
+    bulkImportRunning = false;
+  }
+}
+
+// Adds motivational quotes to imported characters that have none (for example characters
+// imported before quotes existed). Characters that already have quotes are never touched, so
+// running it again creates no duplicates. Full descriptions are fetched from AniList in groups of
+// 50; if AniList cannot be reached, the description saved in MySQL is used instead.
+// Returns { total, updated, usedSavedDescription }.
+async function addMissingQuotes() {
+  const [rows] = await pool.query(
+    `SELECT c.id, c.external_api_id, c.description FROM characters c
+     WHERE c.external_api_id IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM quotes q WHERE q.character_id = c.id)
+     ORDER BY c.id`
+  );
+  const counts = { total: rows.length, updated: 0, usedSavedDescription: 0 };
+
+  for (let i = 0; i < rows.length; i += BULK_PAGE_SIZE) {
+    if (i > 0) await pause(BULK_PAUSE_MS);
+    const group = rows.slice(i, i + BULK_PAGE_SIZE);
+
+    const traitsById = new Map();
+    try {
+      const found = await anilist.fetchCharactersByIds(group.map((row) => row.external_api_id));
+      found.forEach((c) => traitsById.set(c.externalApiId, c.traits));
+    } catch (err) {
+      if (!err.status) throw err;
+      console.error('Quote update: AniList unavailable, using saved descriptions.', err.message);
+    }
+
+    for (const row of group) {
+      let traits = traitsById.get(row.external_api_id);
+      if (!traits) {
+        traits = detectTraits(row.description);
+        counts.usedSavedDescription += 1;
+      }
+      const personality = buildPersonality({ id: row.external_api_id, traits });
+
+      const connection = await pool.getConnection();
+      try {
+        await connection.beginTransaction();
+        // Lock the character, then re-check, so two runs at once cannot both add quotes.
+        await connection.query(`SELECT id FROM characters WHERE id = ? FOR UPDATE`, [row.id]);
+        const [[{ quoteCount }]] = await connection.query(
+          `SELECT COUNT(*) AS quoteCount FROM quotes WHERE character_id = ?`,
+          [row.id]
+        );
+        if (quoteCount === 0) {
+          await savePersonality(connection, row.id, personality);
+          counts.updated += 1;
+        }
+        await connection.commit();
+      } catch (err) {
+        await connection.rollback();
+        throw err;
+      } finally {
+        connection.release();
+      }
+    }
+  }
+
+  return counts;
+}
+
+// POST /api/admin/characters/generate-quotes
+async function generateMissingQuotes(req, res, next) {
+  if (bulkImportRunning) {
+    return failure(res, 'A bulk import or quote update is already running. Please wait for it to finish.', 409);
+  }
+  bulkImportRunning = true;
+  try {
+    return success(res, await addMissingQuotes());
   } catch (err) {
     return next(err);
   } finally {
@@ -274,4 +370,13 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { fetchFromApi, importCharacter, importBulk, listImported, updateDescription, remove };
+module.exports = {
+  fetchFromApi,
+  importCharacter,
+  importBulk,
+  generateMissingQuotes,
+  addMissingQuotes,
+  listImported,
+  updateDescription,
+  remove,
+};
