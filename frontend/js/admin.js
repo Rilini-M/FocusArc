@@ -12,7 +12,9 @@ function renderAdminSections(sections) {
         <div class="ad-icon">${icon(section.icon, 20)}</div>
         <h3>${escapeHtml(section.label)}</h3>
         <p>${escapeHtml(section.description)}</p>
-        <span class="ad-soon">Coming soon</span>
+        ${section.href
+          ? `<a class="btn btn-p ad-open" href="${section.href}">Open</a>`
+          : '<span class="ad-soon">Coming soon</span>'}
       </section>`
     )
     .join('');

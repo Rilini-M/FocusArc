@@ -10,11 +10,16 @@ CREATE TABLE users (
   role           ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER'
 );
 
+-- external_api_id is the Jikan (MyAnimeList) character id; NULL for the built-in characters.
+-- image_path holds a local /assets path for built-ins, or the Jikan image URL for imports.
 CREATE TABLE characters (
-  id           INT AUTO_INCREMENT PRIMARY KEY,
-  name         VARCHAR(50)  NOT NULL UNIQUE,
-  description  TEXT,
-  image_path   VARCHAR(255) NOT NULL
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  external_api_id  INT          NULL UNIQUE,
+  name             VARCHAR(100) NOT NULL UNIQUE,
+  description      TEXT,
+  image_path       VARCHAR(255) NOT NULL,
+  created_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE quotes (
