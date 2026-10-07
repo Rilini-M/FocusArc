@@ -29,6 +29,7 @@ function escapeHtml(str) {
 async function requireAuth() {
   try {
     const user = await api.get('/auth/me');
+    if (user.role === 'ADMIN' && typeof showAdminNavLink === 'function') showAdminNavLink();
     return user;
   } catch (err) {
     window.location.href = 'login.html';

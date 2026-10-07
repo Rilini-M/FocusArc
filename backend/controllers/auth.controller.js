@@ -22,10 +22,11 @@ async function register(req, res, next) {
       [userId]
     );
 
-    const token = signToken({ userId });
+    // New accounts always start as USER (the column default); ADMIN is granted only via the database.
+    const token = signToken({ userId, role: 'USER' });
     setAuthCookie(res, token);
 
-    return success(res, { id: userId, username, email }, 201);
+    return success(res, { id: userId, username, email, role: 'USER' }, 201);
   } catch (err) {
     return next(err);
   }
@@ -36,7 +37,7 @@ async function login(req, res, next) {
     const { username, password } = req.body;
 
     const [rows] = await pool.query(
-      `SELECT id, username, email, password_hash FROM users WHERE username = ?`,
+      `SELECT id, username, email, password_hash, role FROM users WHERE username = ?`,
       [username.trim()]
     );
 
@@ -51,10 +52,10 @@ async function login(req, res, next) {
       return failure(res, 'Invalid username or password.', 401);
     }
 
-    const token = signToken({ userId: user.id });
+    const token = signToken({ userId: user.id, role: user.role });
     setAuthCookie(res, token);
 
-    return success(res, { id: user.id, username: user.username, email: user.email });
+    return success(res, { id: user.id, username: user.username, email: user.email, role: user.role });
   } catch (err) {
     return next(err);
   }
@@ -68,7 +69,7 @@ function logout(req, res) {
 async function me(req, res, next) {
   try {
     const [rows] = await pool.query(
-      `SELECT id, username, email, date_of_birth FROM users WHERE id = ?`,
+      `SELECT id, username, email, date_of_birth, role FROM users WHERE id = ?`,
       [req.user.id]
     );
 
