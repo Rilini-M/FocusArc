@@ -1,0 +1,242 @@
+/*
+  Study focus page (study.html): one quest, a big timer and nothing else competing for
+  attention. No sidebar; the theme's background, particles and colors still apply.
+*/
+
+.fx-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px 32px 40px;
+}
+
+.fx-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* The logo art is a black square that blends away against a solid background (as in the
+   sidebar), so the brand sits on a small solid pill. */
+.fx-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.fx-brand:hover {
+  color: var(--accent);
+}
+
+.fx-back {
+  padding: 9px 18px;
+  font-size: 0.88rem;
+}
+
+.fx-back svg {
+  width: 16px;
+  height: 16px;
+}
+
+.fx-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 32px 0 0;
+}
+
+.fx-panel {
+  width: 100%;
+  max-width: 720px;
+  padding: 40px 44px 36px;
+  text-align: center;
+  box-shadow: var(--card-frame), 0 0 60px -24px var(--glow);
+}
+
+.fx-loading {
+  margin: 40px 0;
+  color: var(--text-secondary);
+}
+
+.fx-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.fx-title {
+  margin: 0 0 10px;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.fx-desc {
+  max-width: 520px;
+  margin: 0 auto;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* The timer is the centerpiece: large, steady digits in the theme's accent. */
+.fx-timer {
+  margin: 30px 0 18px;
+  font-size: clamp(3.2rem, 11vw, 6.2rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  text-shadow: 0 0 34px var(--glow);
+}
+
+.fx-progress {
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.fx-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.fx-bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: var(--theme-gradient);
+  box-shadow: 0 0 12px var(--glow);
+  transition: width 1s linear;
+}
+
+.fx-goal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.fx-goal svg {
+  color: var(--success);
+}
+
+.fx-plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 26px 0 0;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.fx-plan svg {
+  color: var(--accent);
+}
+
+.fx-plan strong {
+  color: var(--text-primary);
+}
+
+.fx-note {
+  margin: 22px auto 0;
+  padding: 10px 16px;
+  max-width: 460px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--text-primary);
+  font-size: 0.92rem;
+}
+
+.fx-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.fx-start,
+.fx-stop {
+  padding: 14px 30px;
+  font-size: 1rem;
+}
+
+.fx-panel .q-attachments {
+  max-width: 440px;
+  margin: 30px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+
+.fx-companion {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 720px;
+  padding: 0 8px;
+}
+
+.fx-companion-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+  box-shadow: 0 0 16px -4px var(--glow);
+}
+
+.fx-companion-quote {
+  margin: 0;
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.fx-companion-quote .qt-author {
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .fx-shell {
+    padding: 16px 16px 28px;
+  }
+
+  .fx-panel {
+    padding: 28px 20px;
+  }
+}

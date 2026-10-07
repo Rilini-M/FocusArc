@@ -10,12 +10,6 @@ const FILE_EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'txt', 'md'
 const MAX_FILE_MB = 10;
 const MAX_FILES = 5;
 const TOO_MANY_FILES = `You can attach a maximum of ${MAX_FILES} files per quest.`;
-// Icon per file type, for the form and the quest cards (anything else: file-text).
-const FILE_ICONS = {
-  image: ['png', 'jpg', 'jpeg', 'gif', 'webp'],
-  'file-spreadsheet': ['csv', 'xls', 'xlsx', 'ods'],
-  presentation: ['ppt', 'pptx', 'odp'],
-};
 
 let quests = []; // newest first, as returned by the API
 let quoteRotationTimer = null;
@@ -27,49 +21,12 @@ let studyTickInterval = null;
 let formFiles = { existing: [], removedIds: new Set(), added: [] };
 let fileNotice = ''; // why some picked files weren't added (shown under the file list)
 
-function fileExtension(name) {
-  const parts = String(name).split('.');
-  return parts.length > 1 ? parts.pop().toLowerCase() : '';
-}
-
-function fileIcon(name) {
-  const ext = fileExtension(name);
-  const found = Object.entries(FILE_ICONS).find(([, exts]) => exts.includes(ext));
-  return found ? found[0] : 'file-text';
-}
-
-function formatDuration(totalSeconds) {
-  const pad = (n) => String(n).padStart(2, '0');
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
-  return `${pad(h)}:${pad(m)}:${pad(s)}`;
-}
-
-// "45 min", "1 h", "1 h 30 min"
-function formatMinutes(minutes) {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (!h) return `${m} min`;
-  return m ? `${h} h ${m} min` : `${h} h`;
-}
-
-function formatFileSize(bytes) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
-// Re-renders only the ticking number, not the whole list — the elapsed time is always
-// recomputed from the real started_at timestamp (not just incremented), so it stays
-// correct across tab-throttling, navigation, and refresh instead of drifting.
+// Re-renders only the ticking number, not the whole list.
 function updateTimerDisplay() {
   if (!activeStudySession) return;
   const el = document.querySelector(`[data-quest-timer="${activeStudySession.quest_id}"]`);
   if (!el) return;
-  const startedMs = new Date(activeStudySession.started_at.replace(' ', 'T')).getTime();
-  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - startedMs) / 1000));
-  el.textContent = formatDuration(elapsedSeconds);
+  el.textContent = formatDuration(sessionElapsedSeconds(activeStudySession));
 }
 
 function startTimerTick() {
@@ -94,30 +51,21 @@ function questCardHTML(quest) {
   const isStudyingThis = activeStudySession && activeStudySession.quest_id === quest.id;
   const anotherActive = activeStudySession && !isStudyingThis;
 
-  const studyControl = isStudyingThis
-    ? `
+  // Start Study opens the quest's focus page in a new tab, which starts the session; the Quest
+  // Board stays open here. It's a real link, so browsers never block it as a pop-up.
+  let studyControl;
+  if (isStudyingThis) {
+    studyControl = `
       <div class="timer">${icon('timer', 15)}<span data-quest-timer="${quest.id}">00:00:00</span></div>
-      <button type="button" class="btn btn-d s-btn" data-action="stop-study">${icon('circle-stop', 16)} Stop Study</button>`
-    : `
-      <button type="button" class="btn btn-p s-btn" data-action="start-study"${anotherActive ? ' disabled title="Finish your current study session first"' : ''}>${icon('play', 16)} Start Study</button>`;
-
-  // Each file opens in a new tab (PDFs in the browser's PDF viewer); the Quest Board stays open.
-  const attachments = quest.attachments.length
-    ? `
-      <div class="q-attachments">
-        <span class="q-att-label">Attachments</span>
-        <ul class="q-att-list">
-          ${quest.attachments
-            .map(
-              (a) => `
-            <li><a class="q-att" href="${a.url}" target="_blank" rel="noopener noreferrer"
-                 title="Open ${escapeHtml(a.name)} (${formatFileSize(a.size)}) in a new tab">
-              ${icon(fileIcon(a.name), 14)}<span>${escapeHtml(a.name)}</span></a></li>`
-            )
-            .join('')}
-        </ul>
-      </div>`
-    : '';
+      <a class="btn btn-s s-btn" href="${focusPageUrl(quest.id)}" target="_blank" rel="noopener">${icon('external-link', 15)} Focus Page</a>
+      <button type="button" class="btn btn-d s-btn" data-action="stop-study">${icon('circle-stop', 16)} Stop</button>`;
+  } else if (anotherActive) {
+    studyControl = `
+      <button type="button" class="btn btn-p s-btn" disabled title="Finish your current study session first">${icon('play', 16)} Start Study</button>`;
+  } else {
+    studyControl = `
+      <a class="btn btn-p s-btn" href="${focusPageUrl(quest.id, true)}" target="_blank" rel="noopener">${icon('play', 16)} Start Study</a>`;
+  }
 
   return `
     <article class="card quest-card fade${isStudyingThis ? ' studying' : ''}" data-quest-id="${quest.id}">
@@ -132,7 +80,7 @@ function questCardHTML(quest) {
       <div class="q-meta">
         <span class="q-chip q-time-chip">${icon('hourglass', 14)}<span>Time Required: <strong>${formatMinutes(quest.time_required)}</strong></span></span>
       </div>
-      ${attachments}
+      ${attachmentListHTML(quest.attachments)}
       <div class="q-study">${studyControl}</div>
     </article>`;
 }
@@ -165,7 +113,6 @@ function handleQuestListClick(event) {
 
   if (action === 'edit') openQuestModal(quests.find((q) => q.id === questId));
   else if (action === 'delete') deleteQuest(questId);
-  else if (action === 'start-study') startStudy(questId);
   else if (action === 'stop-study') stopStudy();
 }
 
@@ -177,17 +124,6 @@ async function loadActiveStudySession() {
   activeStudySession = await api.get('/study-sessions/active');
 }
 
-async function startStudy(questId) {
-  if (activeStudySession) return;
-
-  try {
-    activeStudySession = await api.post('/study-sessions/start', { questId });
-    renderQuestList();
-  } catch (err) {
-    showToast(err.message, { isError: true });
-  }
-}
-
 async function stopStudy() {
   if (!activeStudySession) return;
   const sessionId = activeStudySession.id;
@@ -197,6 +133,7 @@ async function stopStudy() {
     stopTimerTick();
     activeStudySession = null;
     renderQuestList();
+    announceStudyChange(); // an open focus page shows the session as ended
     showToast('Study session saved.');
   } catch (err) {
     showToast(err.message, { isError: true });
@@ -479,6 +416,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderQuestList();
 
   document.getElementById('quest-list').addEventListener('click', handleQuestListClick);
+
+  // A session started or stopped on a focus page (another tab) updates the cards here.
+  onStudyChange(async () => {
+    try {
+      await loadActiveStudySession();
+      if (!activeStudySession) stopTimerTick();
+      renderQuestList();
+    } catch (err) {
+      // Keep the current view; the next change or refresh will catch up.
+    }
+  });
 
   document.getElementById('add-quest-btn').addEventListener('click', () => {
     if (quests.length >= MAX_QUESTS) {

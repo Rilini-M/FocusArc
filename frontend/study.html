@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-theme="default">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study — FocusArc</title>
+  <link rel="icon" href="/assets/logo/logo.png.png" />
+  <link rel="stylesheet" href="css/themes.css" />
+  <script src="js/theme-init.js"></script>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/questboard.css" />
+  <link rel="stylesheet" href="css/study.css" />
+</head>
+<body class="focus-page">
+  <!-- Study focus page: opened in a new tab by a quest's Start Study button. -->
+  <div class="shell fx-shell">
+    <header class="fx-top">
+      <a class="fx-brand brand" href="questboard.html">
+        <img class="sb-icon" src="/assets/logo/logo.png.png" alt="" />
+        FocusArc
+      </a>
+      <a class="btn btn-s fx-back" href="questboard.html"><i data-lucide="list-checks" style="width:16px;height:16px;"></i> Quest Board</a>
+    </header>
+
+    <main class="fx-main">
+      <section class="card fx-panel" id="focus-root" aria-live="polite">
+        <p class="fx-loading">Preparing your study session…</p>
+      </section>
+
+      <section class="fx-companion" id="focus-companion" hidden>
+        <img class="fx-companion-img" id="focus-companion-img" alt="" />
+        <p class="fx-companion-quote" id="focus-companion-quote"></p>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/vendor/lucide.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/questShared.js"></script>
+  <script src="js/study.js"></script>
+</body>
+</html>
