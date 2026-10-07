@@ -53,17 +53,18 @@
 }
 
 [data-mode='light'] {
-  --text-primary: #161a22;
-  --text-secondary: #586273;
+  --text-primary: #12151c;
+  --text-secondary: #4c5463;
   --on-accent: #ffffff;
-  --field-bg: rgba(15, 23, 42, 0.03);
-  --inset-bg: rgba(15, 23, 42, 0.04);
-  --page-vignette: none;
-  --tint-page: 5%;
-  --tint-card: 3%;
-  --tint-raised: 8%;
-  --atmos: 15%;
-  --pattern-alpha: 7%;
+  --field-bg: rgba(40, 32, 20, 0.035);
+  --inset-bg: rgba(40, 32, 20, 0.045);
+  /* A faint warm shade at the page edges gives the light page some depth. */
+  --page-vignette: radial-gradient(ellipse 120% 90% at 50% 35%, transparent 60%, rgba(60, 45, 20, 0.05));
+  --tint-page: 4%;
+  --tint-card: 2%;
+  --tint-raised: 9%;
+  --atmos: 16%;
+  --pattern-alpha: 6%;
   --danger: #dc2626;
   --success: #059669;
   --chart-todo: #7c3aed;
@@ -113,16 +114,31 @@
     radial-gradient(ellipse at 90% 8%, var(--t2-soft), transparent 40%);
 }
 
-/* Light mode: light surfaces with a hint of the theme, darker accents so text stays readable. */
+/* Light mode: a warm ivory page, near-white solid cards, a slightly deeper sidebar, and
+   accents that stay saturated but dark enough to read on light surfaces. */
 [data-mode='light'],
 [data-mode='light'] [data-theme] {
+  /* Fallback for browsers without relative colors: darken by mixing with black. */
   --accent: color-mix(in srgb, var(--theme-accent) 62%, #000);
   --accent-secondary: color-mix(in srgb, var(--theme-accent-2) 62%, #000);
-  --bg-primary: color-mix(in srgb, var(--theme-accent) var(--tint-page), color-mix(in srgb, var(--theme-deep) 5%, #f4f6f9));
-  --bg-secondary: color-mix(in srgb, var(--theme-accent) var(--tint-card), #ffffff);
-  --bg-tertiary: color-mix(in srgb, var(--theme-accent) var(--tint-raised), #eceff4);
-  --border: color-mix(in srgb, var(--theme-accent) 30%, #d6dae1);
-  --glow: color-mix(in srgb, var(--theme-accent-2) 22%, transparent);
+  --bg-primary: color-mix(in srgb, var(--theme-accent) var(--tint-page), color-mix(in srgb, var(--theme-deep) 2%, #f6f2e9));
+  --bg-secondary: color-mix(in srgb, var(--theme-accent) var(--tint-card), #fffdf9);
+  --bg-tertiary: color-mix(in srgb, var(--theme-accent) var(--tint-raised), #f0ece3);
+  --bg-sidebar: color-mix(in srgb, var(--theme-accent) 5%, color-mix(in srgb, var(--theme-deep) 4%, #ebe6db));
+  --border: color-mix(in srgb, var(--accent) 24%, #ddd7ca);
+  --border-strong: color-mix(in srgb, var(--accent) 60%, #ddd7ca);
+  --glow: color-mix(in srgb, var(--accent) 30%, transparent);
+  --shadow-card: 0 1px 2px rgba(40, 32, 20, 0.06), 0 14px 34px -20px rgba(40, 32, 20, 0.3);
+}
+
+/* Keep each accent's full color and only lower its lightness: rich teal, rose, gold, ...
+   instead of the greyish tones that mixing with black gives. */
+@supports (color: oklch(from red l c h)) {
+  [data-mode='light'],
+  [data-mode='light'] [data-theme] {
+    --accent: oklch(from var(--theme-accent) min(l, 0.53) c h);
+    --accent-secondary: oklch(from var(--theme-accent-2) min(l, 0.58) c h);
+  }
 }
 
 /* ---------- 3. Shared looks that several themes reuse ---------- */
