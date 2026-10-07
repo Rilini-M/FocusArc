@@ -6,7 +6,8 @@ CREATE TABLE users (
   username       VARCHAR(50)  NOT NULL UNIQUE,
   email          VARCHAR(255) NOT NULL UNIQUE,
   password_hash  VARCHAR(255) NOT NULL,
-  date_of_birth  DATE         NOT NULL
+  date_of_birth  DATE         NOT NULL,
+  role           ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER'
 );
 
 CREATE TABLE characters (

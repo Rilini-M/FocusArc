@@ -10,9 +10,12 @@ const NAV_ITEMS = [
   { key: 'settings', label: 'Settings', href: 'settings.html', icon: 'settings' },
 ];
 
+let activeNavKey = null;
+
 function renderSidebar(activeKey) {
   const root = document.getElementById('sidebar-root');
   if (!root) return;
+  activeNavKey = activeKey;
 
   const links = NAV_ITEMS.map(
     (item) => `
@@ -64,4 +67,20 @@ function renderSidebar(activeKey) {
     sidebar.classList.remove('open');
     backdrop.classList.remove('open');
   });
+}
+
+// Adds the Admin Dashboard link for ADMIN accounts (called from requireAuth). Only a shortcut:
+// the server enforces the ADMIN role on every /api/admin route.
+function showAdminNavLink() {
+  const list = document.querySelector('#sidebar .nav-ul');
+  if (!list || list.querySelector('[data-nav-key="admin"]')) return;
+
+  const item = document.createElement('li');
+  item.innerHTML = `
+    <a class="nav-a${activeNavKey === 'admin' ? ' active' : ''}" href="admin.html" data-nav-key="admin">
+      ${icon('shield-check')}
+      <span>Admin Dashboard</span>
+    </a>`;
+  list.appendChild(item);
+  refreshIcons();
 }

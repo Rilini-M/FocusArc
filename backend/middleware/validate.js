@@ -19,20 +19,18 @@ function usernameError(username) {
   return null;
 }
 
-// Only Gmail addresses: letters, numbers and single dots before exactly "@gmail.com",
-// with at least one letter (so "123@gmail.com" is rejected).
+// Only Gmail addresses shaped like "richa123@gmail.com": one or more letters, then one or more
+// numbers, then exactly "@gmail.com". No dots, symbols or letters after the numbers.
+const EMAIL_RE = /^[A-Za-z]+[0-9]+@gmail\.com$/;
+
 function emailError(email) {
-  const value = (email || '').trim().toLowerCase();
+  const value = (email || '').trim();
   if (/\s/.test(value)) return 'Email cannot contain spaces.';
-  if (!value.endsWith('@gmail.com') || value.indexOf('@') !== value.length - '@gmail.com'.length || value.length > 255) {
-    return 'Enter a Gmail address ending in @gmail.com, like name@gmail.com.';
+  if (EMAIL_RE.test(value) && value.length <= 255) return null;
+  if (!value.endsWith('@gmail.com') || value.indexOf('@') !== value.length - '@gmail.com'.length) {
+    return 'Enter a Gmail address ending in @gmail.com, like richa123@gmail.com.';
   }
-  const local = value.slice(0, -'@gmail.com'.length);
-  if (!/^[a-z0-9]+(\.[a-z0-9]+)*$/.test(local)) {
-    return 'Before @gmail.com, use only letters, numbers and single dots (not at the start or end).';
-  }
-  if (!/[a-z]/.test(local)) return 'The part before @gmail.com must contain at least one letter.';
-  return null;
+  return 'Before @gmail.com, use letters followed by numbers, like richa123@gmail.com.';
 }
 
 // Date of birth must be a real YYYY-MM-DD calendar date between 1900-01-01 and today.

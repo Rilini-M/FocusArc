@@ -1,0 +1,40 @@
+.ad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.ad-card {
+  padding: 22px 24px;
+}
+
+.ad-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.ad-card h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.ad-card p {
+  margin: 0 0 14px;
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+}
+
+.ad-soon {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
