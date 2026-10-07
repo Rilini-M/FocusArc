@@ -26,14 +26,10 @@ async function openThemeSelect() {
     root.innerHTML = `
       <div class="ts-panel">
         <h2 class="ts-title" id="theme-select-title"><span class="spark">✧</span> Choose Your Study Theme <span class="spark">✧</span></h2>
-        <p class="ts-sub">Pick the colors for your study space. You can change it any time in Settings.</p>
+        <p class="ts-sub">Pick the atmosphere for your study space. You can change it any time in Settings.</p>
         <div class="th-grid">
-          ${FOCUSARC_THEMES.map(
-            (t) => `
-            <button type="button" class="th-chip${t.key === currentTheme ? ' selected' : ''}"
-              data-theme="${t.key}" aria-pressed="${t.key === currentTheme}">
-              <span class="th-dot" aria-hidden="true"></span>${t.label}
-            </button>`
+          ${FOCUSARC_THEMES.map((t) =>
+            themeCardHTML(t, t.key === currentTheme, `aria-pressed="${t.key === currentTheme}"`)
           ).join('')}
         </div>
         <button type="button" class="ts-skip" id="theme-select-skip">Keep my current theme</button>

@@ -1,9 +1,9 @@
 /*
   Shared theme application. Three independent choices, each saved in user settings:
   - appearance mode (Light / Dark)     -> <html data-mode="...">
-  - study theme (21 color themes)      -> <html data-theme="...">
+  - study theme (21 themes)            -> <html data-theme="...">
   - character                          -> not handled here at all
-  Colors for each theme live in css/themes.css. This file is the list of themes shown in the
+  Each theme's look (colors, atmosphere, pattern, card style) lives in css/themes.css. This file is the list of themes shown in the
   UI (keep the keys in sync with THEMES in backend/middleware/validate.js).
 */
 
@@ -32,6 +32,21 @@ const FOCUSARC_THEMES = [
 ];
 
 const FOCUSARC_MODES = ['dark', 'light'];
+
+// One theme card for the theme galleries (Settings page and the post-login theme screen).
+// data-theme on the card makes everything inside it — colors, atmosphere, pattern, symbol,
+// heading font — that theme's own, so the card previews the theme before it is picked.
+// `extraAttrs` carries the caller's ARIA state (role="radio" aria-checked / aria-pressed).
+function themeCardHTML(theme, selected, extraAttrs) {
+  return `
+    <button type="button" class="th-chip${selected ? ' selected' : ''}" data-theme="${theme.key}" ${extraAttrs}>
+      <span class="th-prev" aria-hidden="true">
+        <span class="th-sym"></span>
+        <span class="th-ui"><i></i><i></i></span>
+      </span>
+      <span class="th-name">${theme.label}</span>
+    </button>`;
+}
 
 function applyTheme(theme) {
   const safeTheme = FOCUSARC_THEMES.some((t) => t.key === theme) ? theme : 'default';

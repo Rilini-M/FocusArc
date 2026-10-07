@@ -72,9 +72,14 @@
   box-shadow: 0 0 16px var(--glow);
 }
 
-/* The Study Theme grid is taller than one row, so line its heading up with the top. */
-.st-sec.st-top {
-  align-items: flex-start;
+/* Study Theme and Character: heading row on top, the gallery below it at full card width. */
+.st-sec.st-stack {
+  flex-wrap: wrap;
+  row-gap: 18px;
+}
+
+.st-stack .st-opts {
+  flex-basis: 100%;
 }
 
 .st-opts.th-grid {

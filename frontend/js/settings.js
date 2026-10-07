@@ -31,16 +31,11 @@ function renderCharacterOptions(characters, selectedId) {
   });
 }
 
-// Study themes come from FOCUSARC_THEMES in theme.js. Each chip has data-theme, so it shows
-// its own theme's colors and symbol.
+// Study themes come from FOCUSARC_THEMES in theme.js; each card previews its own theme.
 function renderThemeOptions(selectedTheme) {
   const container = document.getElementById('theme-options');
-  container.innerHTML = FOCUSARC_THEMES.map(
-    (t) => `
-      <button type="button" class="th-chip${t.key === selectedTheme ? ' selected' : ''}" data-theme="${t.key}"
-        role="radio" aria-checked="${t.key === selectedTheme}">
-        <span class="th-dot" aria-hidden="true"></span>${escapeHtml(t.label)}
-      </button>`
+  container.innerHTML = FOCUSARC_THEMES.map((t) =>
+    themeCardHTML(t, t.key === selectedTheme, `role="radio" aria-checked="${t.key === selectedTheme}"`)
   ).join('');
 
   container.querySelectorAll('.th-chip').forEach((chip) => {

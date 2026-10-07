@@ -41,13 +41,57 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-body::before {
+/* Landing / Login / Signup keep their own fixed FocusArc look. */
+body.a-page::before,
+body.l-page::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: var(--page-overlay);
+  background: linear-gradient(180deg, rgba(3, 6, 7, 0.6), rgba(3, 6, 7, 0.82));
   z-index: 0;
   pointer-events: none;
+}
+
+/* App pages: the study theme's world, built from three fixed layers behind the UI (no images).
+   body       = page color + a soft vignette (dark mode)
+   ::before   = the theme's atmosphere gradients, drifting very slowly
+   ::after    = the theme's subtle pattern, painted in --pattern-ink through a mask
+   then the particle canvas (z-index 1) and the app itself (z-index 2). */
+body:not(.a-page):not(.l-page) {
+  background: var(--page-vignette) fixed, var(--bg-primary);
+}
+
+body:not(.a-page):not(.l-page)::before,
+body:not(.a-page):not(.l-page)::after {
+  content: '';
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body:not(.a-page):not(.l-page)::before {
+  inset: -6%;
+  background: var(--theme-atmos);
+  animation: focusarc-atmos-drift 70s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+body:not(.a-page):not(.l-page)::after {
+  inset: 0;
+  background-color: var(--pattern-ink);
+  -webkit-mask-image: var(--theme-pattern);
+  mask-image: var(--theme-pattern);
+  -webkit-mask-size: var(--theme-pattern-size);
+  mask-size: var(--theme-pattern-size);
+}
+
+@keyframes focusarc-atmos-drift {
+  from {
+    transform: translate3d(-1.5%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(1.5%, 1%, 0) scale(1.04);
+  }
 }
 
 .shell,
@@ -56,9 +100,15 @@ body::before {
   z-index: 2;
 }
 
+/* Headings use the study theme's display font; the FocusArc brand mark always stays Cinzel. */
 h1,
 h2,
-h3,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: var(--heading-tracking);
+}
+
 .brand {
   font-family: 'Cinzel', 'Inter', serif;
   font-weight: 600;
@@ -276,10 +326,13 @@ button {
 
 /* ---------------------------------------------------------------- components */
 
+/* Cards get the theme's shape, sheen (e.g. a gold top line for Royal, circuit edges for
+   Cyberpunk) and optional inner frame. The card color itself stays solid for readability. */
 .card {
-  background: var(--bg-secondary);
+  background: var(--card-sheen), var(--bg-secondary);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-frame), 0 10px 30px -18px rgba(0, 0, 0, 0.5);
   padding: 22px;
 }
 
@@ -289,7 +342,7 @@ button {
   justify-content: center;
   gap: 8px;
   padding: 12px 22px;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: 1px solid transparent;
   font-size: 0.94rem;
   font-weight: 600;
@@ -555,64 +608,156 @@ button {
   }
 }
 
+/* An infinite animation squeezed to 0.001ms would flicker, so stop the drift outright. */
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none !important;
+  }
+}
+
 /* ---- Study theme and Light/Dark pickers (Settings page and the post-login theme screen) ---- */
 
 .th-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+  gap: 12px;
 }
 
-/* Each chip carries data-theme="<key>", so its colors are that theme's own (see themes.css). */
+/* Theme cards. Each carries data-theme="<key>", so every variable inside it (colors,
+   atmosphere, pattern, font) is that theme's own — the card is a small preview of its world,
+   shown in the current Light/Dark mode. */
 .th-chip {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 12px;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
   border: 1px solid var(--border);
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
   color: var(--text-primary);
   font: inherit;
-  font-size: 0.85rem;
   text-align: left;
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 
 .th-chip:hover {
-  border-color: var(--accent);
-  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px -12px var(--glow);
 }
 
-.th-dot {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.th-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The preview scene: the theme's page color, atmosphere and pattern. */
+.th-prev {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--theme-gradient);
-  box-shadow: 0 0 10px var(--glow);
-  color: var(--on-accent);
-  font-size: 0.72rem;
+  height: 64px;
+  overflow: hidden;
+  background: var(--theme-atmos), var(--bg-primary);
 }
 
-.th-dot::before {
+.th-prev::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Patterns are drawn at full-page strength, so give them a bit more ink at this size. */
+  background-color: color-mix(in srgb, var(--accent) calc(var(--pattern-alpha) * 1.8), transparent);
+  -webkit-mask-image: var(--theme-pattern);
+  mask-image: var(--theme-pattern);
+  -webkit-mask-size: var(--theme-pattern-size);
+  mask-size: var(--theme-pattern-size);
+}
+
+.th-sym {
+  position: relative;
+  font-size: 1.45rem;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 0 14px var(--glow), 0 0 4px var(--glow);
+  transition: transform 0.2s ease;
+}
+
+.th-sym::before {
   content: var(--theme-symbol);
+}
+
+.th-chip:hover .th-sym {
+  transform: scale(1.1);
+}
+
+/* A tiny mock UI in the corner: a button pill in the theme's gradient and a text line. */
+.th-ui {
+  position: absolute;
+  left: 9px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.th-ui i {
+  display: block;
+  height: 5px;
+  border-radius: var(--radius-btn);
+}
+
+.th-ui i:first-child {
+  width: 24px;
+  background: var(--theme-gradient);
+  box-shadow: 0 0 8px var(--glow);
+}
+
+.th-ui i:last-child {
+  width: 14px;
+  background: color-mix(in srgb, var(--text-primary) 25%, transparent);
+}
+
+.th-name {
+  padding: 8px 10px 9px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-display);
+  letter-spacing: var(--heading-tracking);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .th-chip.selected {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 0 18px -4px var(--glow);
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px var(--accent), 0 10px 26px -10px var(--glow), 0 0 18px -6px var(--glow);
+}
+
+.th-chip.selected .th-name {
+  color: var(--accent);
 }
 
 .th-chip.selected::after {
   content: '✓';
-  margin-left: auto;
-  color: var(--accent);
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--theme-gradient);
+  color: var(--on-accent);
+  font-size: 0.7rem;
   font-weight: 700;
+  box-shadow: 0 0 10px var(--glow);
 }
 
 .mode-toggle {
