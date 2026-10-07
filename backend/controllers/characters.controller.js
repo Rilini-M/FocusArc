@@ -38,7 +38,7 @@ async function list(req, res, next) {
 
     const [[{ total }]] = await pool.query(`SELECT COUNT(*) AS total FROM characters ${where}`, params);
 
-    // Built-in characters (no Jikan id) first, then imported ones in the order they were added.
+    // Built-in characters (no external id) first, then imported ones in the order they were added.
     const [rows] = await pool.query(
       `SELECT id, external_api_id, name, description, image_path FROM characters ${where}
        ORDER BY external_api_id IS NOT NULL, id ASC

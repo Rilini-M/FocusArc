@@ -24,14 +24,14 @@
       <div id="admin-characters" hidden>
         <section class="card ad-sec">
           <h3>Bulk Import</h3>
-          <p class="ad-sub">Imports the 200 most popular Jikan characters that are not in FocusArc yet. Characters that already exist are skipped. This takes about a minute.</p>
-          <button type="button" class="btn btn-p" id="bulk-import-btn"><i data-lucide="download-cloud" style="width:16px;height:16px;"></i> Import 200 Characters</button>
+          <p class="ad-sub">Imports 200 of the most popular AniList characters that are not in FocusArc yet. Characters that already exist are skipped. This takes about 15 seconds.</p>
+          <button type="button" class="btn btn-p" id="bulk-import-btn"><i data-lucide="download-cloud" style="width:16px;height:16px;"></i> Import 200+ Characters</button>
           <p class="ad-note" id="bulk-import-result" hidden></p>
         </section>
 
         <section class="card ad-sec">
-          <h3>Jikan Characters</h3>
-          <p class="ad-sub">Fetched from the Jikan anime API, most popular first. Import a character to add it to FocusArc.</p>
+          <h3>AniList Characters</h3>
+          <p class="ad-sub">Fetched from the AniList anime database, most popular first. Import a character to add it to FocusArc.</p>
 
           <form class="ad-tools" id="fetch-form">
             <label class="field ad-search">
@@ -41,7 +41,7 @@
             <button type="submit" class="btn btn-p" id="fetch-btn"><i data-lucide="download-cloud" style="width:16px;height:16px;"></i> Fetch Characters</button>
           </form>
 
-          <div id="api-results"><p class="ad-note">Click "Fetch Characters" to load characters from Jikan.</p></div>
+          <div id="api-results"><p class="ad-note">Click "Fetch Characters" to load characters from AniList.</p></div>
 
           <div class="ad-pager" id="api-pager" hidden>
             <button type="button" class="btn btn-s" id="prev-page">Previous</button>

@@ -1,11 +1,11 @@
 /*
   Admin Character Management. The page only talks to our own backend (/api/admin/characters...);
-  the backend is the one that calls the Jikan API. Every route is ADMIN-only on the server.
+  the backend is the one that calls the AniList API. Every route is ADMIN-only on the server.
 */
 
 let currentPage = 1;
 let currentSearch = '';
-let apiCharacters = []; // the Jikan page currently shown
+let apiCharacters = []; // the AniList page currently shown
 
 function characterImage(url, name) {
   return url
@@ -13,7 +13,7 @@ function characterImage(url, name) {
     : '<span class="ad-thumb ad-noimg">No image</span>';
 }
 
-// ---- Jikan results ----
+// ---- AniList results ----
 
 function renderApiResults(result) {
   const container = document.getElementById('api-results');
@@ -55,7 +55,7 @@ async function fetchCharacters(page) {
   const pagerButtons = document.querySelectorAll('#api-pager button');
   fetchBtn.disabled = true;
   pagerButtons.forEach((btn) => (btn.disabled = true));
-  document.getElementById('api-results').innerHTML = '<p class="ad-note">Loading characters from Jikanâ€¦</p>';
+  document.getElementById('api-results').innerHTML = '<p class="ad-note">Loading characters from AniListâ€¦</p>';
 
   const params = new URLSearchParams({ page: String(page), limit: '25' });
   if (currentSearch) params.set('search', currentSearch);
@@ -177,7 +177,7 @@ async function deleteCharacter(row, button) {
     await api.delete(`/admin/characters/${row.dataset.id}`);
     showToast('Character deleted.');
     loadImported();
-    // Lets the deleted character be imported again from the current Jikan page.
+    // Lets the deleted character be imported again from the current AniList page.
     if (apiCharacters.length) fetchCharacters(currentPage);
   } catch (err) {
     showToast(err.message, { isError: true });
@@ -193,11 +193,11 @@ async function bulkImport() {
   button.disabled = true;
   resultEl.hidden = false;
   resultEl.classList.remove('ad-err');
-  resultEl.textContent = 'Importing characters from Jikan… this can take about a minute. Please keep this page open.';
+  resultEl.textContent = 'Importing characters from AniListâ€¦ this takes about 15 seconds. Please keep this page open.';
 
   try {
     const result = await api.post('/admin/characters/import-bulk', { target: 200 });
-    let summary = `Imported: ${result.imported} · Skipped: ${result.skipped} · Failed: ${result.failed}`;
+    let summary = `Imported: ${result.imported} Â· Skipped: ${result.skipped} Â· Failed: ${result.failed}`;
     if (result.stoppedEarly) summary += ` (stopped early: ${result.stoppedEarly})`;
     resultEl.textContent = summary;
     loadImported();

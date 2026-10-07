@@ -1,3 +1,6 @@
+-- Note: written when the importer used Jikan. The importer now uses AniList, and
+-- external_api_id stores AniList character ids. The columns are the same either way.
+--
 -- Prepares the existing characters table for characters imported from the Jikan API
 -- (fresh installs get these columns from schema.sql). No rows are deleted. The 5 built-in
 -- characters keep external_api_id = NULL; imported ones store their Jikan (MyAnimeList) id.

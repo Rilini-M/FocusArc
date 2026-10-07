@@ -1,5 +1,5 @@
 const pool = require('../config/database');
-const jikan = require('../services/jikan.service');
+const anilist = require('../services/anilist.service');
 const { success, failure } = require('../utils/responses');
 
 const NAME_MAX = 100; // characters.name column size
@@ -11,17 +11,17 @@ function text(value) {
 }
 
 // GET /api/admin/characters/api?page=1&limit=25&search=naruto
-// Fetches one page from Jikan and marks which results are already in our database.
+// Fetches one page from AniList and marks which results are already in our database.
 async function fetchFromApi(req, res, next) {
   const page = Number(req.query.page || 1);
-  const limit = Number(req.query.limit || jikan.MAX_LIMIT);
+  const limit = Number(req.query.limit || 25);
   const search = text(req.query.search);
 
   if (!Number.isInteger(page) || page < 1) {
     return failure(res, 'Page must be a whole number of 1 or more.');
   }
-  if (!Number.isInteger(limit) || limit < 1 || limit > jikan.MAX_LIMIT) {
-    return failure(res, `Limit must be between 1 and ${jikan.MAX_LIMIT}.`);
+  if (!Number.isInteger(limit) || limit < 1 || limit > anilist.MAX_LIMIT) {
+    return failure(res, `Limit must be between 1 and ${anilist.MAX_LIMIT}.`);
   }
   if (search && search.length < 3) {
     return failure(res, 'Search must be at least 3 characters.');
@@ -29,9 +29,9 @@ async function fetchFromApi(req, res, next) {
 
   let result;
   try {
-    result = await jikan.fetchCharacters({ page, limit, search });
+    result = await anilist.fetchCharacters({ page, limit, search });
   } catch (err) {
-    // Jikan problems (down, timeout, rate limit) are reported to the admin and never crash the server.
+    // AniList problems (down, timeout, rate limit) are reported to the admin and never crash the server.
     if (err.status) return failure(res, err.message, err.status);
     return next(err);
   }
@@ -54,7 +54,7 @@ async function fetchFromApi(req, res, next) {
   }
 }
 
-// Validates one Jikan character and saves it. Shared by the single and the bulk import.
+// Validates one AniList character and saves it. Shared by the single and the bulk import.
 // Returns { status: 'imported' | 'exists' | 'invalid', message, character }.
 async function saveCharacter(input) {
   const externalApiId = Number(input.externalApiId);
@@ -63,7 +63,7 @@ async function saveCharacter(input) {
   const description = text(input.description);
 
   if (!Number.isInteger(externalApiId) || externalApiId < 1) {
-    return { status: 'invalid', message: 'A valid Jikan character id is required.' };
+    return { status: 'invalid', message: 'A valid AniList character id is required.' };
   }
   if (!name || name.length > NAME_MAX) {
     return { status: 'invalid', message: `Character name is required and must be ${NAME_MAX} characters or fewer.` };
@@ -117,27 +117,31 @@ async function importCharacter(req, res, next) {
 
 const BULK_DEFAULT_TARGET = 200;
 const BULK_MAX_TARGET = 500;
-const BULK_PAGE_SIZE = 25; // Jikan's largest page
-const BULK_PAUSE_MS = 1000; // Jikan allows about 3 requests per second and 60 per minute
+const BULK_PAGE_SIZE = 50; // AniList's largest page
+// AniList currently allows 30 requests per minute, so wait over 2 seconds between pages.
+const BULK_PAUSE_MS = 2100;
+const MAX_RETRY_WAIT_SECONDS = 60;
+const ANILIST_MAX_PAGES = 100; // AniList only serves the first 5,000 results (100 pages of 50)
 let bulkImportRunning = false;
 
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// One Jikan page; if Jikan says "too many requests", wait a little and try once more.
+// One AniList page; if AniList says "too many requests", wait as long as it asks (up to a
+// minute) and try once more.
 async function fetchBulkPage(page) {
   try {
-    return await jikan.fetchCharacters({ page, limit: BULK_PAGE_SIZE });
+    return await anilist.fetchCharacters({ page, limit: BULK_PAGE_SIZE });
   } catch (err) {
     if (err.status !== 429) throw err;
-    await pause(3000);
-    return jikan.fetchCharacters({ page, limit: BULK_PAGE_SIZE });
+    await pause(Math.min(err.retryAfterSeconds || MAX_RETRY_WAIT_SECONDS, MAX_RETRY_WAIT_SECONDS) * 1000);
+    return anilist.fetchCharacters({ page, limit: BULK_PAGE_SIZE });
   }
 }
 
 // POST /api/admin/characters/import-bulk  { target: 200 }
-// Walks Jikan's most-popular characters page by page and imports new ones until `target`
-// characters were imported or Jikan has no more pages. Existing characters are skipped,
-// so running it again only adds characters that are not in the database yet.
+// Walks AniList's most-popular characters page by page (one request at a time) and imports
+// new ones until `target` characters were imported or AniList has no more pages. Existing
+// characters are skipped, so running it again only adds characters that are not in the database yet.
 async function importBulk(req, res, next) {
   const target = Number(req.body.target || BULK_DEFAULT_TARGET);
   if (!Number.isInteger(target) || target < 1 || target > BULK_MAX_TARGET) {
@@ -149,11 +153,17 @@ async function importBulk(req, res, next) {
 
   bulkImportRunning = true;
   const counts = { imported: 0, skipped: 0, failed: 0 };
-  const maxPages = Math.ceil(target / BULK_PAGE_SIZE) * 3; // room for skipped characters
   let pagesFetched = 0;
   let stoppedEarly = null;
 
   try {
+    // Characters imported earlier sit on the first pages and will be skipped, so allow enough
+    // pages to get past them (plus a little room for names that clash or have no image).
+    const [[{ alreadyImported }]] = await pool.query(
+      `SELECT COUNT(*) AS alreadyImported FROM characters WHERE external_api_id IS NOT NULL`
+    );
+    const maxPages = Math.min(Math.ceil((alreadyImported + target) / BULK_PAGE_SIZE) + 2, ANILIST_MAX_PAGES);
+
     for (let page = 1; page <= maxPages && counts.imported < target; page++) {
       if (page > 1) await pause(BULK_PAUSE_MS);
 
@@ -162,9 +172,9 @@ async function importBulk(req, res, next) {
         result = await fetchBulkPage(page);
       } catch (err) {
         if (!err.status) throw err;
-        // Nothing fetched at all: report that Jikan could not be reached. Nothing was imported.
+        // Nothing fetched at all: report that AniList could not be reached. Nothing was imported.
         if (pagesFetched === 0) return failure(res, `Bulk import failed: ${err.message}`, err.status);
-        // Jikan failed part-way: keep what was imported and say why it stopped.
+        // AniList failed part-way: keep what was imported and say why it stopped.
         stoppedEarly = err.message;
         break;
       }
@@ -194,7 +204,7 @@ async function importBulk(req, res, next) {
   }
 }
 
-// GET /api/admin/characters: characters imported from Jikan (built-ins are not listed).
+// GET /api/admin/characters: imported characters (built-ins are not listed).
 async function listImported(req, res, next) {
   try {
     const [rows] = await pool.query(

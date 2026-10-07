@@ -45,6 +45,7 @@ function renderPager(pagination) {
   const pager = document.getElementById('companion-pager');
   const empty = document.getElementById('companion-empty');
 
+  empty.textContent = 'No characters found.';
   empty.hidden = pagination.total > 0;
   pager.hidden = pagination.total === 0;
   if (pagination.total === 0) return;
@@ -60,6 +61,11 @@ async function loadCompanionPage(page) {
   const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) });
   if (currentSearch) params.set('search', currentSearch);
 
+  const status = document.getElementById('companion-empty');
+  status.textContent = 'Loading characters…';
+  status.hidden = false;
+  document.querySelectorAll('#companion-pager button').forEach((btn) => (btn.disabled = true));
+
   try {
     const result = await api.get(`/characters?${params}`);
     // Ignore an older response that arrives after a newer search was started.
@@ -70,7 +76,12 @@ async function loadCompanionPage(page) {
     renderCompanionGrid(currentSettings ? currentSettings.character_id : null);
     renderPager(result.pagination);
   } catch (err) {
-    if (requestId === latestRequest) showToast(err.message, { isError: true });
+    if (requestId !== latestRequest) return;
+    status.textContent = 'Characters could not be loaded. Please try again.';
+    // Re-enable paging so the user can retry.
+    document.getElementById('companion-prev').disabled = currentPage <= 1;
+    document.getElementById('companion-next').disabled = false;
+    showToast(err.message, { isError: true });
   }
 }
 

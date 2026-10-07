@@ -10,8 +10,8 @@ CREATE TABLE users (
   role           ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER'
 );
 
--- external_api_id is the Jikan (MyAnimeList) character id; NULL for the built-in characters.
--- image_path holds a local /assets path for built-ins, or the Jikan image URL for imports.
+-- external_api_id is the AniList character id; NULL for the built-in characters.
+-- image_path holds a local /assets path for built-ins, or the AniList image URL for imports.
 CREATE TABLE characters (
   id               INT AUTO_INCREMENT PRIMARY KEY,
   external_api_id  INT          NULL UNIQUE,
