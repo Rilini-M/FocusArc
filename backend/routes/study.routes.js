@@ -9,5 +9,6 @@ router.use(authenticate);
 router.get('/active', controller.activeSession);
 router.post('/start', controller.startSession);
 router.post('/:id/stop', controller.stopSession);
+router.post('/:id/heartbeat', controller.heartbeat);
 
 module.exports = router;

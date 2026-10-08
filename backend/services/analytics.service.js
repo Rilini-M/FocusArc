@@ -1,4 +1,5 @@
 const pool = require('../config/database');
+const { closeStaleSessions } = require('./studySession.service');
 
 async function getOverview(userId) {
   const [[questCounts]] = await pool.query(
@@ -9,9 +10,12 @@ async function getOverview(userId) {
     [userId]
   );
 
+  // Study time is the real time between each finished session's start and end (an open
+  // session counts once it is stopped). Abandoned sessions are closed first so they count too.
+  await closeStaleSessions(userId);
   const [[studyTime]] = await pool.query(
-    `SELECT COALESCE(SUM(duration_minutes), 0) AS totalMinutes, COUNT(*) AS sessionCount
-     FROM study_sessions WHERE user_id = ? AND duration_minutes IS NOT NULL`,
+    `SELECT COALESCE(SUM(TIMESTAMPDIFF(SECOND, started_at, ended_at)), 0) AS totalSeconds, COUNT(*) AS sessionCount
+     FROM study_sessions WHERE user_id = ? AND ended_at IS NOT NULL`,
     [userId]
   );
 
@@ -31,7 +35,7 @@ async function getOverview(userId) {
     totalQuests: total,
     completedQuests: completed,
     completionRate,
-    studyTimeMinutes: Number(studyTime.totalMinutes) || 0,
+    studyTimeMinutes: Math.floor(Number(studyTime.totalSeconds) / 60) || 0,
     hasStudyData,
     studyStreakDays: hasStudyData ? computeStreak(streakRows.map((r) => r.study_date)) : 0,
   };

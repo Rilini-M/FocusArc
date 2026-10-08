@@ -63,6 +63,7 @@ CREATE TABLE study_sessions (
   quest_id          INT,
   started_at        DATETIME NOT NULL,
   ended_at          DATETIME,
+  last_active_at    DATETIME,  -- last heartbeat from the open study page (see 007 migration)
   duration_minutes  INT,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (quest_id) REFERENCES quests(id) ON DELETE SET NULL
