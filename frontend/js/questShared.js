@@ -1,6 +1,6 @@
 /*
   Helpers shared by the Quest Board (questboard.js) and the study focus page (study.js):
-  time and file formatting, the attachment list, and keeping open tabs in sync when a study
+  timer and file formatting (time in words: formatMinutes in timeFormat.js), the attachment list, and keeping open tabs in sync when a study
   session starts or stops in another tab.
 */
 
@@ -29,14 +29,6 @@ function formatDuration(totalSeconds) {
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
   return `${pad(h)}:${pad(m)}:${pad(s)}`;
-}
-
-// "45 min", "1 h", "1 h 30 min"
-function formatMinutes(minutes) {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (!h) return `${m} min`;
-  return m ? `${h} h ${m} min` : `${h} h`;
 }
 
 function formatFileSize(bytes) {
@@ -82,15 +74,17 @@ function focusPageUrl(questId, start) {
 const STUDY_CHANNEL = 'focusarc-study';
 const studyChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel(STUDY_CHANNEL) : null;
 
-function announceStudyChange() {
-  if (studyChannel) studyChannel.postMessage({ type: 'study-changed' });
+// `detail.stoppedSessionId`: a closing study page has just sent the stop for that session,
+// which may reach the server a moment after other tabs react to this message.
+function announceStudyChange(detail = {}) {
+  if (studyChannel) studyChannel.postMessage({ type: 'study-changed', ...detail });
 }
 
-// Calls `callback` when another tab announces a change, and when this tab becomes visible
-// again (in case a message was missed or BroadcastChannel isn't available).
+// Calls `callback(detail)` when another tab announces a change, and when this tab becomes
+// visible again (in case a message was missed or BroadcastChannel isn't available).
 function onStudyChange(callback) {
-  if (studyChannel) studyChannel.addEventListener('message', callback);
+  if (studyChannel) studyChannel.addEventListener('message', (event) => callback(event.data || {}));
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') callback();
+    if (document.visibilityState === 'visible') callback({});
   });
 }

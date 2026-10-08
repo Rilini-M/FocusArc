@@ -418,9 +418,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('quest-list').addEventListener('click', handleQuestListClick);
 
   // A session started or stopped on a focus page (another tab) updates the cards here.
-  onStudyChange(async () => {
+  onStudyChange(async ({ stoppedSessionId }) => {
     try {
       await loadActiveStudySession();
+      // A focus page that was just closed: its stop may not have reached the server yet.
+      if (activeStudySession && activeStudySession.id === stoppedSessionId) activeStudySession = null;
       if (!activeStudySession) stopTimerTick();
       renderQuestList();
     } catch (err) {

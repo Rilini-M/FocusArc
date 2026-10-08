@@ -1,10 +1,3 @@
-function formatMinutes(totalMinutes) {
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  if (hours === 0) return `${minutes}m`;
-  return `${hours}h ${minutes}m`;
-}
-
 function emptyState(message) {
   return `<div class="empty"><p>${message}</p></div>`;
 }
