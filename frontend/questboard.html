@@ -28,41 +28,122 @@
       </section>
 
       <div class="toolbar">
-        <div class="tabs">
-          <button class="tab active" data-filter="ALL">All</button>
-          <button class="tab" data-filter="TODO">To Do</button>
-          <button class="tab" data-filter="IN_PROGRESS">In Progress</button>
-          <button class="tab" data-filter="COMPLETED">Completed</button>
-        </div>
-        <div style="display:flex; align-items:center; gap:16px;">
+        <div class="q-heading">
+          <h2>Your Quests</h2>
           <span class="q-badge"><strong id="quest-count">—</strong> / 10 quests</span>
-          <button class="btn btn-p" id="add-quest-btn">
-            <i data-lucide="plus" style="width:16px;height:16px;"></i>
-            Add Quest
+        </div>
+        <!-- Active quests and Missing ones (unfinished, deadline passed). -->
+        <div class="q-tabs" role="tablist" aria-label="Quest sections">
+          <button type="button" class="q-tab active" role="tab" id="tab-active" data-view="active" aria-selected="true" aria-controls="quest-list">
+            Active <span class="q-tab-count" id="active-count">0</span>
+          </button>
+          <button type="button" class="q-tab" role="tab" id="tab-missing" data-view="missing" aria-selected="false" aria-controls="quest-list">
+            <i data-lucide="alarm-clock-off" style="width:15px;height:15px;"></i> Missing <span class="q-tab-count" id="missing-count">0</span>
           </button>
         </div>
+        <button class="btn btn-p" id="add-quest-btn">
+          <i data-lucide="plus" style="width:16px;height:16px;"></i>
+          Create Quest
+        </button>
       </div>
 
-      <div class="q-list" id="quest-list"></div>
+      <div class="q-list" id="quest-list" role="tabpanel" aria-labelledby="tab-active"></div>
     </main>
   </div>
 
   <div class="m-bg" id="quest-modal-backdrop">
-    <div class="modal">
-      <h2 id="quest-modal-title">New Quest</h2>
-      <form id="quest-form">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="quest-modal-title">
+      <h2 id="quest-modal-title">Create Quest</h2>
+      <form id="quest-form" novalidate>
         <input type="hidden" name="questId" />
-        <label class="field">
-          <input type="text" name="title" placeholder="Quest title" maxlength="19" required />
-        </label>
+
+        <label class="q-label" for="quest-title">Quest Title</label>
+        <div class="field">
+          <input type="text" id="quest-title" name="title" placeholder="e.g. Organic Chemistry" maxlength="19" required />
+        </div>
         <p class="f-err" id="title-error" hidden></p>
-        <textarea name="description" placeholder="Quest description" maxlength="60" required></textarea>
+
+        <label class="q-label" for="quest-description">Description</label>
+        <textarea id="quest-description" name="description" placeholder="What will you study?" maxlength="99" required></textarea>
         <p class="f-err" id="description-error" hidden></p>
+
+        <span class="q-label" id="quest-files-label">Attach Study Material <span class="q-optional">(optional)</span></span>
+        <div class="q-files" role="group" aria-labelledby="quest-files-label">
+          <div class="q-files-head">
+            <input type="file" id="quest-files" class="q-file-input" multiple />
+            <label for="quest-files" class="btn btn-s q-file-btn" id="quest-files-btn"><i data-lucide="paperclip" style="width:15px;height:15px;"></i> <span id="quest-files-btn-text">Choose Files</span></label>
+            <span class="q-files-count" id="quest-files-count" aria-live="polite">0 / 5 files</span>
+          </div>
+          <ul class="q-file-list" id="quest-file-list"></ul>
+        </div>
+        <p class="q-hint">PDF, images, text or Office files, up to 10 MB each.</p>
+        <p class="f-err" id="file-error" hidden></p>
+
+        <label class="q-label" for="quest-time">Estimated Completion Time</label>
+        <div class="q-time">
+          <div class="field q-time-field">
+            <input type="number" id="quest-time" name="timeRequired" min="1" max="1440" step="1" inputmode="numeric" placeholder="60" required />
+            <span class="q-unit">minutes</span>
+          </div>
+          <div class="q-presets" role="group" aria-label="Quick times">
+            <button type="button" class="q-preset" data-minutes="30">30</button>
+            <button type="button" class="q-preset" data-minutes="45">45</button>
+            <button type="button" class="q-preset" data-minutes="60">60</button>
+            <button type="button" class="q-preset" data-minutes="90">90</button>
+          </div>
+        </div>
+        <p class="f-err" id="timeRequired-error" hidden></p>
+
+        <label class="q-label" for="quest-deadline">Deadline <span class="q-optional">(optional)</span></label>
+        <div class="field q-deadline-field">
+          <input type="datetime-local" id="quest-deadline" name="deadline" />
+        </div>
+        <p class="f-err" id="deadline-error" hidden></p>
+
+        <label class="q-label" for="quest-character">Companion <span class="q-optional">(shown while you study this quest)</span></label>
+        <div class="field q-character-field">
+          <img class="q-character-preview" id="quest-character-preview" alt="" hidden />
+          <select id="quest-character" name="characterId">
+            <option value="">My companion (from Settings)</option>
+          </select>
+        </div>
+
         <div class="m-acts">
           <button type="button" class="btn btn-s" id="quest-modal-cancel">Cancel</button>
-          <button type="submit" class="btn btn-p" id="quest-modal-submit">Save Quest</button>
+          <button type="submit" class="btn btn-p" id="quest-modal-submit">Create Quest</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Extend Deadline: pick a new deadline, then confirm it. -->
+  <div class="m-bg" id="extend-modal-backdrop">
+    <div class="modal x-modal" role="dialog" aria-modal="true" aria-labelledby="extend-modal-title">
+      <h2 id="extend-modal-title">Extend Deadline</h2>
+      <p class="x-quest" id="extend-quest-title"></p>
+
+      <form id="extend-form" novalidate>
+        <p class="x-current">Current deadline: <strong id="extend-current"></strong></p>
+        <label class="q-label" for="extend-deadline">New deadline</label>
+        <div class="field q-deadline-field">
+          <input type="datetime-local" id="extend-deadline" name="deadline" required />
+        </div>
+        <p class="f-err" id="extend-error" role="alert" hidden></p>
+        <div class="m-acts">
+          <button type="button" class="btn btn-s" data-extend-cancel>Cancel</button>
+          <button type="submit" class="btn btn-p">Continue</button>
+        </div>
+      </form>
+
+      <div class="x-confirm" id="extend-confirm-step" hidden>
+        <p>Move the deadline from <strong id="extend-from"></strong> to <strong id="extend-to"></strong>?</p>
+        <p class="x-note" id="extend-note" hidden><i data-lucide="undo-2" style="width:15px;height:15px;"></i> This quest will leave Missing and return to your active quests.</p>
+        <p class="f-err" id="extend-save-error" role="alert" hidden></p>
+        <div class="m-acts">
+          <button type="button" class="btn btn-s" id="extend-back">Back</button>
+          <button type="button" class="btn btn-p" id="extend-confirm">Confirm</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -73,6 +154,8 @@
   <script src="js/auth.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/nav.js"></script>
+  <script src="js/timeFormat.js"></script>
+  <script src="js/questShared.js"></script>
   <script src="js/questboard.js"></script>
 </body>
 </html>

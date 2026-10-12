@@ -1,10 +1,11 @@
 const pool = require('../config/database');
 const { success, failure } = require('../utils/responses');
+const { isSelectable } = require('./themes.controller');
 
 async function get(req, res, next) {
   try {
     const [rows] = await pool.query(
-      `SELECT character_id, theme FROM user_settings WHERE user_id = ?`,
+      `SELECT character_id, theme, appearance FROM user_settings WHERE user_id = ?`,
       [req.user.id]
     );
 
@@ -48,6 +49,10 @@ async function updateTheme(req, res, next) {
   try {
     const { theme } = req.body;
 
+    if (!(await isSelectable(theme))) {
+      return failure(res, 'Invalid theme.');
+    }
+
     await pool.query(`UPDATE user_settings SET theme = ? WHERE user_id = ?`, [
       theme,
       req.user.id,
@@ -59,4 +64,20 @@ async function updateTheme(req, res, next) {
   }
 }
 
-module.exports = { get, updateCharacter, updateTheme };
+// Light/Dark website mode. Independent of the study theme and the character.
+async function updateAppearance(req, res, next) {
+  try {
+    const { appearance } = req.body;
+
+    await pool.query(`UPDATE user_settings SET appearance = ? WHERE user_id = ?`, [
+      appearance,
+      req.user.id,
+    ]);
+
+    return success(res, { appearance });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = { get, updateCharacter, updateTheme, updateAppearance };

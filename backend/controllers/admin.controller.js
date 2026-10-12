@@ -1,9 +1,9 @@
 const { success } = require('../utils/responses');
 
-// Management for these sections is not built yet; the dashboard only lists them.
+// Sections with an `href` have a management page; the rest are placeholders for now.
 const SECTIONS = [
   { key: 'users', label: 'Users', icon: 'users', description: 'Manage user accounts' },
-  { key: 'characters', label: 'Characters', icon: 'user-round', description: 'Manage study companions' },
+  { key: 'characters', label: 'Characters', icon: 'user-round', description: 'Manage study companions', href: 'admin-characters.html' },
   { key: 'themes', label: 'Themes', icon: 'palette', description: 'Manage app themes' },
   { key: 'quests', label: 'Quests', icon: 'list-checks', description: 'Manage quests' },
   { key: 'files', label: 'Files', icon: 'folder', description: 'Manage uploaded files' },

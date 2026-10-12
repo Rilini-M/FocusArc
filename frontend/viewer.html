@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en" data-theme="default">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Material — FocusArc</title>
+  <link rel="icon" href="/assets/logo/logo.png.png" />
+  <link rel="stylesheet" href="css/themes.css" />
+  <script src="js/theme-init.js"></script>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/questboard.css" />
+  <link rel="stylesheet" href="css/study.css" />
+  <link rel="stylesheet" href="css/viewer.css" />
+</head>
+<body class="focus-page viewer-page">
+  <!-- File viewer: a quest's PDF or image inside the FocusArc look, opened in a new tab from the
+       Quest Board or the study page (viewer.html?quest=<id>&file=<attachment id>). -->
+  <div class="shell fx-shell vw-shell">
+    <header class="fx-top">
+      <a class="fx-brand brand" href="questboard.html">
+        <img class="sb-icon" src="/assets/logo/logo.png.png" alt="" />
+        FocusArc
+      </a>
+      <div class="vw-top-acts">
+        <span class="vw-timer" id="vw-timer" role="timer" aria-label="Study session time" hidden>
+          <i data-lucide="timer" style="width:15px;height:15px;"></i><span id="vw-timer-text">00:00:00</span>
+        </span>
+        <a class="btn btn-s fx-back" id="vw-open" target="_blank" rel="noopener noreferrer" hidden><i data-lucide="external-link" style="width:16px;height:16px;"></i> Open Original</a>
+        <a class="btn btn-s fx-back" href="questboard.html"><i data-lucide="list-checks" style="width:16px;height:16px;"></i> Back to Quest Board</a>
+      </div>
+    </header>
+
+    <main class="vw-main">
+      <section class="card vw-doc" aria-labelledby="vw-file-name">
+        <header class="vw-doc-head">
+          <span class="vw-file-icon" id="vw-file-icon" aria-hidden="true"></span>
+          <div class="vw-doc-titles">
+            <p class="fx-kicker vw-quest" id="vw-quest"></p>
+            <h1 class="vw-file-name" id="vw-file-name">Opening study material…</h1>
+          </div>
+          <span class="vw-meta" id="vw-meta"></span>
+          <button type="button" class="btn btn-s vw-zoom" id="vw-zoom" hidden></button>
+        </header>
+        <div class="vw-stage" id="vw-stage" aria-live="polite">
+          <p class="fx-loading">Loading…</p>
+        </div>
+      </section>
+
+      <aside class="card vw-side" id="vw-side" hidden>
+        <div class="vw-companion" id="vw-companion" hidden>
+          <img class="vw-char-img" id="vw-char-img" alt="" />
+          <p class="vw-char-quote" id="vw-char-quote"></p>
+        </div>
+        <div class="vw-files" id="vw-files"></div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="js/vendor/lucide.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/timeFormat.js"></script>
+  <script src="js/questShared.js"></script>
+  <script src="js/viewer.js"></script>
+</body>
+</html>

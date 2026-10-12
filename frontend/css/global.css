@@ -25,12 +25,13 @@ body {
   padding: 0;
 }
 
+/* Page background: soft glows from the study theme's colors. CSS only, the same for every
+   theme (no background photos). */
 body {
   background-color: var(--bg-primary);
-  background-image: var(--theme-bg-image), radial-gradient(ellipse at 22% 12%, var(--glow), transparent 55%),
-    radial-gradient(ellipse at 82% 88%, var(--bg-tertiary), transparent 55%);
-  background-size: cover, auto, auto;
-  background-position: center, center, center;
+  background-image: radial-gradient(ellipse at 22% 12%, var(--glow), transparent 55%),
+    radial-gradient(ellipse at 82% 88%, var(--bg-tertiary), transparent 55%),
+    radial-gradient(ellipse at 90% 8%, color-mix(in srgb, var(--accent-secondary) 10%, transparent), transparent 40%);
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text-primary);
@@ -40,7 +41,9 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-body::before {
+/* Landing / Login / Signup keep their own fixed FocusArc look. */
+body.a-page::before,
+body.l-page::before {
   content: '';
   position: fixed;
   inset: 0;
@@ -49,15 +52,63 @@ body::before {
   pointer-events: none;
 }
 
+/* App pages: the study theme's world, built from three fixed layers behind the UI (no images).
+   body       = page color + a soft vignette (dark mode)
+   ::before   = the theme's atmosphere gradients, drifting very slowly
+   ::after    = the theme's subtle pattern, painted in --pattern-ink through a mask
+   then the particle canvas (z-index 1) and the app itself (z-index 2). */
+body:not(.a-page):not(.l-page) {
+  background: var(--page-vignette) fixed, var(--bg-primary);
+}
+
+body:not(.a-page):not(.l-page)::before,
+body:not(.a-page):not(.l-page)::after {
+  content: '';
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body:not(.a-page):not(.l-page)::before {
+  inset: -6%;
+  background: var(--theme-atmos);
+  animation: focusarc-atmos-drift 70s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+body:not(.a-page):not(.l-page)::after {
+  inset: 0;
+  background-color: var(--pattern-ink);
+  -webkit-mask-image: var(--theme-pattern);
+  mask-image: var(--theme-pattern);
+  -webkit-mask-size: var(--theme-pattern-size);
+  mask-size: var(--theme-pattern-size);
+}
+
+@keyframes focusarc-atmos-drift {
+  from {
+    transform: translate3d(-1.5%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(1.5%, 1%, 0) scale(1.04);
+  }
+}
+
 .shell,
 .a-shell {
   position: relative;
   z-index: 2;
 }
 
+/* Headings use the study theme's display font; the FocusArc brand mark always stays Cinzel. */
 h1,
 h2,
-h3,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: var(--heading-tracking);
+}
+
 .brand {
   font-family: 'Cinzel', 'Inter', serif;
   font-weight: 600;
@@ -119,6 +170,12 @@ button {
   mix-blend-mode: screen;
 }
 
+/* Light mode: invert the logo (black square -> white) and multiply, so the mark shows dark. */
+[data-mode='light'] .sb-icon {
+  filter: invert(1);
+  mix-blend-mode: multiply;
+}
+
 .sb-text {
   font-size: 1.15rem;
   color: var(--text-primary);
@@ -131,6 +188,14 @@ button {
   color: var(--text-secondary);
   padding: 0 6px;
   margin-bottom: 28px;
+}
+
+/* The study theme's small decorative symbol, e.g. "❀ Study Quest System" for Nature. */
+.side-tag::before {
+  content: var(--theme-symbol);
+  color: var(--accent);
+  margin-right: 6px;
+  text-shadow: 0 0 10px var(--glow);
 }
 
 .nav-ul {
@@ -261,10 +326,13 @@ button {
 
 /* ---------------------------------------------------------------- components */
 
+/* Cards get the theme's shape, sheen (e.g. a gold top line for Royal, circuit edges for
+   Cyberpunk) and optional inner frame. The card color itself stays solid for readability. */
 .card {
-  background: var(--bg-secondary);
+  background: var(--card-sheen), var(--bg-secondary);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-frame), 0 10px 30px -18px rgba(0, 0, 0, 0.5);
   padding: 22px;
 }
 
@@ -274,7 +342,7 @@ button {
   justify-content: center;
   gap: 8px;
   padding: 12px 22px;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: 1px solid transparent;
   font-size: 0.94rem;
   font-weight: 600;
@@ -287,8 +355,8 @@ button {
 }
 
 .btn-p {
-  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-  color: #05090a;
+  background: var(--theme-gradient);
+  color: var(--on-accent);
   box-shadow: 0 0 22px var(--glow);
 }
 
@@ -327,7 +395,7 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--field-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 13px 16px;
@@ -424,7 +492,7 @@ button {
   flex: 1;
   margin: 22px 22px 22px 0;
   padding: 18px 22px;
-  background: rgba(0, 0, 0, 0.28);
+  background: var(--inset-bg);
   border: 1px solid var(--border);
   border-radius: 16px;
   min-height: 90px;
@@ -538,4 +606,329 @@ button {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* An infinite animation squeezed to 0.001ms would flicker, so stop the drift outright. */
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none !important;
+  }
+}
+
+/* ---- Study theme and Light/Dark pickers (Settings page and the post-login theme screen) ---- */
+
+.th-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+  gap: 12px;
+}
+
+/* Theme cards. Each carries data-theme="<key>", so every variable inside it (colors,
+   atmosphere, pattern, font) is that theme's own — the card is a small preview of its world,
+   shown in the current Light/Dark mode. */
+.th-chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.th-chip:hover {
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px -12px var(--glow);
+}
+
+.th-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The preview scene: the theme's page color, atmosphere and pattern. */
+.th-prev {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  overflow: hidden;
+  background: var(--theme-atmos), var(--bg-primary);
+}
+
+.th-prev::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Patterns are drawn at full-page strength, so give them a bit more ink at this size. */
+  background-color: color-mix(in srgb, var(--accent) calc(var(--pattern-alpha) * 1.8), transparent);
+  -webkit-mask-image: var(--theme-pattern);
+  mask-image: var(--theme-pattern);
+  -webkit-mask-size: var(--theme-pattern-size);
+  mask-size: var(--theme-pattern-size);
+}
+
+.th-sym {
+  position: relative;
+  font-size: 1.45rem;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 0 14px var(--glow), 0 0 4px var(--glow);
+  transition: transform 0.2s ease;
+}
+
+.th-sym::before {
+  content: var(--theme-symbol);
+}
+
+.th-chip:hover .th-sym {
+  transform: scale(1.1);
+}
+
+/* A tiny mock UI in the corner: a button pill in the theme's gradient and a text line. */
+.th-ui {
+  position: absolute;
+  left: 9px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.th-ui i {
+  display: block;
+  height: 5px;
+  border-radius: var(--radius-btn);
+}
+
+.th-ui i:first-child {
+  width: 24px;
+  background: var(--theme-gradient);
+  box-shadow: 0 0 8px var(--glow);
+}
+
+.th-ui i:last-child {
+  width: 14px;
+  background: color-mix(in srgb, var(--text-primary) 25%, transparent);
+}
+
+.th-name {
+  padding: 8px 10px 9px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-display);
+  letter-spacing: var(--heading-tracking);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.th-chip.selected {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px var(--accent), 0 10px 26px -10px var(--glow), 0 0 18px -6px var(--glow);
+}
+
+.th-chip.selected .th-name {
+  color: var(--accent);
+}
+
+.th-chip.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--theme-gradient);
+  color: var(--on-accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: 0 0 10px var(--glow);
+}
+
+.mode-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--field-bg);
+}
+
+.mode-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.mode-opt svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mode-opt.selected {
+  background: var(--theme-gradient);
+  color: var(--on-accent);
+  box-shadow: 0 0 14px var(--glow);
+}
+
+/* ---------------------------------------------------------------- light mode polish */
+/* Light mode keeps a light base but gets real contrast: a deeper sidebar, dark type, solid
+   cards with soft shadows, strong selected states and theme previews with a clear centerpiece.
+   Dark mode is untouched by everything below. */
+
+[data-mode='light'] .side {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-sidebar), #ffffff 30%), var(--bg-sidebar));
+  border-right-color: var(--border);
+  box-shadow: 1px 0 0 rgba(255, 255, 255, 0.7), 12px 0 32px -26px rgba(40, 32, 20, 0.45);
+}
+
+[data-mode='light'] .nav-a {
+  color: #3a404c;
+}
+
+[data-mode='light'] .nav-a:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+
+[data-mode='light'] .nav-a.active {
+  color: color-mix(in srgb, var(--accent) 82%, #000);
+  font-weight: 600;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 17%, #ffffff), color-mix(in srgb, var(--accent) 6%, #ffffff));
+  border-color: var(--border-strong);
+  box-shadow: inset 3px 0 0 var(--accent), 0 8px 20px -10px var(--glow);
+}
+
+[data-mode='light'] .p-head h1 {
+  letter-spacing: 0.01em;
+}
+
+/* A short accent bar under the page title anchors it on the light page. */
+[data-mode='light'] .p-head h1::after {
+  content: '';
+  display: block;
+  width: 46px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background: var(--theme-gradient);
+  box-shadow: 0 2px 10px -2px var(--glow);
+}
+
+[data-mode='light'] .card {
+  box-shadow: var(--card-frame), var(--shadow-card);
+}
+
+[data-mode='light'] .st-icon {
+  background: color-mix(in srgb, var(--accent) 9%, #ffffff);
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+[data-mode='light'] .btn-p {
+  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+[data-mode='light'] .btn-s {
+  border-color: var(--border-strong);
+}
+
+/* Light/Dark toggle */
+[data-mode='light'] .mode-toggle {
+  background: color-mix(in srgb, var(--accent) 5%, #ffffff);
+  border-color: var(--border);
+  box-shadow: inset 0 1px 2px rgba(40, 32, 20, 0.07);
+}
+
+[data-mode='light'] .mode-opt {
+  color: #3a404c;
+}
+
+[data-mode='light'] .mode-opt:hover {
+  color: var(--text-primary);
+}
+
+[data-mode='light'] .mode-opt.selected {
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--accent) 75%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Theme cards: each preview is a small, saturated scene of its theme on a light base. */
+[data-mode='light'] .th-chip {
+  /* Stronger atmosphere and pattern than the full page, so the identity reads at this size. */
+  --atmos: 40%;
+  --pattern-alpha: 11%;
+  border-color: color-mix(in srgb, var(--accent) 30%, #d9d3c6);
+  box-shadow: 0 1px 2px rgba(40, 32, 20, 0.06), 0 6px 16px -10px rgba(40, 32, 20, 0.3);
+}
+
+[data-mode='light'] .th-chip:hover {
+  border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+  box-shadow: 0 1px 2px rgba(40, 32, 20, 0.06), 0 12px 24px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+[data-mode='light'] .th-prev {
+  background: var(--theme-atmos),
+    linear-gradient(165deg, color-mix(in srgb, var(--accent) 6%, #fffdf9), color-mix(in srgb, var(--accent) 28%, #f8f6f1));
+}
+
+/* The theme symbol sits on a small lit medallion: the preview's clear centerpiece. */
+[data-mode='light'] .th-sym {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  background: radial-gradient(circle at 35% 30%, #ffffff, color-mix(in srgb, var(--theme-accent) 16%, #ffffff));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 4px 12px -4px color-mix(in srgb, var(--accent) 65%, transparent),
+    0 0 20px -2px color-mix(in srgb, var(--theme-accent) 60%, transparent);
+  text-shadow: none;
+}
+
+[data-mode='light'] .th-name {
+  color: var(--text-primary);
+  border-top-color: color-mix(in srgb, var(--accent) 22%, #e4dfd4);
+  background: linear-gradient(180deg, #fffdf9, color-mix(in srgb, var(--accent) 5%, #fffdf9));
+}
+
+[data-mode='light'] .th-chip.selected {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 2px var(--accent), 0 16px 30px -14px color-mix(in srgb, var(--accent) 70%, transparent),
+    0 0 24px -6px color-mix(in srgb, var(--theme-accent) 70%, transparent);
+}
+
+[data-mode='light'] .th-chip.selected .th-name {
+  color: color-mix(in srgb, var(--accent) 85%, #000);
+}
+
+[data-mode='light'] .th-chip.selected::after {
+  border: 2px solid #ffffff;
+  box-shadow: 0 3px 10px -2px color-mix(in srgb, var(--accent) 70%, transparent);
 }

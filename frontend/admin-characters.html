@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" data-theme="default">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Character Management — FocusArc</title>
+  <link rel="icon" href="/assets/logo/logo.png.png" />
+  <link rel="stylesheet" href="css/themes.css" />
+  <script src="js/theme-init.js"></script>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <div class="shell">
+    <div id="sidebar-root"></div>
+
+    <main class="main">
+      <div class="p-head">
+        <h1>Character Management</h1>
+      </div>
+      <a class="ad-back" href="admin.html"><i data-lucide="arrow-left"></i> Admin Dashboard</a>
+
+      <!-- Hidden until the server confirms this account is an ADMIN. -->
+      <div id="admin-characters" hidden>
+        <section class="card ad-sec">
+          <h3>Bulk Import</h3>
+          <p class="ad-sub">Imports 200 of the most popular AniList characters that are not in FocusArc yet, each with motivational quotes that match their personality. Characters that already exist are skipped. This takes about 15 seconds.</p>
+          <div class="ad-tools">
+            <button type="button" class="btn btn-p" id="bulk-import-btn"><i data-lucide="download-cloud" style="width:16px;height:16px;"></i> Import 200+ Characters</button>
+            <button type="button" class="btn btn-s" id="quotes-btn"><i data-lucide="quote" style="width:16px;height:16px;"></i> Add Missing Quotes</button>
+          </div>
+          <p class="ad-note" id="bulk-import-result" hidden></p>
+        </section>
+
+        <section class="card ad-sec">
+          <h3>AniList Characters</h3>
+          <p class="ad-sub">Fetched from the AniList anime database, most popular first. Import a character to add it to FocusArc.</p>
+
+          <form class="ad-tools" id="fetch-form">
+            <label class="field ad-search">
+              <i data-lucide="search"></i>
+              <input type="text" name="search" placeholder="Search by name (optional, 3+ letters)" maxlength="100" />
+            </label>
+            <button type="submit" class="btn btn-p" id="fetch-btn"><i data-lucide="download-cloud" style="width:16px;height:16px;"></i> Fetch Characters</button>
+          </form>
+
+          <div id="api-results"><p class="ad-note">Click "Fetch Characters" to load characters from AniList.</p></div>
+
+          <div class="ad-pager" id="api-pager" hidden>
+            <button type="button" class="btn btn-s" id="prev-page">Previous</button>
+            <span id="page-label"></span>
+            <button type="button" class="btn btn-s" id="next-page">Next</button>
+          </div>
+        </section>
+
+        <section class="card ad-sec">
+          <h3>Imported Characters</h3>
+          <p class="ad-sub">These characters are saved in FocusArc and appear in the Character Guide.</p>
+          <div id="imported-list"><p class="ad-note">Loading…</p></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/vendor/lucide.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/admin-characters.js"></script>
+</body>
+</html>

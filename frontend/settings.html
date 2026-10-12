@@ -20,28 +20,37 @@
       </div>
 
       <section class="card st-sec">
+        <div class="st-icon"><i data-lucide="sun-moon"></i></div>
+        <div class="st-head">
+          <h3>Appearance</h3>
+          <p>Light or dark website mode</p>
+        </div>
+        <div class="st-opts">
+          <div class="mode-toggle" role="radiogroup" aria-label="Appearance">
+            <button type="button" class="mode-opt" data-mode-option="light" role="radio"><i data-lucide="sun"></i> Light</button>
+            <button type="button" class="mode-opt" data-mode-option="dark" role="radio"><i data-lucide="moon"></i> Dark</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card st-sec st-stack">
+        <div class="st-icon"><i data-lucide="palette"></i></div>
+        <div class="st-head">
+          <h3>Study Theme</h3>
+          <p>The atmosphere of your study space: colors, light, patterns and particles</p>
+        </div>
+        <div class="st-opts th-grid" id="theme-options" role="radiogroup" aria-label="Study theme"></div>
+        <nav class="pager" id="theme-pager" aria-label="Study theme pages" hidden></nav>
+      </section>
+
+      <section class="card st-sec st-stack">
         <div class="st-icon"><i data-lucide="user-round"></i></div>
         <div class="st-head">
           <h3>Character</h3>
           <p>Change your anime companion</p>
         </div>
         <div class="st-opts" id="character-options"></div>
-      </section>
-
-      <section class="card st-sec">
-        <div class="st-icon"><i data-lucide="palette"></i></div>
-        <div class="st-head">
-          <h3>Theme</h3>
-          <p>Change the app appearance</p>
-        </div>
-        <div class="st-opts">
-          <button class="swatch" data-theme-option="default" title="Default"></button>
-          <button class="swatch" data-theme-option="nature" title="Nature"></button>
-          <button class="swatch" data-theme-option="dark" title="Dark"></button>
-          <button class="swatch" data-theme-option="royal" title="Royal"></button>
-          <button class="swatch" data-theme-option="vampire" title="Vampire"></button>
-          <button class="swatch" data-theme-option="cyberpunk" title="Cyberpunk"></button>
-        </div>
+        <nav class="pager" id="character-pager" aria-label="Character pages" hidden></nav>
       </section>
 
       <section class="card st-sec">

@@ -12,6 +12,7 @@ const charactersRoutes = require('./routes/characters.routes');
 const settingsRoutes = require('./routes/settings.routes');
 const profileRoutes = require('./routes/profile.routes');
 const adminRoutes = require('./routes/admin.routes');
+const themesRoutes = require('./routes/themes.routes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/characters', charactersRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/themes', themesRoutes);
 
 app.use('/api', notFoundHandler);
 app.use(errorHandler);

@@ -68,32 +68,16 @@
   margin-bottom: 18px;
 }
 
-.tabs {
+.q-heading {
   display: flex;
-  gap: 6px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 5px;
+  align-items: baseline;
+  gap: 14px;
 }
 
-.tab {
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.tab.active {
-  background: var(--bg-tertiary);
-  color: var(--accent);
-  box-shadow: 0 0 12px var(--glow);
+.q-heading h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text-primary);
 }
 
 .q-badge {
@@ -105,68 +89,180 @@
   color: var(--text-primary);
 }
 
+/* Quests: a grid of study cards, newest first. */
 .q-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.q-list > .empty {
+  grid-column: 1 / -1;
 }
 
 .quest-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px 20px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  gap: 12px;
+  padding: 20px 20px 18px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+/* A thin accent line along the top edge, brighter while the quest is being studied. */
+.quest-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--theme-gradient);
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
 }
 
 .quest-card:hover {
-  border-color: var(--border);
-  box-shadow: 0 0 22px -10px var(--glow);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 24px -10px var(--glow);
+  transform: translateY(-2px);
+}
+
+.quest-card:hover::before,
+.quest-card.studying::before {
+  opacity: 1;
+}
+
+.quest-card.studying {
+  border-color: var(--accent);
+  box-shadow: 0 0 28px -10px var(--glow);
 }
 
 .q-top {
   display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.q-body {
-  flex: 1;
-  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .q-title {
-  font-size: 1.02rem;
-  color: var(--text-primary);
-  margin: 0 0 4px;
-}
-
-.q-desc {
   margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.87rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  min-width: 0;
+  font-size: 1.12rem;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .q-acts {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
-.q-select {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
+.q-desc {
+  margin: 0;
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.q-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.q-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 6px 12px;
   border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.q-chip svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.q-chip strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* A deadline that has passed. */
+.q-deadline-chip.overdue {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
+}
+
+.q-deadline-chip.overdue svg {
+  color: var(--danger);
+}
+
+/* Compact attachment list on the card: one short line per file, each opening in a new tab. */
+.q-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.q-att-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.q-att-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.q-att {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  margin: 0 -8px;
   border-radius: 8px;
-  padding: 7px 10px;
-  font-size: 0.78rem;
-  font-family: inherit;
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.q-att svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.q-att span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.q-att:hover {
+  background: var(--bg-tertiary);
+  color: var(--accent);
+}
+
+.q-att:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .q-study {
@@ -233,7 +329,7 @@
 
 .modal textarea {
   width: 100%;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--field-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 13px 16px;
@@ -258,21 +354,401 @@
   margin-top: 6px;
 }
 
+/* Create / edit quest form */
+.modal {
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+
+.q-label {
+  display: block;
+  margin: 0 0 7px 2px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.q-optional {
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.q-files {
+  padding: 10px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: var(--field-bg);
+}
+
+.q-files-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* The real file input stays focusable for keyboards but is visually replaced by the label. */
+.q-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.q-file-input:focus-visible + .q-file-btn {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.q-file-btn {
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.q-file-btn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.q-files-count {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.q-files-count.full {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.q-file-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.q-file-list:not(:empty) {
+  margin-top: 10px;
+}
+
+.q-file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px 5px 10px;
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+  font-size: 0.84rem;
+}
+
+.q-file-row svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.q-file-row-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.q-file-row-size {
+  flex-shrink: 0;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.q-file-remove {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.q-file-remove:hover {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.q-file-remove:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.q-hint {
+  margin: 6px 0 14px 4px;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.q-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.q-time-field {
+  flex: 0 1 170px;
+  margin-bottom: 0;
+}
+
+.q-time-field input {
+  min-width: 0;
+}
+
+.q-unit {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.q-presets {
+  display: flex;
+  gap: 6px;
+}
+
+.q-preset {
+  min-width: 42px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.q-preset:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+.q-preset.active {
+  border-color: transparent;
+  background: var(--theme-gradient);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.q-time + .f-err {
+  margin-top: 6px;
+}
+
+.modal .m-acts {
+  margin-top: 20px;
+}
+
 @media (max-width: 480px) {
-  .tab {
-    padding: 8px 10px;
-  }
-
-  .q-top {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .q-acts {
-    justify-content: flex-end;
+  .q-list {
+    grid-template-columns: 1fr;
   }
 
   .q-study {
     flex-wrap: wrap;
   }
+}
+
+/* Companion picker in the quest form: the chosen character's portrait next to the list. */
+.q-character-field {
+  padding: 8px 12px;
+}
+
+.q-character-field select {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.q-character-field option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.q-character-preview {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  box-shadow: 0 0 10px -3px var(--glow);
+}
+
+/* ---- Quest sections: Active and Missing (where the old To Do / In Progress / Completed tabs
+   were). */
+.q-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin-right: auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-secondary);
+}
+
+.q-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.q-tab:hover {
+  color: var(--text-primary);
+}
+
+.q-tab.active {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  box-shadow: 0 0 14px -6px var(--glow);
+}
+
+.q-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.q-tab svg {
+  color: var(--danger);
+}
+
+.q-tab-count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  color: var(--text-primary);
+  font-size: 0.76rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.q-tab-count.alert {
+  background: color-mix(in srgb, var(--danger) 22%, transparent);
+  color: var(--danger);
+}
+
+/* A Missing quest: the top line turns to the danger color. */
+.quest-card.missing {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+}
+
+.quest-card.missing::before {
+  background: var(--danger);
+  opacity: 0.8;
+}
+
+.q-done-chip svg {
+  color: var(--success);
+}
+
+.q-char-chip img {
+  width: 20px;
+  height: 20px;
+  margin: -2px 0 -2px -6px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.q-extend-btn {
+  margin-left: auto;
+}
+
+/* Missing cards carry two actions: keep each button on one line, wrap the row instead. */
+.quest-card.missing .q-study {
+  flex-wrap: wrap;
+}
+
+.quest-card.missing .q-study .s-btn {
+  white-space: nowrap;
+}
+
+/* ---- Extend Deadline dialog */
+.x-modal {
+  max-width: 420px;
+}
+
+.x-modal h2 {
+  margin-bottom: 6px;
+}
+
+.x-quest {
+  margin: 0 0 16px;
+  color: var(--accent);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.x-current,
+.x-confirm p {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.x-current strong,
+.x-confirm strong {
+  color: var(--text-primary);
+}
+
+.x-confirm .x-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.x-note svg {
+  flex-shrink: 0;
+  color: var(--success);
+}
+
+.x-modal form[hidden],
+.x-confirm[hidden],
+.x-note[hidden] {
+  display: none;
+}
+
+.x-confirm .f-err {
+  margin: 0 0 12px;
+}
+
+.x-modal .field.invalid {
+  border-color: var(--danger);
 }

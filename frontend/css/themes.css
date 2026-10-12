@@ -1,106 +1,390 @@
-:root {
-  --bg-primary: #05090a;
-  --bg-secondary: #0b1416;
-  --bg-tertiary: #101d20;
-  --accent: #2dd4bf;
-  --accent-secondary: #67e8f9;
-  --text-primary: #eafdfb;
-  --text-secondary: #8fa8a6;
-  --border: rgba(45, 212, 191, 0.25);
-  --glow: rgba(45, 212, 191, 0.35);
+/*
+  FocusArc theme system — three layers, all plain CSS variables. No background images.
+
+  1. Appearance mode  (<html data-mode="dark|light">)
+     Text colors, contrast and how strongly a theme's colors show. Independent of the theme.
+
+  2. Shared theme recipe  ([data-theme])
+     Turns a study theme's raw values (--theme-*) into every UI color: page and card surfaces,
+     accents, borders, glow, atmosphere tones and pattern ink. Light mode re-runs the same recipe
+     with lighter surfaces and darker accents, so every theme works in both modes.
+
+  3. Study themes
+     Which themes exist and their core values come from the database (`themes` table, loaded by
+     js/theme.js from GET /api/themes, which writes a [data-theme='key'] rule for each):
+       --theme-accent / -2 / -3   its colors
+       --theme-deep               the dark-mode page base (light mode only borrows a hint of it)
+       --theme-symbol             small decorative icon (sidebar tag, theme cards)
+     This file can add optional decoration for a theme key ([data-theme='nature'], ...):
+       --theme-atmos              layered gradients behind the page (built from --t1/--t2/--t3)
+       --theme-pattern(-size)     a subtle CSS/SVG pattern, used as a mask over --pattern-ink
+       --card-sheen / --card-frame, --radius-card / --radius-btn, --font-display
+     Anything a theme leaves out falls back to the FocusArc defaults below, so a theme that only
+     exists in the database still gets a complete look in its own colors.
+
+  The rest of the CSS only uses the derived variables (--bg-primary, --accent, --text-primary,
+  ...), so pages never need to know which mode or theme is active. Any element can carry
+  data-theme (the theme cards do) to preview that theme on itself, in the current mode.
+*/
+
+/* ---------- 1. Appearance modes ---------- */
+
+:root,
+[data-mode='dark'] {
+  --text-primary: #edf2f6;
+  --text-secondary: #94a0ad;
+  --on-accent: #05080a; /* text on accent-colored buttons */
+  --field-bg: rgba(255, 255, 255, 0.03); /* inputs */
+  --inset-bg: rgba(0, 0, 0, 0.28); /* quote boxes and other inset panels */
+  --page-vignette: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.45));
+  /* How strongly the theme color tints the page, cards and raised elements. */
+  --tint-page: 3%;
+  --tint-card: 6%;
+  --tint-raised: 10%;
+  --atmos: 22%; /* strength of the atmosphere glows */
+  --pattern-alpha: 6%; /* strength of the background pattern */
   --danger: #f87171;
   --success: #34d399;
-  /* Background URLs carry ?v=N: bump it whenever you replace an image with the same filename,
-     so browsers fetch the new file instead of a cached copy. */
-  /* Default FocusArc theme has no photo background — ambient glow only (see global.css). */
-  --theme-bg-image: none;
-  /* Quest Distribution chart: To Do / In Progress / Completed. */
+  /* Quest Distribution chart (To Do / In Progress / Completed): same in every theme. */
   --chart-todo: #8b5cf6;
   --chart-progress: #d97706;
-  --chart-done: #0d9488;
+  --chart-done: #14b8a6;
+  color-scheme: dark;
 }
+
+[data-mode='light'] {
+  --text-primary: #12151c;
+  --text-secondary: #4c5463;
+  --on-accent: #ffffff;
+  --field-bg: rgba(40, 32, 20, 0.035);
+  --inset-bg: rgba(40, 32, 20, 0.045);
+  /* A faint warm shade at the page edges gives the light page some depth. */
+  --page-vignette: radial-gradient(ellipse 120% 90% at 50% 35%, transparent 60%, rgba(60, 45, 20, 0.05));
+  --tint-page: 4%;
+  --tint-card: 2%;
+  --tint-raised: 9%;
+  --atmos: 16%;
+  --pattern-alpha: 6%;
+  --danger: #dc2626;
+  --success: #059669;
+  --chart-todo: #7c3aed;
+  --chart-progress: #d97706;
+  --chart-done: #0d9488;
+  color-scheme: light;
+}
+
+/* ---------- 2. Shared theme recipe ---------- */
+
+:root,
+[data-theme] {
+  /* Defaults (= FocusArc) for anything a theme doesn't set. */
+  --theme-accent-3: var(--theme-accent-2);
+  --theme-deep: #07090c;
+  --theme-symbol: '✦';
+  --theme-pattern: linear-gradient(transparent, transparent); /* = no pattern */
+  --theme-pattern-size: auto;
+  --card-sheen: none;
+  --card-frame: 0 0 0 transparent;
+  --radius-card: 16px;
+  --radius-btn: 999px;
+  --font-display: 'Cinzel', 'Inter', serif;
+  --heading-tracking: 0.02em;
+
+  --accent: var(--theme-accent);
+  --accent-secondary: var(--theme-accent-2);
+  --bg-primary: color-mix(in srgb, var(--theme-accent) var(--tint-page), var(--theme-deep));
+  --bg-secondary: color-mix(in srgb, var(--theme-accent) var(--tint-card), color-mix(in srgb, var(--theme-deep) 84%, #2a3038));
+  --bg-tertiary: color-mix(in srgb, var(--theme-accent) var(--tint-raised), color-mix(in srgb, var(--theme-deep) 70%, #2a3038));
+  --border: color-mix(in srgb, var(--theme-accent) 28%, transparent);
+  --glow: color-mix(in srgb, var(--theme-accent-2) 35%, transparent);
+  --theme-gradient: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+
+  /* Atmosphere tones used by each theme's --theme-atmos. */
+  --t1: color-mix(in srgb, var(--theme-accent) var(--atmos), transparent);
+  --t2: color-mix(in srgb, var(--theme-accent-2) var(--atmos), transparent);
+  --t3: color-mix(in srgb, var(--theme-accent-3) var(--atmos), transparent);
+  --t1-soft: color-mix(in srgb, var(--theme-accent) calc(var(--atmos) * 0.5), transparent);
+  --t2-soft: color-mix(in srgb, var(--theme-accent-2) calc(var(--atmos) * 0.5), transparent);
+  --t3-soft: color-mix(in srgb, var(--theme-accent-3) calc(var(--atmos) * 0.5), transparent);
+  --pattern-ink: color-mix(in srgb, var(--accent) var(--pattern-alpha), transparent);
+
+  /* FocusArc's atmosphere: the same soft corner glows the app always had. */
+  --theme-atmos: radial-gradient(ellipse at 22% 12%, var(--t2-soft), transparent 55%),
+    radial-gradient(ellipse at 82% 88%, var(--t1-soft), transparent 55%),
+    radial-gradient(ellipse at 90% 8%, var(--t2-soft), transparent 40%);
+}
+
+/* Light mode: a warm ivory page, near-white solid cards, a slightly deeper sidebar, and
+   accents that stay saturated but dark enough to read on light surfaces. */
+[data-mode='light'],
+[data-mode='light'] [data-theme] {
+  /* Fallback for browsers without relative colors: darken by mixing with black. */
+  --accent: color-mix(in srgb, var(--theme-accent) 62%, #000);
+  --accent-secondary: color-mix(in srgb, var(--theme-accent-2) 62%, #000);
+  --bg-primary: color-mix(in srgb, var(--theme-accent) var(--tint-page), color-mix(in srgb, var(--theme-deep) 2%, #f6f2e9));
+  --bg-secondary: color-mix(in srgb, var(--theme-accent) var(--tint-card), #fffdf9);
+  --bg-tertiary: color-mix(in srgb, var(--theme-accent) var(--tint-raised), #f0ece3);
+  --bg-sidebar: color-mix(in srgb, var(--theme-accent) 5%, color-mix(in srgb, var(--theme-deep) 4%, #ebe6db));
+  --border: color-mix(in srgb, var(--accent) 24%, #ddd7ca);
+  --border-strong: color-mix(in srgb, var(--accent) 60%, #ddd7ca);
+  --glow: color-mix(in srgb, var(--accent) 30%, transparent);
+  --shadow-card: 0 1px 2px rgba(40, 32, 20, 0.06), 0 14px 34px -20px rgba(40, 32, 20, 0.3);
+}
+
+/* Keep each accent's full color and only lower its lightness: rich teal, rose, gold, ...
+   instead of the greyish tones that mixing with black gives. */
+@supports (color: oklch(from red l c h)) {
+  [data-mode='light'],
+  [data-mode='light'] [data-theme] {
+    --accent: oklch(from var(--theme-accent) min(l, 0.53) c h);
+    --accent-secondary: oklch(from var(--theme-accent-2) min(l, 0.58) c h);
+  }
+}
+
+/* ---------- 3. Shared looks that several themes reuse ---------- */
+
+/* Card sheens (painted on top of the card color). */
+[data-theme] {
+  --sheen-wash: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 160px);
+  --sheen-gilded: linear-gradient(90deg, transparent 8%, color-mix(in srgb, var(--accent) 75%, transparent) 50%, transparent 92%) top center / 100% 1px no-repeat,
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 120px);
+  --sheen-circuit: linear-gradient(90deg, var(--accent), transparent 38%) top left / 100% 1px no-repeat,
+    linear-gradient(180deg, var(--accent), transparent 60%) top left / 1px 100% no-repeat,
+    linear-gradient(270deg, var(--accent-secondary), transparent 30%) bottom right / 100% 1px no-repeat;
+  --sheen-blade: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 80%, transparent), transparent) bottom center / 100% 1px no-repeat,
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 120px);
+  --sheen-hearth: radial-gradient(ellipse 90% 70% at 50% 130%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%);
+  /* A thin second line inside the border — an elegant double frame. */
+  --frame-double: inset 0 0 0 3px var(--bg-secondary), inset 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+
+  --font-book: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+  --font-tech: 'Cascadia Code', Consolas, 'SFMono-Regular', ui-monospace, monospace;
+  --font-clean: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ---------- 4. Study theme decoration (colors come from the database) ---------- */
+
+/* FocusArc's colors, only used until the theme list has loaded (e.g. very first visit). */
+:root,
+[data-theme='default'] { --theme-accent: #2dd4bf; --theme-accent-2: #67e8f9; --theme-symbol: '✦'; }
 
 [data-theme='nature'] {
-  --bg-primary: #060f09;
-  --bg-secondary: #0d1e13;
-  --bg-tertiary: #12291a;
-  --accent: #4ade80;
-  --accent-secondary: #a3e635;
-  --text-primary: #edfdf3;
-  --text-secondary: #8fb89e;
-  --border: rgba(74, 222, 128, 0.25);
-  --glow: rgba(74, 222, 128, 0.35);
-  --theme-bg-image: url('/assets/backgrounds/nature-bg.png?v=2');
-  /* Quest Distribution chart: To Do / In Progress / Completed. */
-  --chart-todo: #b45309;
-  --chart-progress: #0284c7;
-  --chart-done: #16a34a;
-}
-
-[data-theme='dark'] {
-  --bg-primary: #08090a;
-  --bg-secondary: #101214;
-  --bg-tertiary: #17191c;
-  --accent: #d1d5db;
-  --accent-secondary: #f9fafb;
-  --text-primary: #f5f5f5;
-  --text-secondary: #9ca3af;
-  --border: rgba(209, 213, 219, 0.2);
-  --glow: rgba(209, 213, 219, 0.25);
-  --theme-bg-image: url('/assets/backgrounds/dark-bg.png?v=2');
-  /* Quest Distribution chart: To Do / In Progress / Completed. */
-  --chart-todo: #8a72d0;
-  --chart-progress: #b47a2c;
-  --chart-done: #14917f;
-}
-
-[data-theme='royal'] {
-  --bg-primary: #05070f;
-  --bg-secondary: #0b1024;
-  --bg-tertiary: #121a37;
-  --accent: #f4c95d;
-  --accent-secondary: #5b7cfa;
-  --text-primary: #f3f2ff;
-  --text-secondary: #9aa3c9;
-  --border: rgba(244, 201, 93, 0.25);
-  --glow: rgba(91, 124, 250, 0.35);
-  --theme-bg-image: url('/assets/backgrounds/royal-bg.png?v=2');
-  /* Quest Distribution chart: To Do / In Progress / Completed. */
-  --chart-todo: #db2777;
-  --chart-progress: #3b6ef5;
-  --chart-done: #b7892a;
-}
-
-[data-theme='vampire'] {
-  --bg-primary: #0a0506;
-  --bg-secondary: #170a0c;
-  --bg-tertiary: #241012;
-  --accent: #e11d48;
-  --accent-secondary: #f87171;
-  --text-primary: #fdeeee;
-  --text-secondary: #b78a8c;
-  --border: rgba(225, 29, 72, 0.25);
-  --glow: rgba(225, 29, 72, 0.35);
-  --theme-bg-image: url('/assets/backgrounds/vampire-bg.png?v=2');
-  /* Quest Distribution chart: To Do / In Progress / Completed. */
-  --chart-todo: #a855f7;
-  --chart-progress: #d97706;
-  --chart-done: #dc2643;
+  --theme-atmos: radial-gradient(ellipse 70% 50% at 15% 0%, var(--t2-soft), transparent 70%),
+    radial-gradient(ellipse 60% 60% at 90% 100%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 70% 15%, var(--t3-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cg fill='black'%3E%3Cpath d='M30 44c10-14 27-15 32-12-2 13-15 25-32 12z'/%3E%3Cpath d='M104 108c8-12 23-13 27-10-2 11-13 21-27 10z'/%3E%3Cpath d='M100 26c-5 10-1 21 6 24 5-9 2-19-6-24z'/%3E%3Cpath d='M26 118c6-7 15-7 19-5-2 8-11 12-19 5z'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 150px 150px;
+  --card-sheen: var(--sheen-wash);
+  --radius-card: 18px;
+  --font-display: var(--font-book);
 }
 
 [data-theme='cyberpunk'] {
-  --bg-primary: #05050a;
-  --bg-secondary: #0d0d1a;
-  --bg-tertiary: #151527;
-  --accent: #22d3ee;
-  --accent-secondary: #e879f9;
-  --text-primary: #f2f8ff;
-  --text-secondary: #9291b8;
-  --border: rgba(34, 211, 238, 0.3);
-  --glow: rgba(232, 121, 249, 0.35);
-  --theme-bg-image: url('/assets/backgrounds/cyberpunk-bg.jpg?v=2');
-  /* Quest Distribution chart: To Do / In Progress / Completed. */
-  --chart-todo: #db2777;
-  --chart-progress: #8b5cf6;
-  --chart-done: #0891b2;
+  --theme-atmos: radial-gradient(ellipse 60% 50% at 0% 0%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 60% 55% at 100% 100%, var(--t2), transparent 70%),
+    linear-gradient(115deg, transparent 42%, var(--t2-soft) 50%, transparent 58%);
+  --theme-pattern: linear-gradient(black 1px, transparent 1px), linear-gradient(90deg, black 1px, transparent 1px),
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0 1px, transparent 1px 4px);
+  --theme-pattern-size: 44px 44px, 44px 44px, auto;
+  --card-sheen: var(--sheen-circuit);
+  --radius-card: 6px;
+  --radius-btn: 6px;
+  --font-display: var(--font-tech);
+  --heading-tracking: 0.06em;
+}
+
+[data-theme='royal'] {
+  --theme-atmos: radial-gradient(ellipse 60% 40% at 50% -5%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 55% 55% at 100% 100%, var(--t3), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 0% 80%, var(--t2-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M32 3L61 32L32 61L3 32Z' fill='none' stroke='black' stroke-width='.8'/%3E%3Cpath d='M32 26l6 6-6 6-6-6z'/%3E%3Ccircle cx='0' cy='0' r='2.5'/%3E%3Ccircle cx='64' cy='0' r='2.5'/%3E%3Ccircle cx='0' cy='64' r='2.5'/%3E%3Ccircle cx='64' cy='64' r='2.5'/%3E%3C/svg%3E");
+  --theme-pattern-size: 64px 64px;
+  --card-sheen: var(--sheen-gilded);
+  --card-frame: var(--frame-double);
+  --radius-card: 14px;
+}
+
+[data-theme='vampire'] {
+  --theme-atmos: radial-gradient(ellipse 80% 45% at 50% 0%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 70% 40% at 50% 105%, var(--t3), transparent 70%),
+    radial-gradient(ellipse 30% 40% at 95% 30%, var(--t2-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='76'%3E%3Cpath d='M22 0L44 38L22 76L0 38Z' fill='none' stroke='black' stroke-width='.8'/%3E%3Cpath d='M22 30l3 8-3 8-3-8z'/%3E%3C/svg%3E");
+  --theme-pattern-size: 44px 76px;
+  --card-sheen: var(--sheen-blade);
+  --radius-card: 8px;
+  --radius-btn: 6px;
+}
+
+[data-theme='sakura'] {
+  --theme-atmos: radial-gradient(ellipse 60% 50% at 85% 5%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 5% 95%, var(--t2-soft), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 40% 40%, var(--t3-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cdefs%3E%3Cellipse id='p' cx='0' cy='-6' rx='3.6' ry='6'/%3E%3Cg id='f'%3E%3Cuse href='%23p'/%3E%3Cuse href='%23p' transform='rotate(72)'/%3E%3Cuse href='%23p' transform='rotate(144)'/%3E%3Cuse href='%23p' transform='rotate(216)'/%3E%3Cuse href='%23p' transform='rotate(288)'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23f' transform='translate(42 46)'/%3E%3Cuse href='%23f' transform='translate(126 122) scale(.7)'/%3E%3Cellipse cx='120' cy='40' rx='2.6' ry='4.4' transform='rotate(35 120 40)'/%3E%3Cellipse cx='50' cy='132' rx='2.4' ry='4' transform='rotate(-25 50 132)'/%3E%3C/svg%3E");
+  --theme-pattern-size: 170px 170px;
+  --card-sheen: var(--sheen-wash);
+  --radius-card: 20px;
+  --font-display: var(--font-book);
+}
+
+[data-theme='cosmic'] {
+  --theme-atmos: radial-gradient(ellipse 50% 45% at 20% 30%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 55% 45% at 78% 72%, var(--t2), transparent 70%),
+    radial-gradient(ellipse 30% 25% at 62% 18%, var(--t3-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='black'%3E%3Ccircle cx='18' cy='24' r='1.2'/%3E%3Ccircle cx='86' cy='12' r='.8'/%3E%3Ccircle cx='150' cy='40' r='1.6'/%3E%3Ccircle cx='60' cy='80' r='.9'/%3E%3Ccircle cx='120' cy='96' r='1.1'/%3E%3Ccircle cx='182' cy='120' r='.8'/%3E%3Ccircle cx='30' cy='150' r='1.4'/%3E%3Ccircle cx='96' cy='170' r='.8'/%3E%3Ccircle cx='160' cy='182' r='1.2'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 200px 200px;
+  --card-sheen: var(--sheen-wash);
+  --font-display: var(--font-clean);
+  --heading-tracking: 0.03em;
+}
+
+[data-theme='ocean'] {
+  --theme-atmos: linear-gradient(180deg, var(--t2-soft), transparent 40%),
+    radial-gradient(ellipse 120% 45% at 50% 105%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 40% 35% at 15% 20%, var(--t2-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Cg fill='none' stroke='black' stroke-width='1'%3E%3Cpath d='M0 12q15-8 30 0t30 0 30 0 30 0'/%3E%3Cpath d='M-15 32q15-8 30 0t30 0 30 0 30 0 30 0'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 120px 40px;
+  --card-sheen: var(--sheen-wash);
+  --radius-card: 18px;
+  --font-display: var(--font-clean);
+}
+
+[data-theme='frost'] {
+  --theme-atmos: radial-gradient(ellipse 80% 45% at 50% -8%, var(--t3), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 0% 100%, var(--t1-soft), transparent 70%),
+    radial-gradient(ellipse 45% 45% at 100% 60%, var(--t2-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='130'%3E%3Cg fill='none' stroke='black' stroke-width='1' stroke-linecap='round'%3E%3Cpath d='M34 26v18M26.2 30.5l15.6 9M26.2 39.5l15.6-9M34 26l-3-3M34 26l3-3M34 44l-3 3M34 44l3 3'/%3E%3Cpath d='M98 92v12M92.8 95l10.4 6M92.8 101l10.4-6'/%3E%3C/g%3E%3Cg fill='black'%3E%3Ccircle cx='100' cy='30' r='1.2'/%3E%3Ccircle cx='24' cy='104' r='1'/%3E%3Ccircle cx='66' cy='70' r='.8'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 130px 130px;
+  --card-sheen: var(--sheen-wash);
+  --radius-card: 14px;
+  --font-display: var(--font-clean);
+}
+
+[data-theme='ember'] {
+  --theme-atmos: radial-gradient(ellipse 90% 45% at 50% 108%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 85% 95%, var(--t3), transparent 70%),
+    radial-gradient(ellipse 50% 35% at 15% 0%, var(--t2-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg fill='black'%3E%3Ccircle cx='12' cy='20' r='1'/%3E%3Ccircle cx='58' cy='8' r='.7'/%3E%3Ccircle cx='74' cy='52' r='1.2'/%3E%3Ccircle cx='30' cy='70' r='.8'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 90px 90px;
+  --card-sheen: var(--sheen-hearth);
+  --radius-card: 12px;
+}
+
+[data-theme='moonlight'] {
+  --theme-atmos: radial-gradient(circle at 84% 14%, var(--t1) 0, var(--t1-soft) 6%, transparent 30%),
+    radial-gradient(ellipse 60% 50% at 10% 95%, var(--t2-soft), transparent 70%),
+    radial-gradient(ellipse 70% 40% at 50% 0%, var(--t2-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='black'%3E%3Ccircle cx='20' cy='30' r='1'/%3E%3Ccircle cx='110' cy='18' r='.7'/%3E%3Ccircle cx='160' cy='86' r='1.1'/%3E%3Ccircle cx='70' cy='110' r='.7'/%3E%3Ccircle cx='130' cy='160' r='.9'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 180px 180px;
+  --card-sheen: var(--sheen-wash);
+}
+
+[data-theme='academia'] {
+  --theme-atmos: radial-gradient(ellipse 55% 50% at 12% 8%, var(--t3), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 92% 100%, var(--t2-soft), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 10%, var(--t1-soft), transparent 70%);
+  --theme-pattern: repeating-linear-gradient(180deg, transparent 0 31px, black 31px 32px),
+    linear-gradient(90deg, transparent 63px, rgba(0, 0, 0, 0.8) 63px 64px, transparent 64px);
+  --theme-pattern-size: auto, 100% 100%;
+  --card-sheen: var(--sheen-gilded);
+  --card-frame: var(--frame-double);
+  --radius-card: 10px;
+  --radius-btn: 8px;
+  --font-display: var(--font-book);
+}
+
+[data-theme='japanese-night'] {
+  --theme-atmos: radial-gradient(circle at 12% 28%, var(--t1), transparent 18%),
+    radial-gradient(circle at 88% 20%, var(--t1-soft), transparent 16%),
+    radial-gradient(ellipse 90% 50% at 50% 105%, var(--t2), transparent 70%),
+    radial-gradient(ellipse 35% 30% at 70% 75%, var(--t3-soft), transparent 70%);
+  /* Shippo (overlapping circles), a traditional Japanese pattern. */
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='none' stroke='black' stroke-width='.8'%3E%3Ccircle cx='0' cy='0' r='24'/%3E%3Ccircle cx='48' cy='0' r='24'/%3E%3Ccircle cx='0' cy='48' r='24'/%3E%3Ccircle cx='48' cy='48' r='24'/%3E%3Ccircle cx='24' cy='24' r='24'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 48px 48px;
+  --card-sheen: var(--sheen-blade);
+  --radius-card: 12px;
+  --font-display: var(--font-book);
+}
+
+[data-theme='sunset'] {
+  --theme-atmos: linear-gradient(180deg, var(--t3-soft) 0%, transparent 40%, var(--t1-soft) 78%, var(--t2) 100%),
+    radial-gradient(ellipse 70% 35% at 50% 105%, var(--t2), transparent 70%);
+  --theme-pattern: repeating-linear-gradient(180deg, transparent 0 22px, rgba(0, 0, 0, 0.5) 22px 23px);
+  --card-sheen: var(--sheen-hearth);
+  --font-display: var(--font-clean);
+}
+
+[data-theme='forest'] {
+  --theme-atmos: radial-gradient(ellipse 60% 40% at 50% -5%, var(--t2-soft), transparent 70%),
+    radial-gradient(ellipse 55% 60% at 0% 100%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 45% 50% at 100% 75%, var(--t1-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='black'%3E%3Cpath d='M40 22l11 16h-6l9 13h-7l9 13H26l9-13h-7l9-13h-6z'/%3E%3Cpath d='M120 100l8 11h-4l6 9h-5l6 9H109l6-9h-5l6-9h-4z'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 160px 160px;
+  --card-sheen: var(--sheen-wash);
+  --font-display: var(--font-book);
+}
+
+[data-theme='lavender'] {
+  --theme-atmos: radial-gradient(ellipse 55% 50% at 18% 15%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 55% 50% at 85% 85%, var(--t2-soft), transparent 70%),
+    radial-gradient(ellipse 35% 30% at 85% 10%, var(--t2-soft), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='110' height='110'%3E%3Cg fill='black'%3E%3Ccircle cx='28' cy='24' r='2.6'/%3E%3Ccircle cx='28' cy='36' r='2.6'/%3E%3Ccircle cx='22' cy='30' r='2.6'/%3E%3Ccircle cx='34' cy='30' r='2.6'/%3E%3Ccircle cx='82' cy='78' r='2'/%3E%3Ccircle cx='82' cy='86' r='2'/%3E%3Ccircle cx='78' cy='82' r='2'/%3E%3Ccircle cx='86' cy='82' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 110px 110px;
+  --card-sheen: var(--sheen-wash);
+  --radius-card: 20px;
+  --font-display: var(--font-book);
+}
+
+[data-theme='crimson'] {
+  --theme-atmos: linear-gradient(135deg, var(--t1-soft), transparent 40%),
+    radial-gradient(ellipse 60% 55% at 100% 100%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 30% 25% at 10% 90%, var(--t2-soft), transparent 70%);
+  --theme-pattern: repeating-linear-gradient(135deg, black 0 1px, transparent 1px 22px);
+  --card-sheen: var(--sheen-blade);
+  --radius-card: 10px;
+  --radius-btn: 8px;
+}
+
+[data-theme='neon'] {
+  --theme-atmos: radial-gradient(ellipse 50% 45% at 0% 0%, var(--t1-soft), transparent 70%),
+    radial-gradient(ellipse 50% 45% at 100% 0%, var(--t2-soft), transparent 70%),
+    radial-gradient(ellipse 70% 40% at 50% 105%, var(--t3), transparent 70%);
+  --theme-pattern: linear-gradient(rgba(0, 0, 0, 0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.7) 1px, transparent 1px),
+    repeating-linear-gradient(45deg, transparent 0 60px, black 60px 61px);
+  --theme-pattern-size: 64px 64px, 64px 64px, auto;
+  --card-sheen: var(--sheen-circuit);
+  --radius-card: 8px;
+  --radius-btn: 8px;
+  --font-display: var(--font-tech);
+  --heading-tracking: 0.06em;
+}
+
+[data-theme='celestial'] {
+  --theme-atmos: radial-gradient(ellipse 70% 40% at 50% -5%, var(--t1), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 100% 100%, var(--t2-soft), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 0% 60%, var(--t2-soft), transparent 70%);
+  /* Constellations: a few stars joined by thin lines. */
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='none' stroke='black' stroke-width='.6'%3E%3Cpath d='M30 50L72 34L104 62L150 48M104 62L96 104'/%3E%3Cpath d='M160 150L196 170L214 140L186 118Z'/%3E%3C/g%3E%3Cg fill='black'%3E%3Ccircle cx='30' cy='50' r='2'/%3E%3Ccircle cx='72' cy='34' r='1.6'/%3E%3Ccircle cx='104' cy='62' r='2.2'/%3E%3Ccircle cx='150' cy='48' r='1.4'/%3E%3Ccircle cx='96' cy='104' r='1.6'/%3E%3Ccircle cx='160' cy='150' r='1.8'/%3E%3Ccircle cx='196' cy='170' r='1.4'/%3E%3Ccircle cx='214' cy='140' r='2'/%3E%3Ccircle cx='186' cy='118' r='1.4'/%3E%3Ccircle cx='40' cy='190' r='1'/%3E%3Ccircle cx='220' cy='30' r='1'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 240px 240px;
+  --card-sheen: var(--sheen-gilded);
+  --card-frame: var(--frame-double);
+}
+
+[data-theme='mist'] {
+  /* Fog: wide, low ellipses layered at different heights. */
+  --theme-atmos: radial-gradient(ellipse 100% 28% at 30% 28%, var(--t1-soft), transparent 70%),
+    radial-gradient(ellipse 100% 26% at 72% 62%, var(--t1-soft), transparent 70%),
+    radial-gradient(ellipse 90% 24% at 40% 96%, var(--t2-soft), transparent 70%),
+    linear-gradient(180deg, transparent 50%, var(--t1-soft));
+  --card-sheen: var(--sheen-wash);
+  --radius-card: 18px;
+  --font-display: var(--font-clean);
+}
+
+[data-theme='twilight'] {
+  --theme-atmos: linear-gradient(180deg, var(--t1-soft), transparent 45%, var(--t3-soft) 82%, var(--t2) 100%),
+    radial-gradient(ellipse 60% 30% at 70% 102%, var(--t2), transparent 70%);
+  --theme-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg fill='black'%3E%3Ccircle cx='24' cy='20' r='1'/%3E%3Ccircle cx='120' cy='44' r='.8'/%3E%3Ccircle cx='190' cy='14' r='1.2'/%3E%3Ccircle cx='70' cy='96' r='.7'/%3E%3C/g%3E%3C/svg%3E");
+  --theme-pattern-size: 220px 220px;
+  --card-sheen: var(--sheen-wash);
+  --font-display: var(--font-clean);
 }

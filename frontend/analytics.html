@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="css/analytics.css" />
 </head>
 <body>
+  <!-- Analytics, built on the same quests as the Quest Board: Active, Missing and Completed
+       quests, study time against each quest's estimate, deadlines and companions. -->
   <div class="shell">
     <div id="sidebar-root"></div>
 
@@ -19,50 +21,89 @@
         <h1>Analytics</h1>
       </div>
 
-      <section class="card an-hero">
+      <section class="card an-hero" aria-live="polite">
+        <img class="an-img" id="an-companion" src="" alt="" hidden />
         <div class="an-copy">
-          <h2>Track your progress. <span>Elevate your potential.</span></h2>
+          <p class="an-kicker">Your quest report</p>
+          <h2 id="an-headline">Gathering your study data…</h2>
         </div>
-        <img class="an-img" id="analytics-hero-image" src="" alt="" hidden />
+        <a class="btn btn-s an-board" href="questboard.html"><i data-lucide="list-checks" style="width:16px;height:16px;"></i> Quest Board</a>
       </section>
 
-      <div class="s-grid">
-        <div class="card s-card">
-          <div class="s-icon"><i data-lucide="list-checks"></i></div>
-          <div>
-            <div class="s-label">Total Quests</div>
-            <div class="s-val" id="stat-total-quests">—</div>
-          </div>
-        </div>
-        <div class="card s-card">
-          <div class="s-icon"><i data-lucide="circle-check-big"></i></div>
-          <div>
-            <div class="s-label">Completed Quests</div>
-            <div class="s-val" id="stat-completed-quests">—</div>
-          </div>
-        </div>
+      <!-- Headline numbers -->
+      <div class="s-grid" id="an-stats">
         <div class="card s-card">
           <div class="s-icon"><i data-lucide="clock"></i></div>
           <div>
             <div class="s-label">Study Time</div>
-            <div class="s-val" id="stat-study-time">—</div>
+            <div class="s-val" id="stat-time">—</div>
+            <div class="s-sub" id="stat-time-sub">&nbsp;</div>
+          </div>
+        </div>
+        <div class="card s-card">
+          <div class="s-icon done"><i data-lucide="circle-check-big"></i></div>
+          <div>
+            <div class="s-label">Completed</div>
+            <div class="s-val" id="stat-completed">—</div>
+            <div class="s-sub" id="stat-completed-sub">&nbsp;</div>
+          </div>
+        </div>
+        <div class="card s-card" id="stat-missing-card">
+          <div class="s-icon missing"><i data-lucide="alarm-clock-off"></i></div>
+          <div>
+            <div class="s-label">Missing</div>
+            <div class="s-val" id="stat-missing">—</div>
+            <div class="s-sub" id="stat-missing-sub">&nbsp;</div>
+          </div>
+        </div>
+        <div class="card s-card">
+          <div class="s-icon"><i data-lucide="flame"></i></div>
+          <div>
+            <div class="s-label">Study Streak</div>
+            <div class="s-val" id="stat-streak">—</div>
+            <div class="s-sub" id="stat-streak-sub">&nbsp;</div>
           </div>
         </div>
       </div>
 
+      <!-- Where every quest stands, as on the Quest Board -->
+      <section class="card an-section">
+        <div class="an-head">
+          <h3 class="p-title">Quest Status</h3>
+          <span class="an-note" id="status-total"></span>
+        </div>
+        <div id="status-container"></div>
+      </section>
+
+      <!-- Each quest's study time against its estimated completion time -->
+      <section class="card an-section">
+        <div class="an-head">
+          <h3 class="p-title">Study Time vs Estimate</h3>
+          <span class="an-note">Bar = time studied · track = estimated time</span>
+        </div>
+        <div id="quests-container"></div>
+      </section>
+
       <div class="an-grid">
-        <section class="card">
-          <h3 class="p-title">Quest Progress</h3>
-          <div id="quest-progress-container"></div>
+        <section class="card an-section">
+          <div class="an-head">
+            <h3 class="p-title">Last 14 Days</h3>
+            <span class="an-note" id="activity-total"></span>
+          </div>
+          <div id="activity-container"></div>
         </section>
 
-        <section class="card q-dist">
-          <h3 class="p-title">Quest Distribution</h3>
-          <div id="quest-distribution-container"></div>
+        <section class="card an-section">
+          <div class="an-head">
+            <h3 class="p-title">Deadlines</h3>
+          </div>
+          <div id="deadlines-container"></div>
         </section>
       </div>
     </main>
   </div>
+
+  <div class="an-tip" id="an-tip" role="tooltip" hidden></div>
 
   <script src="js/vendor/lucide.js"></script>
   <script src="js/icons.js"></script>
@@ -71,6 +112,8 @@
   <script src="js/auth.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/nav.js"></script>
+  <script src="js/timeFormat.js"></script>
+  <script src="js/questShared.js"></script>
   <script src="js/analytics.js"></script>
 </body>
 </html>

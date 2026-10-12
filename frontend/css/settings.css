@@ -72,27 +72,213 @@
   box-shadow: 0 0 16px var(--glow);
 }
 
-.swatch {
-  position: relative;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
+/* Study Theme and Character: heading row on top, the gallery below it at full card width. */
+.st-sec.st-stack {
+  flex-wrap: wrap;
+  row-gap: 18px;
+}
+
+.st-stack .st-opts,
+.st-stack .pager {
+  flex-basis: 100%;
+}
+
+/* Study Theme gallery: 5 themes per page, so each card gets real presence. */
+#theme-options {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+#theme-options .th-prev {
+  height: 118px;
+}
+
+#theme-options .th-sym {
+  font-size: 2.2rem;
+}
+
+[data-mode='light'] #theme-options .th-sym {
+  width: 58px;
+  height: 58px;
+  font-size: 1.7rem;
+}
+
+#theme-options .th-ui {
+  left: 12px;
+  bottom: 12px;
+}
+
+#theme-options .th-ui i {
+  height: 6px;
+}
+
+#theme-options .th-ui i:first-child {
+  width: 34px;
+}
+
+#theme-options .th-ui i:last-child {
+  width: 20px;
+}
+
+#theme-options .th-name {
+  padding: 12px 14px;
+  font-size: 0.95rem;
+}
+
+#theme-options .th-chip.selected::after {
+  top: 9px;
+  right: 9px;
+  width: 24px;
+  height: 24px;
+  font-size: 0.8rem;
+}
+
+/* Character picker: 10 characters per page, portrait with the name underneath. */
+#character-options {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.avatar-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
   cursor: pointer;
-  border: 2px solid transparent;
-  flex-shrink: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.swatch.selected {
-  border-color: var(--text-primary);
-  box-shadow: 0 0 16px var(--glow);
+.avatar-opt:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
-.swatch[data-theme-option='default'] { background: linear-gradient(135deg, #2dd4bf, #05090a); }
-.swatch[data-theme-option='nature'] { background: linear-gradient(135deg, #4ade80, #06150c); }
-.swatch[data-theme-option='dark'] { background: linear-gradient(135deg, #d1d5db, #0a0a0a); }
-.swatch[data-theme-option='royal'] { background: linear-gradient(135deg, #f4c95d, #0b1024); }
-.swatch[data-theme-option='vampire'] { background: linear-gradient(135deg, #e11d48, #0a0506); }
-.swatch[data-theme-option='cyberpunk'] { background: linear-gradient(135deg, #ff2e9f, #22d3ee); }
+.avatar-opt:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.avatar-opt .avatar {
+  display: block;
+  width: 64px;
+  height: 64px;
+}
+
+.avatar-opt.selected {
+  border-color: var(--border);
+  background: var(--bg-tertiary);
+  color: var(--accent);
+}
+
+.avatar-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* Pager under the theme and character lists. */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pager[hidden] {
+  display: none;
+}
+
+.pg-btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.pg-btn:hover:not(:disabled):not(.active) {
+  color: var(--text-primary);
+  border-color: var(--accent);
+  background: var(--bg-tertiary);
+}
+
+.pg-btn.active {
+  border-color: transparent;
+  background: var(--theme-gradient);
+  color: var(--on-accent);
+  font-weight: 600;
+  box-shadow: 0 0 12px var(--glow);
+}
+
+.pg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pg-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.pg-gap {
+  padding: 0 2px;
+  color: var(--text-secondary);
+}
+
+[data-mode='light'] .pg-btn {
+  color: #3a404c;
+}
+
+@media (max-width: 1150px) {
+  #theme-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #character-options {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  #theme-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #theme-options .th-prev {
+    height: 96px;
+  }
+
+  #character-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Arrows only on phones, so the pager stays on one line. */
+  .pg-word {
+    display: none;
+  }
+}
+
+.st-opts.th-grid {
+  display: grid;
+}
 
 .st-list {
   flex: 1;
@@ -175,5 +361,10 @@
 
   .st-head {
     min-width: 0;
+  }
+
+  /* Use the full card width for the options once the heading sits above them. */
+  .st-opts {
+    align-self: stretch;
   }
 }

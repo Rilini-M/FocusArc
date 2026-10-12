@@ -1,58 +1,56 @@
 /*
   Ambient particle background. Single canvas, requestAnimationFrame loop, no external
   library. Sits behind all UI (pointer-events: none, low z-index) and never intercepts
-  clicks. Each theme gets its own particle "cast" — not just a recolor — so the
-  atmosphere reads as distinct per theme: leaves for the default/nature look, dust for
-  dark, sparkles for royal, embers for vampire, neon sparks for cyberpunk.
+  clicks. Every study theme picks one particle style (leaves, petals, snow, stars, embers, ...)
+  and a density; the particle colors come from that theme's colors in css/themes.css. Densities
+  stay low on purpose — it's a study app, the particles are atmosphere, not decoration.
 */
 
-const FOCUSARC_PARTICLE_THEMES = {
-  default: {
-    glow: 12,
-    mix: [
-      { kind: 'leaf', weight: 0.35, colors: ['#2dd4bf', '#67e8f9'] },
-      { kind: 'dot', weight: 0.45, colors: ['#2dd4bf', '#67e8f9'] },
-      { kind: 'sparkle', weight: 0.2, colors: ['#eafdfb'] },
-    ],
-  },
-  nature: {
-    glow: 10,
-    mix: [
-      { kind: 'leaf', weight: 0.4, colors: ['#4ade80', '#a3e635'] },
-      { kind: 'dot', weight: 0.5, colors: ['#4ade80', '#86efac'] },
-      { kind: 'sparkle', weight: 0.1, colors: ['#edfdf3'] },
-    ],
-  },
-  dark: {
-    glow: 6,
-    mix: [
-      { kind: 'dust', weight: 0.75, colors: ['#d1d5db', '#f9fafb'] },
-      { kind: 'sparkle', weight: 0.25, colors: ['#f9fafb'] },
-    ],
-  },
-  royal: {
-    glow: 13,
-    mix: [
-      { kind: 'sparkle', weight: 0.45, colors: ['#f4c95d', '#5b7cfa'] },
-      { kind: 'dot', weight: 0.55, colors: ['#f4c95d', '#5b7cfa'] },
-    ],
-  },
-  vampire: {
-    glow: 11,
-    mix: [
-      { kind: 'ember', weight: 0.55, colors: ['#e11d48', '#f87171'] },
-      { kind: 'dust', weight: 0.45, colors: ['#f87171', '#b78a8c'] },
-    ],
-  },
-  cyberpunk: {
-    glow: 15,
-    mix: [
-      { kind: 'spark', weight: 0.45, colors: ['#ff2e9f', '#22d3ee'] },
-      { kind: 'dot', weight: 0.35, colors: ['#22d3ee', '#ff2e9f'] },
-      { kind: 'sparkle', weight: 0.2, colors: ['#e879f9', '#22d3ee'] },
-    ],
-  },
+// Particle "casts": which shapes appear and how much they glow.
+const FOCUSARC_PARTICLE_STYLES = {
+  leaf: { glow: 10, mix: [{ kind: 'leaf', weight: 0.4 }, { kind: 'dot', weight: 0.45 }, { kind: 'sparkle', weight: 0.15 }] },
+  sparkle: { glow: 13, mix: [{ kind: 'sparkle', weight: 0.45 }, { kind: 'dot', weight: 0.55 }] },
+  ember: { glow: 11, mix: [{ kind: 'ember', weight: 0.55 }, { kind: 'dust', weight: 0.45 }] },
+  spark: { glow: 15, mix: [{ kind: 'spark', weight: 0.45 }, { kind: 'dot', weight: 0.35 }, { kind: 'sparkle', weight: 0.2 }] },
+  dust: { glow: 6, mix: [{ kind: 'dust', weight: 0.75 }, { kind: 'sparkle', weight: 0.25 }] },
+  dot: { glow: 9, mix: [{ kind: 'dot', weight: 0.7 }, { kind: 'sparkle', weight: 0.3 }] },
+  petal: { glow: 6, mix: [{ kind: 'petal', weight: 0.75 }, { kind: 'dot', weight: 0.25 }] },
+  star: { glow: 8, mix: [{ kind: 'star', weight: 0.8 }, { kind: 'sparkle', weight: 0.2 }] },
+  snow: { glow: 6, mix: [{ kind: 'snow', weight: 0.85 }, { kind: 'sparkle', weight: 0.15 }] },
+  bubble: { glow: 4, mix: [{ kind: 'bubble', weight: 0.6 }, { kind: 'dot', weight: 0.4 }] },
+  firefly: { glow: 14, mix: [{ kind: 'firefly', weight: 0.55 }, { kind: 'leaf', weight: 0.3 }, { kind: 'dust', weight: 0.15 }] },
+  lantern: { glow: 10, mix: [{ kind: 'ember', weight: 0.45 }, { kind: 'petal', weight: 0.55 }] },
 };
+
+// A theme's particle style and density (1 = FocusArc's full count) come with the theme from
+// the database (particleStyle / particleDensity in GET /api/themes). `info` is that theme
+// object; when it isn't passed, it is looked up in the loaded or cached theme list.
+function findParticleTheme(theme) {
+  let catalog = window.FOCUSARC_THEME_CATALOG;
+  if (!catalog) {
+    try {
+      catalog = JSON.parse(localStorage.getItem('focusarc_theme_catalog') || '[]');
+    } catch (err) {
+      catalog = [];
+    }
+  }
+  return catalog.find((t) => t.key === theme) || null;
+}
+
+// The theme's raw colors, read from CSS so colors are defined in one place only.
+function themeParticleConfig(theme, info) {
+  const found = info || findParticleTheme(theme);
+  // Without theme info (nothing loaded yet), use FocusArc's leaves.
+  const styleName = found && FOCUSARC_PARTICLE_STYLES[found.particleStyle] ? found.particleStyle : 'leaf';
+  const density = found && Number.isFinite(found.particleDensity) ? found.particleDensity : 1;
+  const style = FOCUSARC_PARTICLE_STYLES[styleName];
+  const css = getComputedStyle(document.documentElement);
+  const colors = ['--theme-accent', '--theme-accent-2', '--theme-accent-3']
+    .map((name) => css.getPropertyValue(name).trim())
+    .filter(Boolean);
+  if (!colors.length) colors.push('#2dd4bf', '#67e8f9');
+  return { glow: style.glow, density, mix: style.mix.map((entry) => ({ ...entry, colors })) };
+}
 
 (function initFocusArcParticles() {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -106,6 +104,54 @@ const FOCUSARC_PARTICLE_THEMES = {
       phase: Math.random() * Math.PI * 2,
     };
 
+    if (kind === 'petal') {
+      return {
+        ...base,
+        r: 3.5 + Math.random() * 3.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: 0.15 + Math.random() * 0.25,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.025,
+        sway: 0.8 + Math.random() * 1.2,
+      };
+    }
+    if (kind === 'snow') {
+      return {
+        ...base,
+        r: 0.8 + Math.random() * 1.8,
+        vx: (Math.random() - 0.5) * 0.12,
+        vy: 0.12 + Math.random() * 0.3,
+        sway: 0.4 + Math.random() * 0.8,
+      };
+    }
+    if (kind === 'star') {
+      return {
+        ...base,
+        r: 0.5 + Math.random() * 1.4,
+        vx: (Math.random() - 0.5) * 0.02,
+        vy: (Math.random() - 0.5) * 0.02,
+        twinkleSpeed: 0.008 + Math.random() * 0.025,
+      };
+    }
+    if (kind === 'bubble') {
+      return {
+        ...base,
+        r: 2 + Math.random() * 4,
+        alpha: 0.2 + Math.random() * 0.3,
+        vx: 0,
+        vy: -0.12 - Math.random() * 0.28,
+        sway: 0.5 + Math.random() * 0.8,
+      };
+    }
+    if (kind === 'firefly') {
+      return {
+        ...base,
+        r: 1.3 + Math.random() * 1.2,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: (Math.random() - 0.5) * 0.15,
+        flickerSpeed: 0.015 + Math.random() * 0.025,
+      };
+    }
     if (kind === 'leaf') {
       return {
         ...base,
@@ -162,7 +208,7 @@ const FOCUSARC_PARTICLE_THEMES = {
   }
 
   function spawnParticles(config) {
-    const count = baseCount();
+    const count = Math.round(baseCount() * config.density);
     particles = Array.from({ length: count }, () => spawnOne(pickWeighted(config.mix), config));
   }
 
@@ -231,6 +277,45 @@ const FOCUSARC_PARTICLE_THEMES = {
     ctx.restore();
   }
 
+  function drawPetal(p) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rotation);
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = p.glow;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, p.r * 0.55, p.r, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Stars and fireflies: a soft pulse in brightness instead of movement.
+  function drawPulse(p, speed, min) {
+    const pulse = min + (1 - min) * Math.abs(Math.sin(clock * speed + p.phase));
+    ctx.save();
+    ctx.globalAlpha = p.alpha * pulse;
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = p.glow * pulse;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawBubble(p) {
+    ctx.save();
+    ctx.strokeStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = p.glow;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
   function drawSpark(p) {
     ctx.save();
     ctx.translate(p.x, p.y);
@@ -249,6 +334,10 @@ const FOCUSARC_PARTICLE_THEMES = {
   function draw(p) {
     ctx.globalAlpha = p.alpha;
     if (p.kind === 'leaf') drawLeaf(p);
+    else if (p.kind === 'petal') drawPetal(p);
+    else if (p.kind === 'star') drawPulse(p, p.twinkleSpeed, 0.25);
+    else if (p.kind === 'firefly') drawPulse(p, p.flickerSpeed, 0.1);
+    else if (p.kind === 'bubble') drawBubble(p);
     else if (p.kind === 'sparkle') drawSparkle(p);
     else if (p.kind === 'ember') drawEmber(p);
     else if (p.kind === 'spark') drawSpark(p);
@@ -260,10 +349,16 @@ const FOCUSARC_PARTICLE_THEMES = {
     ctx.clearRect(0, 0, width, height);
 
     particles.forEach((p) => {
-      // Leaves sway and spin as they fall; every other kind drifts in a straight line.
-      if (p.kind === 'leaf') {
+      // Leaves and petals sway and spin as they fall, snow and bubbles sway, fireflies wander;
+      // every other kind drifts in a straight line.
+      if (p.kind === 'leaf' || p.kind === 'petal') {
         p.x += p.vx + Math.sin(clock * 0.01 + p.phase) * p.sway * 0.05;
         p.rotation += p.rotationSpeed;
+      } else if (p.kind === 'snow' || p.kind === 'bubble') {
+        p.x += p.vx + Math.sin(clock * 0.012 + p.phase) * p.sway * 0.08;
+      } else if (p.kind === 'firefly') {
+        p.x += p.vx + Math.sin(clock * 0.006 + p.phase) * 0.15;
+        p.y += Math.cos(clock * 0.005 + p.phase) * 0.1;
       } else {
         p.x += p.vx;
       }
@@ -276,9 +371,8 @@ const FOCUSARC_PARTICLE_THEMES = {
     requestAnimationFrame(step);
   }
 
-  function setTheme(theme) {
-    const config = FOCUSARC_PARTICLE_THEMES[theme] || FOCUSARC_PARTICLE_THEMES.default;
-    spawnParticles(config);
+  function setTheme(theme, info) {
+    spawnParticles(themeParticleConfig(theme, info));
   }
 
   resize();

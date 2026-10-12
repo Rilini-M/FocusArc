@@ -1,26 +1,32 @@
 /*
   Early theme init — must load synchronously in <head>, before <body> paints. Reads the
-  last-confirmed theme from localStorage (written by applyTheme() in theme.js, the single
-  place that ever sets data-theme) and applies it immediately, so the page never paints the
-  default theme first and then swaps. This is a read-only fast cache, not a second theme
-  system: the server (`/settings`) stays the source of truth, and theme.js's normal
-  loadAndApplyTheme() still runs afterward to confirm/correct it.
+  last-confirmed study theme, Light/Dark mode and theme colors from localStorage (written by
+  theme.js) and applies them immediately, so the page never paints the default look first and
+  then swaps. This is only a fast cache: the server (`/settings`, `/themes`) stays the source of
+  truth, and theme.js's loadAndApplyTheme() confirms/corrects it.
 */
 (function () {
-  var THEMES = ['default', 'nature', 'dark', 'royal', 'vampire', 'cyberpunk'];
   try {
-    var saved = localStorage.getItem('focusarc_theme');
-    if (saved && THEMES.indexOf(saved) !== -1) {
-      document.documentElement.setAttribute('data-theme', saved);
+    var theme = localStorage.getItem('focusarc_theme');
+    // Unknown names simply fall back to the default colors in themes.css.
+    if (theme && /^[a-z0-9-]{1,40}$/.test(theme)) {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
 
-      // Start downloading this theme's background now (themes.css has already loaded —
-      // this script sits after it), so the image is ready when <body> first paints.
-      var bg = getComputedStyle(document.documentElement).getPropertyValue('--theme-bg-image');
-      var match = /url\(\s*['"]?([^'")]+)['"]?\s*\)/.exec(bg);
-      if (match) new Image().src = match[1];
+    var mode = localStorage.getItem('focusarc_mode');
+    if (mode === 'light' || mode === 'dark') {
+      document.documentElement.setAttribute('data-mode', mode);
+    }
+
+    // The study themes' colors as CSS (built by theme.js from GET /api/themes).
+    var css = localStorage.getItem('focusarc_theme_css');
+    if (css) {
+      var style = document.createElement('style');
+      style.id = 'focusarc-theme-catalog';
+      style.textContent = css;
+      document.head.appendChild(style);
     }
   } catch (err) {
-    // localStorage unavailable (private browsing, etc.) — first paint just falls back to
-    // the default theme already on the <html> tag.
+    // localStorage unavailable (private browsing, etc.) — first paint uses Dark + default theme.
   }
 })();
