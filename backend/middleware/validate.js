@@ -11,6 +11,23 @@ const QUEST_DESCRIPTION_MAX = 99;
 // Time Required, in whole minutes (up to 24 hours).
 const QUEST_TIME_MIN = 1;
 const QUEST_TIME_MAX = 1440;
+// Deadlines travel as UTC instants (the browser converts the user's local time):
+// "2026-10-10T14:15:00.000Z", as made by Date.prototype.toISOString(). Seconds optional.
+const DEADLINE_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?Z$/;
+
+// A real calendar date and time ("2026-02-30T10:00:00Z" is rejected).
+function isValidDeadline(value) {
+  const match = DEADLINE_RE.exec(value);
+  if (!match) return false;
+  const [y, mo, d, h, mi] = match.slice(1, 6).map(Number);
+  const s = Number(match[6] || 0);
+  const date = new Date(Date.UTC(y, mo - 1, d, h, mi, s));
+  return (
+    y >= 2000 && y <= 2100 &&
+    date.getUTCFullYear() === y && date.getUTCMonth() === mo - 1 && date.getUTCDate() === d &&
+    date.getUTCHours() === h && date.getUTCMinutes() === mi && date.getUTCSeconds() === s
+  );
+}
 
 // Username and email checks (kept identical in backend/middleware/validate.js and frontend/js/auth.js).
 // A username is a name: 2–50 letters A–Z only (50 matches the users table column).
@@ -97,7 +114,7 @@ function validateLogin(req, res, next) {
 
 // Create/edit quest. Runs after the upload parser, so multipart fields arrive as strings.
 function validateQuest(req, res, next) {
-  const { title, description, timeRequired } = req.body;
+  const { title, description, timeRequired, deadline, characterId } = req.body;
 
   if (typeof title !== 'string' || !title.trim()) {
     return failure(res, 'Quest title is required.');
@@ -115,7 +132,26 @@ function validateQuest(req, res, next) {
   if (!/^\d+$/.test(minutes) || Number(minutes) < QUEST_TIME_MIN || Number(minutes) > QUEST_TIME_MAX) {
     return failure(res, `Time required must be a whole number of minutes from ${QUEST_TIME_MIN} to ${QUEST_TIME_MAX}.`);
   }
+  // Not sent or empty: no deadline.
+  if (deadline !== undefined && String(deadline).trim() !== '' && !isValidDeadline(String(deadline).trim())) {
+    return failure(res, 'Deadline must be a valid date and time.');
+  }
+  // Not sent or empty: the quest uses the character from Settings. Whether the character
+  // exists is checked against the database.
+  if (characterId !== undefined && String(characterId).trim() !== '' && !/^[1-9]\d{0,9}$/.test(String(characterId).trim())) {
+    return failure(res, 'Invalid character.');
+  }
 
+  return next();
+}
+
+// Extend Deadline: the new deadline is required. Whether it is later than the current one and
+// in the future is checked against the quest in the controller.
+function validateDeadlineExtension(req, res, next) {
+  const { deadline } = req.body || {};
+  if (typeof deadline !== 'string' || !isValidDeadline(deadline.trim())) {
+    return failure(res, 'Choose a valid new deadline.');
+  }
   return next();
 }
 
@@ -145,6 +181,7 @@ module.exports = {
   validateLogin,
   validateProfile,
   validateQuest,
+  validateDeadlineExtension,
   validateTheme,
   validateAppearance,
 };

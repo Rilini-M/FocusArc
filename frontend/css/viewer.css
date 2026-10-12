@@ -1,0 +1,302 @@
+/*
+  File viewer (viewer.html). Builds on study.css (fx-shell, fx-top, fx-brand, fx-back,
+  fx-kicker). Theme colors only, so it follows every study theme in Light and Dark mode.
+  The glow and theme styling stay on the frame around the document; nothing is drawn over the
+  document itself.
+*/
+
+.vw-shell {
+  padding-bottom: 28px;
+}
+
+.vw-top-acts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.vw-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 16px -6px var(--glow);
+}
+
+.vw-timer[hidden],
+.vw-zoom[hidden],
+.fx-back[hidden] {
+  display: none;
+}
+
+.vw-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  align-items: start;
+  gap: 22px;
+  padding-top: 22px;
+}
+
+/* No side panel (no companion, no other files): the document takes the full width. */
+.vw-main:has(.vw-side[hidden]) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* ---- Document panel */
+
+.vw-doc {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: var(--card-frame), 0 0 60px -26px var(--glow);
+}
+
+.vw-doc-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.vw-file-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  color: var(--accent);
+}
+
+.vw-file-icon:empty {
+  display: none;
+}
+
+.vw-doc-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.vw-quest {
+  margin: 0 0 4px;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.vw-quest:empty {
+  display: none;
+}
+
+.vw-file-name {
+  margin: 0;
+  /* A file name, not a heading: body font, as typed. */
+  font-family: inherit;
+  letter-spacing: 0;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.vw-meta {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.vw-zoom {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  font-size: 0.84rem;
+}
+
+/* The document area: a plain, calm backdrop so the file stays fully readable. */
+.vw-stage {
+  position: relative;
+  height: calc(100vh - 190px);
+  height: calc(100dvh - 190px);
+  min-height: 460px;
+  background: color-mix(in srgb, var(--bg-primary) 85%, #000);
+}
+
+.vw-pdf {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.vw-image-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+}
+
+.vw-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px -10px rgba(0, 0, 0, 0.6);
+  cursor: zoom-in;
+}
+
+/* Actual size: the stage scrolls; small images stay centred. */
+.vw-stage.actual-size {
+  overflow: auto;
+}
+
+.vw-stage.actual-size .vw-image-wrap {
+  width: max-content;
+  height: auto;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.vw-stage.actual-size .vw-image {
+  max-width: none;
+  max-height: none;
+  cursor: zoom-out;
+}
+
+.vw-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.vw-empty p {
+  margin: 0;
+}
+
+/* ---- Side panel: the quest's companion and its other files */
+
+.vw-side {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 22px 20px;
+}
+
+.vw-companion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.vw-companion[hidden],
+.vw-side[hidden] {
+  display: none;
+}
+
+.vw-char-img {
+  width: 100%;
+  max-width: 190px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 2px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  border-radius: 20px;
+  box-shadow: 0 0 28px -8px var(--glow);
+}
+
+.vw-char-img.broken {
+  display: none;
+}
+
+.vw-char-quote {
+  margin: 0;
+  font-size: 0.92rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.vw-char-quote .qt-author {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.vw-files:empty {
+  display: none;
+}
+
+.vw-companion:not([hidden]) + .vw-files:not(:empty) {
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- Narrow screens: the companion becomes a compact strip above the document. */
+
+@media (max-width: 900px) {
+  .vw-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vw-side {
+    position: static;
+    order: -1;
+    padding: 14px 16px;
+  }
+
+  .vw-companion {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .vw-char-img {
+    width: 64px;
+    max-width: 64px;
+    border-radius: 50%;
+  }
+
+  .vw-stage {
+    height: 75vh;
+    height: 75dvh;
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 600px) {
+  .fx-top {
+    flex-wrap: wrap;
+  }
+
+  .vw-doc-head {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+  }
+}

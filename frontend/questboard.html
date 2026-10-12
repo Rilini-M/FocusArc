@@ -32,13 +32,22 @@
           <h2>Your Quests</h2>
           <span class="q-badge"><strong id="quest-count">—</strong> / 10 quests</span>
         </div>
+        <!-- Active quests and Missing ones (unfinished, deadline passed). -->
+        <div class="q-tabs" role="tablist" aria-label="Quest sections">
+          <button type="button" class="q-tab active" role="tab" id="tab-active" data-view="active" aria-selected="true" aria-controls="quest-list">
+            Active <span class="q-tab-count" id="active-count">0</span>
+          </button>
+          <button type="button" class="q-tab" role="tab" id="tab-missing" data-view="missing" aria-selected="false" aria-controls="quest-list">
+            <i data-lucide="alarm-clock-off" style="width:15px;height:15px;"></i> Missing <span class="q-tab-count" id="missing-count">0</span>
+          </button>
+        </div>
         <button class="btn btn-p" id="add-quest-btn">
           <i data-lucide="plus" style="width:16px;height:16px;"></i>
           Create Quest
         </button>
       </div>
 
-      <div class="q-list" id="quest-list"></div>
+      <div class="q-list" id="quest-list" role="tabpanel" aria-labelledby="tab-active"></div>
     </main>
   </div>
 
@@ -70,7 +79,7 @@
         <p class="q-hint">PDF, images, text or Office files, up to 10 MB each.</p>
         <p class="f-err" id="file-error" hidden></p>
 
-        <label class="q-label" for="quest-time">Time Required</label>
+        <label class="q-label" for="quest-time">Estimated Completion Time</label>
         <div class="q-time">
           <div class="field q-time-field">
             <input type="number" id="quest-time" name="timeRequired" min="1" max="1440" step="1" inputmode="numeric" placeholder="60" required />
@@ -85,11 +94,56 @@
         </div>
         <p class="f-err" id="timeRequired-error" hidden></p>
 
+        <label class="q-label" for="quest-deadline">Deadline <span class="q-optional">(optional)</span></label>
+        <div class="field q-deadline-field">
+          <input type="datetime-local" id="quest-deadline" name="deadline" />
+        </div>
+        <p class="f-err" id="deadline-error" hidden></p>
+
+        <label class="q-label" for="quest-character">Companion <span class="q-optional">(shown while you study this quest)</span></label>
+        <div class="field q-character-field">
+          <img class="q-character-preview" id="quest-character-preview" alt="" hidden />
+          <select id="quest-character" name="characterId">
+            <option value="">My companion (from Settings)</option>
+          </select>
+        </div>
+
         <div class="m-acts">
           <button type="button" class="btn btn-s" id="quest-modal-cancel">Cancel</button>
           <button type="submit" class="btn btn-p" id="quest-modal-submit">Create Quest</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Extend Deadline: pick a new deadline, then confirm it. -->
+  <div class="m-bg" id="extend-modal-backdrop">
+    <div class="modal x-modal" role="dialog" aria-modal="true" aria-labelledby="extend-modal-title">
+      <h2 id="extend-modal-title">Extend Deadline</h2>
+      <p class="x-quest" id="extend-quest-title"></p>
+
+      <form id="extend-form" novalidate>
+        <p class="x-current">Current deadline: <strong id="extend-current"></strong></p>
+        <label class="q-label" for="extend-deadline">New deadline</label>
+        <div class="field q-deadline-field">
+          <input type="datetime-local" id="extend-deadline" name="deadline" required />
+        </div>
+        <p class="f-err" id="extend-error" role="alert" hidden></p>
+        <div class="m-acts">
+          <button type="button" class="btn btn-s" data-extend-cancel>Cancel</button>
+          <button type="submit" class="btn btn-p">Continue</button>
+        </div>
+      </form>
+
+      <div class="x-confirm" id="extend-confirm-step" hidden>
+        <p>Move the deadline from <strong id="extend-from"></strong> to <strong id="extend-to"></strong>?</p>
+        <p class="x-note" id="extend-note" hidden><i data-lucide="undo-2" style="width:15px;height:15px;"></i> This quest will leave Missing and return to your active quests.</p>
+        <p class="f-err" id="extend-save-error" role="alert" hidden></p>
+        <div class="m-acts">
+          <button type="button" class="btn btn-s" id="extend-back">Back</button>
+          <button type="button" class="btn btn-p" id="extend-confirm">Confirm</button>
+        </div>
+      </div>
     </div>
   </div>
 

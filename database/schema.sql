@@ -36,11 +36,17 @@ CREATE TABLE quests (
   description  TEXT         NOT NULL,
   -- Minutes the student expects the quest to take.
   time_required SMALLINT UNSIGNED NOT NULL DEFAULT 60,
+  -- Optional date and time the quest must be finished by, in UTC (see 008 and 010 migrations).
+  -- An unfinished quest whose deadline has passed is Missing (worked out, never stored).
+  deadline     DATETIME NULL COMMENT 'UTC',
+  -- Optional companion for this quest's study page; NULL = the character from Settings (009).
+  character_id INT NULL,
   -- Set by the server from study sessions (not shown on the Quest Board); used by Analytics.
   status       ENUM('TODO', 'IN_PROGRESS', 'COMPLETED') NOT NULL DEFAULT 'TODO',
   created_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_quests_character FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE SET NULL
 );
 
 -- Up to 5 files per quest (enforced by the server). Files are stored on disk under uploads/;

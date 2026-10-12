@@ -1,7 +1,7 @@
 const express = require('express');
 const controller = require('../controllers/quests.controller');
 const { authenticate } = require('../middleware/auth.middleware');
-const { validateQuest } = require('../middleware/validate');
+const { validateQuest, validateDeadlineExtension } = require('../middleware/validate');
 const { questUpload } = require('../services/questFiles.service');
 
 const router = express.Router();
@@ -13,6 +13,7 @@ router.use(authenticate);
 router.get('/', controller.list);
 router.post('/', questUpload, validateQuest, controller.create);
 router.put('/:id', questUpload, validateQuest, controller.update);
+router.patch('/:id/deadline', validateDeadlineExtension, controller.extendDeadline);
 router.get('/:id/attachments/:attachmentId', controller.attachment);
 router.delete('/:id', controller.remove);
 
