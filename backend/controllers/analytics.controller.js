@@ -19,4 +19,13 @@ async function questProgress(req, res, next) {
   }
 }
 
-module.exports = { overview, questProgress };
+// GET /api/analytics/sessions — the caller's own study sessions (see getSessions).
+async function sessions(req, res, next) {
+  try {
+    return success(res, await analyticsService.getSessions(req.user.id));
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = { overview, questProgress, sessions };

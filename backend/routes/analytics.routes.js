@@ -8,5 +8,6 @@ router.use(authenticate);
 
 router.get('/overview', controller.overview);
 router.get('/quest-progress', controller.questProgress);
+router.get('/sessions', controller.sessions);
 
 module.exports = router;
